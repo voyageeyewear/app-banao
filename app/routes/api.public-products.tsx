@@ -1,5 +1,6 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import db from "../db.server";
+import { authenticate } from "../shopify.server";
 
 // Helper function to add CORS headers for mobile app access
 function addCorsHeaders(response: Response) {
@@ -118,7 +119,98 @@ const mockCollections = [
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
+    const url = new URL(request.url);
+    const refresh = url.searchParams.get('refresh');
+    
     console.log("Fetching products for mobile app...");
+
+    // If refresh=true, try to cache real products first
+    if (refresh === 'true') {
+      try {
+        console.log("Refresh requested, trying to cache real Shopify products...");
+        const { admin } = await authenticate.admin(request);
+        
+        // Fetch products using admin API
+        const productsResponse = await admin.graphql(`
+          query {
+            products(first: 50) {
+              edges {
+                node {
+                  id
+                  title
+                  description
+                  handle
+                  totalInventory
+                  images(first: 5) { edges { node { url } } }
+                  variants(first: 5) { 
+                    edges { 
+                      node { 
+                        id
+                        title
+                        price 
+                      } 
+                    } 
+                  }
+                }
+              }
+            }
+          }
+        `);
+        
+        const productsData = await productsResponse.json() as any;
+        
+        if (productsData.data && productsData.data.products) {
+          const realProducts = productsData.data.products.edges.map((edge: any) => {
+            const node = edge.node;
+            return {
+              id: node.id,
+              title: node.title,
+              description: node.description || "No description available",
+              handle: node.handle,
+              image: node.images.edges[0]?.node.url || null,
+              images: node.images.edges.map((img: any) => img.node.url),
+              price: node.variants.edges[0]?.node.price || "0.00",
+              variants: node.variants.edges.map((v: any) => ({
+                id: v.node.id,
+                title: v.node.title,
+                price: v.node.price,
+                available: true
+              })),
+            };
+          });
+          
+          // Cache the real products
+          await db.template.upsert({
+            where: { id: 'mobile-app-products' },
+            update: {
+              name: 'Mobile App Products Cache',
+              data: JSON.stringify({ products: realProducts, timestamp: new Date().toISOString() }),
+              designType: 'CACHE'
+            },
+            create: {
+              id: 'mobile-app-products',
+              name: 'Mobile App Products Cache',
+              data: JSON.stringify({ products: realProducts, timestamp: new Date().toISOString() }),
+              designType: 'CACHE'
+            }
+          });
+          
+          console.log(`✅ Cached ${realProducts.length} real Shopify products`);
+          
+          const response = json({ 
+            products: realProducts, 
+            collections: mockCollections,
+            success: true,
+            source: "shopify-real-cached",
+            message: `Successfully cached ${realProducts.length} real Shopify products!`
+          });
+          
+          return addCorsHeaders(response);
+        }
+      } catch (authError) {
+        console.log("Authentication failed, falling back to cached/mock data");
+      }
+    }
 
     // Try to get cached products from database first
     let products = mockProducts;
@@ -160,7 +252,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       collections,
       success: true,
       source,
-      message: "Using enhanced mock data for Voyage Eyewear store. Connect your Shopify Storefront API for real products."
+      message: source === "shopify-cached" ? 
+        `Showing ${products.length} real Shopify products` : 
+        "Using enhanced mock data for Voyage Eyewear store. Visit your admin and add '?refresh=true' to cache real products."
     });
     
     return addCorsHeaders(response);
