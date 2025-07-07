@@ -1,10 +1,18 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.example.app',
-  appName: 'app-banao',
+  appId: 'com.appbanao.builder',
+  appName: 'App Banao',
   webDir: 'build/client',
-  bundledWebRuntime: false
+  server: {
+    androidScheme: 'https',
+    iosScheme: 'https'
+  },
+  plugins: {
+    CapacitorHttp: {
+      enabled: true
+    }
+  }
 };
 
 export default config;

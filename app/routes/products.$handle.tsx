@@ -2,7 +2,7 @@ import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import { loader as shopifyDataLoader } from "./api.shopify-data";
-import { pdpStatus } from "./api.pdp.status";
+import db from "../db.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   // Try to authenticate, but don't require it for preview purposes
@@ -49,14 +49,27 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     ];
   }
   
+  // Get PDP config from database
+  let pdpConfig = { active: false, designData: [] };
+  try {
+    const dbPdpConfig = await db.pdpConfig.findFirst({
+      where: { id: 1 }
+    });
+    if (dbPdpConfig) {
+      pdpConfig = {
+        active: dbPdpConfig.active,
+        designData: dbPdpConfig.designData as any
+      };
+    }
+  } catch (error) {
+    console.error("Error loading PDP config:", error);
+  }
+  
   return json({
     product: products[0],
     products: products,
     collections: collections,
-    pdpConfig: {
-      active: pdpStatus.active,
-      designData: pdpStatus.designData
-    }
+    pdpConfig: pdpConfig
   });
 };
 
@@ -85,6 +98,22 @@ export default function ProductPage() {
   if (!pdpConfig.active || !pdpConfig.designData || pdpConfig.designData.length === 0) {
     return (
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: 20 }}>
+        {/* Status indicator */}
+        <div style={{ 
+          background: '#f44336', 
+          color: 'white', 
+          padding: '12px 16px', 
+          borderRadius: '8px', 
+          marginBottom: '20px',
+          fontSize: '14px',
+          fontWeight: '600'
+        }}>
+          ⚠️ Custom PDP Not Active - Showing Default View
+          <div style={{ fontSize: '12px', marginTop: '4px', fontWeight: 'normal' }}>
+            {!pdpConfig.active ? 'PDP is not activated' : 'No PDP components found'} - 
+            Go to the builder and activate your PDP design
+          </div>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'start' }}>
           {/* Product Image */}
           <div>
@@ -163,13 +192,27 @@ export default function ProductPage() {
       <div style={{ 
         background: isPreviewMode ? '#ff9800' : '#4caf50', 
         color: 'white', 
-        padding: '8px 16px', 
-        borderRadius: '4px', 
-        marginBottom: '16px',
+        padding: '12px 16px', 
+        borderRadius: '8px', 
+        marginBottom: '20px',
         fontSize: '14px',
         fontWeight: '600'
       }}>
-        {isPreviewMode ? '🔄 Preview Mode - Mock Data' : '✅ Custom PDP Design Active - Template: PDP1'}
+        {isPreviewMode ? (
+          <>
+            🔄 Preview Mode - Using Mock Data
+            <div style={{ fontSize: '12px', marginTop: '4px', fontWeight: 'normal' }}>
+              No Shopify authentication - This is a preview with sample product data
+            </div>
+          </>
+        ) : (
+          <>
+            ✅ Custom PDP Design Active
+            <div style={{ fontSize: '12px', marginTop: '4px', fontWeight: 'normal' }}>
+              Components: {pdpConfig.designData?.length || 0} | Product: {product.title}
+            </div>
+          </>
+        )}
       </div>
       
       <CustomProductPage 

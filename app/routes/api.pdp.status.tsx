@@ -1,21 +1,21 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
-
-// Shared in-memory storage for testing (accessible by other routes)
-export let pdpStatus = {
-  active: false,
-  designData: []
-};
+import db from "../db.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
   
   try {
-    console.log("Loading PDP status:", pdpStatus);
+    // Get PDP config from database
+    const pdpConfig = await db.pdpConfig.findFirst({
+      where: { id: 1 }
+    });
+    
+    console.log("Loading PDP status from database:", pdpConfig);
     
     return json({
-      active: pdpStatus.active,
-      designData: pdpStatus.designData
+      active: pdpConfig?.active || false,
+      designData: pdpConfig?.designData || []
     });
   } catch (error) {
     console.error("Error loading PDP status:", error);
@@ -38,18 +38,26 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const { active, designData } = await request.json();
     console.log("Updating PDP status:", { active, designDataLength: designData?.length });
     
-    // Update the shared in-memory status
-    pdpStatus = {
-      active: Boolean(active),
-      designData: designData || []
-    };
+    // Update or create PDP config in database
+    const updatedConfig = await db.pdpConfig.upsert({
+      where: { id: 1 },
+      update: {
+        active: Boolean(active),
+        designData: designData || []
+      },
+      create: {
+        id: 1,
+        active: Boolean(active),
+        designData: designData || []
+      }
+    });
     
-    console.log("PDP status updated successfully:", pdpStatus);
+    console.log("PDP status updated successfully:", updatedConfig);
     
     return json({ 
       success: true, 
-      active: pdpStatus.active,
-      message: `PDP design ${pdpStatus.active ? 'activated' : 'deactivated'} successfully`
+      active: updatedConfig.active,
+      message: `PDP design ${updatedConfig.active ? 'activated' : 'deactivated'} successfully`
     });
   } catch (error) {
     console.error("Error updating PDP status:", error);

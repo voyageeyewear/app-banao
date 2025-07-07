@@ -1032,6 +1032,7 @@ export default function Builder() {
   const [cart, setCart] = useState<ShopifyCart | null>(null);
   const [showCart, setShowCart] = useState(false);
   const [cartLoading, setCartLoading] = useState(false);
+  const [loadedTemplateName, setLoadedTemplateName] = useState<string>('');
   
   // Get current items based on design type
   const currentItems = designType === 'homepage' ? homepageItems : pdpItems;
@@ -1095,7 +1096,7 @@ export default function Builder() {
 
   // Save current layout to backend
   const handleSave = async () => {
-    const name = nameRef.current?.value?.trim() || "Untitled";
+    const name = loadedTemplateName.trim() || "Untitled";
     
     // Validate template name
     if (!name || name.length === 0) {
@@ -1122,9 +1123,7 @@ export default function Builder() {
       if (res.ok) {
         setSaveStatus(data.message || "Saved!");
         // Clear the name input after successful save
-        if (nameRef.current) {
-          nameRef.current.value = "";
-        }
+        setLoadedTemplateName("");
       } else {
         setSaveStatus(data.error || "Failed to save");
       }
@@ -1153,8 +1152,11 @@ export default function Builder() {
         
         setTemplates(validTemplates);
         
+        const filteredTemplates = validTemplates.filter((t: any) => t.designType === designType);
         if (validTemplates.length === 0) {
           setLoadStatus("No templates found. Create and save a template first.");
+        } else if (filteredTemplates.length === 0) {
+          setLoadStatus(`No ${designType === 'homepage' ? 'Homepage' : 'PDP'} templates found. Try switching design type or create a new template.`);
         }
       } else {
         setLoadStatus(data.error || "Failed to load templates");
@@ -1178,6 +1180,11 @@ export default function Builder() {
         } else {
           setHomepageItems(data.data);
           setDesignType('homepage');
+        }
+        // Set the loaded template name
+        setLoadedTemplateName(data.name || '');
+        if (nameRef.current) {
+          nameRef.current.value = data.name || '';
         }
         setShowLoadModal(false);
       } else {
@@ -1215,6 +1222,7 @@ export default function Builder() {
   const handleDesignTypeChange = (newDesignType: 'homepage' | 'pdp') => {
     setDesignType(newDesignType);
     setSelectedId(null); // Clear selection when switching
+    setLoadedTemplateName(""); // Clear loaded template name when switching design types
   };
 
   // Toggle PDP active status
@@ -1223,10 +1231,11 @@ export default function Builder() {
     
     // If activating and no PDP design exists, show a message
     if (newStatus && pdpItems.length === 0) {
-      alert("Please add some components to your Product Detail Page design before activating it.");
+      setSaveStatus("Please add some components to your Product Detail Page design before activating it.");
       return;
     }
     
+    setSaveStatus("Updating PDP status...");
     setPdpActive(newStatus);
     
     try {
@@ -1239,18 +1248,23 @@ export default function Builder() {
         }),
       });
       
+      const data = await res.json();
+      
       if (!res.ok) {
         // Revert if failed
         setPdpActive(!newStatus);
-        console.error("Failed to update PDP status");
+        setSaveStatus(`Failed to update PDP status: ${data.error || 'Unknown error'}`);
+        console.error("Failed to update PDP status:", data);
       } else {
         // Show success message
-        const data = await res.json();
-        console.log(data.message);
+        setSaveStatus(data.message || `PDP design ${newStatus ? 'activated' : 'deactivated'} successfully`);
+        setTimeout(() => setSaveStatus(null), 3000); // Clear message after 3 seconds
+        console.log("PDP status updated:", data);
       }
     } catch (err) {
       // Revert if failed
       setPdpActive(!newStatus);
+      setSaveStatus("Network error while updating PDP status");
       console.error("Error updating PDP status:", err);
     }
   };
@@ -1445,50 +1459,118 @@ export default function Builder() {
                 {pdpActive ? 'Active' : 'Inactive'}
               </button>
               {pdpActive && products.length > 0 && (
-                <a 
-                  href={`/products/${products[0].handle}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  style={{ 
-                    padding: '6px 12px', 
-                    borderRadius: 6, 
-                    background: '#1976d2', 
-                    color: '#fff', 
-                    border: 'none', 
-                    fontWeight: 600, 
-                    cursor: 'pointer',
-                    fontSize: 12,
-                    textDecoration: 'none'
-                  }}
-                >
-                  Test PDP
-                </a>
-              )}
-            </div>
-          )}
-          <input ref={nameRef} type="text" placeholder="Template name" style={{ padding: 6, borderRadius: 6, border: '1px solid #ccc', minWidth: 120, flex: 1 }} />
+                <>
+                  <a 
+                    href={`/products/${products[0].handle || 'sample-product'}?title=${encodeURIComponent(products[0].title || 'Sample Product')}&price=${products[0].price || '29.99'}&image=${encodeURIComponent(products[0].image || '')}&description=${encodeURIComponent(products[0].description || 'Product description')}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ 
+                      padding: '6px 12px', 
+                      borderRadius: 6, 
+                      background: '#1976d2', 
+                      color: '#fff', 
+                      border: 'none', 
+                      fontWeight: 600, 
+                      cursor: 'pointer',
+                      fontSize: 12,
+                      textDecoration: 'none',
+                      marginRight: 8
+                    }}
+                  >
+                    Test PDP
+                  </a>
+                  <button
+                    onClick={() => alert(`🎉 Your PDP is ACTIVE! (${pdpItems.length} components)\n\n✅ How to test:\n1. Click "Test PDP" button → Opens your custom design\n2. Status indicator will show "Custom PDP Design Active"\n\n⚠️ Important:\n• Your custom PDP only works in the APP\n• Regular store URLs show the default theme\n• App URLs show your custom design\n\n🔍 If seeing default view:\n• Make sure PDP status shows "Active" (green)\n• Check you have components in your design\n• Use the "Test PDP" button, not store URLs`)}
+                    style={{ 
+                      padding: '6px 12px', 
+                      borderRadius: 6, 
+                      background: '#ff9800', 
+                      color: '#fff', 
+                      border: 'none', 
+                      fontWeight: 600, 
+                      cursor: 'pointer',
+                      fontSize: 12
+                    }}
+                  >
+                    ℹ️ How to Test
+                  </button>
+                                  </>
+                )}
+                {!pdpActive && pdpItems.length > 0 && (
+                  <span style={{ 
+                    fontSize: 12, 
+                    color: '#f44336', 
+                    background: '#ffebee', 
+                    padding: '4px 8px', 
+                    borderRadius: 4, 
+                    fontWeight: 600 
+                  }}>
+                    ⚠️ PDP Inactive - Click "Inactive" to activate
+                  </span>
+                )}
+                {!pdpActive && pdpItems.length === 0 && (
+                  <span style={{ 
+                    fontSize: 12, 
+                    color: '#666', 
+                    background: '#f5f5f5', 
+                    padding: '4px 8px', 
+                    borderRadius: 4, 
+                    fontWeight: 600 
+                  }}>
+                    📝 Add PDP components first, then activate
+                  </span>
+                )}
+              </div>
+            )}
+          <input 
+            ref={nameRef} 
+            type="text" 
+            placeholder={`${designType === 'homepage' ? 'Homepage' : 'PDP'} template name`}
+            value={loadedTemplateName}
+            onChange={(e) => setLoadedTemplateName(e.target.value)}
+            style={{ padding: 6, borderRadius: 6, border: '1px solid #ccc', minWidth: 120, flex: 1 }} 
+          />
           <button onClick={handleSave} style={{ padding: '8px 18px', borderRadius: 6, background: '#1976d2', color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer' }}>Save</button>
           <button onClick={() => { setShowLoadModal(true); fetchTemplates(); }} style={{ padding: '8px 18px', borderRadius: 6, background: '#fff', color: '#1976d2', border: '1px solid #1976d2', fontWeight: 600, cursor: 'pointer' }}>Load</button>
-          {saveStatus && <span style={{ marginLeft: 8, color: saveStatus === 'Saved!' ? 'green' : 'red', fontSize: 14 }}>{saveStatus}</span>}
+          <button onClick={() => { setCurrentItems([]); setLoadedTemplateName(""); setSelectedId(null); }} style={{ padding: '8px 18px', borderRadius: 6, background: '#fff', color: '#f44336', border: '1px solid #f44336', fontWeight: 600, cursor: 'pointer' }}>Clear</button>
+          {loadedTemplateName && (
+            <span style={{ 
+              fontSize: 12, 
+              color: '#4caf50', 
+              background: '#e8f5e8', 
+              padding: '4px 8px', 
+              borderRadius: 4, 
+              fontWeight: 600 
+            }}>
+              ✓ {designType === 'homepage' ? 'Homepage' : 'PDP'} Template Loaded
+            </span>
+          )}
+          {saveStatus && <span style={{ marginLeft: 8, color: saveStatus.includes('success') || saveStatus === 'Saved!' ? 'green' : 'red', fontSize: 14 }}>{saveStatus}</span>}
         </div>
         {/* Load Modal */}
         {showLoadModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.18)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ background: '#fff', borderRadius: 12, padding: 32, minWidth: 400, maxWidth: 500, boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}>
-              <h3 style={{ margin: '0 0 18px', fontSize: 18 }}>Load Template</h3>
+              <h3 style={{ margin: '0 0 18px', fontSize: 18 }}>
+                Load Template ({designType === 'homepage' ? 'Homepage' : 'Product Detail Page'})
+              </h3>
               {loadingTemplates ? (
                 <div style={{ textAlign: 'center', padding: '20px' }}>Loading templates...</div>
               ) : (
                 <>
-                  {templates.length === 0 ? (
+                  {templates.filter(t => t.designType === designType).length === 0 ? (
                     <div style={{ color: '#bbb', textAlign: 'center', padding: '20px' }}>
-                      <p>No templates found.</p>
-                      <p style={{ fontSize: '14px', marginTop: '8px' }}>Create and save a template first.</p>
+                      <p>No {designType === 'homepage' ? 'Homepage' : 'PDP'} templates found.</p>
+                      <p style={{ fontSize: '14px', marginTop: '8px' }}>
+                        Create and save a {designType === 'homepage' ? 'homepage' : 'PDP'} template first.
+                      </p>
                     </div>
                   ) : (
                     <div style={{ maxHeight: 300, overflowY: 'auto' }}>
                       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                        {templates.map(t => (
+                        {templates
+                          .filter(t => t.designType === designType)
+                          .map(t => (
                           <li key={t.id} style={{ 
                             marginBottom: 12, 
                             padding: '12px', 

@@ -6,6 +6,26 @@ Rather than cloning this repo, you can use your preferred package manager and th
 
 Visit the [`shopify.dev` documentation](https://shopify.dev/docs/api/shopify-app-remix) for more details on the Remix app package.
 
+## 🚀 **Ready to Go Live?**
+
+### **🎯 Quick Deploy to Vercel (Recommended)**
+```bash
+./deploy-vercel.sh
+```
+
+### **🔧 Other Platforms**
+```bash
+./deploy.sh render    # Render
+./deploy.sh railway   # Railway
+./deploy.sh do        # DigitalOcean
+```
+
+**Supported Platforms**: Vercel, Render, Railway, DigitalOcean, Google Cloud Run
+
+📖 **Deployment Guides**: 
+- **Vercel**: See `VERCEL-DEPLOYMENT.md` for detailed Vercel deployment
+- **Other Platforms**: See `DEPLOYMENT.md` for comprehensive deployment guide
+
 ## Quick start
 
 ### Prerequisites
