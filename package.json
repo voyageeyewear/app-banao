@@ -34,7 +34,12 @@
     "mobile:android": "npx cap open android",
     "mobile:run": "npm run mobile:build && npm run mobile:android",
     "mobile:serve": "npx cap run android --livereload --external",
-    "mobile:sync": "npx cap sync"
+    "mobile:sync": "npx cap sync",
+    "apk:build": "npm run mobile:build && cd android && ./gradlew assembleRelease",
+    "apk:debug": "npm run mobile:build && cd android && ./gradlew assembleDebug",
+    "apk:clean": "cd android && ./gradlew clean",
+    "apk:install": "npm run apk:debug && cd android && ./gradlew installDebug",
+    "apk:release": "npm run apk:clean && npm run apk:build"
   },
   "type": "module",
   "engines": {

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">app-banao</string>
-    <string name="title_activity_main">app-banao</string>
-    <string name="package_name">com.example.app</string>
-    <string name="custom_url_scheme">com.example.app</string>
+    <string name="app_name">Fresh Products Test</string>
+    <string name="title_activity_main">Fresh Products Test</string>
+    <string name="package_name">com.appbanao.builder</string>
+    <string name="custom_url_scheme">com.appbanao.builder</string>
 </resources>
