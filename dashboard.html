@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoEye Store Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-header h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-header p {
+            text-align: center;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            background: white;
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            background: transparent;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Slider Management */
+        .slider-management {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .slider-header h2 {
+            color: #333;
+            font-size: 1.8em;
+        }
+
+        .add-slide-btn {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-slide-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Slides Grid */
+        .slides-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .slide-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .slide-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .slide-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .image-preview {
+            margin-top: 10px;
+            width: 100%;
+            height: 120px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-style: italic;
+            overflow: hidden;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .slide-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(244, 67, 54, 0.3);
+        }
+
+        /* Save Section */
+        .save-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .save-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .save-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Preview Section */
+        .preview-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .preview-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .slider-preview {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .preview-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .preview-slide.active {
+            opacity: 1;
+        }
+
+        .preview-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 30px;
+        }
+
+        .preview-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .preview-description {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .preview-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .preview-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(102, 126, 234, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preview-dot.active {
+            background: #667eea;
+            transform: scale(1.2);
+        }
+
+        /* Success Message */
+        .success-message {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 20px 15px;
+            }
+            
+            .slides-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-navigation {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <h1>🎛️ GoEye Store Dashboard</h1>
+        <p>Manage your mobile app content and settings</p>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('slider')">📸 Slider</button>
+            <button class="tab-btn" onclick="switchTab('products')">📦 Products</button>
+            <button class="tab-btn" onclick="switchTab('collections')">🏪 Collections</button>
+            <button class="tab-btn" onclick="switchTab('settings')">⚙️ Settings</button>
+        </div>
+
+        <!-- Slider Tab -->
+        <div id="slider-tab" class="tab-content active">
+            <div class="success-message" id="success-message">
+                ✅ Slider settings saved successfully!
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <h3>📱 Mobile App Preview</h3>
+                <div class="slider-preview" id="slider-preview">
+                    <!-- Preview slides will be generated here -->
+                </div>
+                <div class="preview-dots" id="preview-dots">
+                    <!-- Preview dots will be generated here -->
+                </div>
+            </div>
+
+            <!-- Slider Management -->
+            <div class="slider-management">
+                <div class="slider-header">
+                    <h2>🎭 Image Slider Management</h2>
+                    <button class="add-slide-btn" onclick="addNewSlide()">
+                        ➕ Add New Slide
+                    </button>
+                </div>
+
+                <div class="slides-grid" id="slides-grid">
+                    <!-- Slide cards will be generated here -->
+                </div>
+
+                <div class="save-section">
+                    <h3>💾 Save Changes</h3>
+                    <p>Click below to save your slider configuration to the mobile app</p>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: flex; align-items: center; gap: 10px; color: white; font-size: 1.1em;">
+                            <input type="checkbox" id="slider-enabled" onchange="toggleSliderEnabled()" style="transform: scale(1.5);">
+                            <span>Enable Slider in Mobile App</span>
+                        </label>
+                    </div>
+                    <button class="save-btn" onclick="saveSliderSettings()">
+                        🚀 Deploy to Mobile App
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="products-tab" class="tab-content">
+            <div style="background: white; border-radius: 15px; padding: 30px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <h2>📦 Products Management</h2>
+                <p>Product management features coming soon...</p>
+            </div>
+        </div>
+
+        <!-- Collections Tab -->
+        <div id="collections-tab" class="tab-content">
+            <div style="background: white; border-radius: 15px; padding: 30px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <h2>🏪 Collections Management</h2>
+                <p>Collections management features coming soon...</p>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-content">
+            <div style="background: white; border-radius: 15px; padding: 30px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <h2>⚙️ App Settings</h2>
+                <p>General app settings coming soon...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let slides = [];
+        let currentPreviewSlide = 0;
+        let previewInterval;
+
+        // Default slides data
+        const defaultSlides = [
+            {
+                id: 1,
+                image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&h=400&fit=crop',
+                title: 'Welcome to GoEye Store',
+                description: 'Premium Eyewear Collection - Discover the perfect frames for your style'
+            },
+            {
+                id: 2,
+                image: 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=400&fit=crop',
+                title: 'Featured Products',
+                description: 'Explore our latest collection of designer eyewear and sunglasses'
+            },
+            {
+                id: 3,
+                image: 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=800&h=400&fit=crop',
+                title: 'Special Offers',
+                description: 'Limited time deals on premium frames - Up to 50% off selected styles'
+            }
+        ];
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            loadSlides();
+            renderSlides();
+            renderPreview();
+            startPreviewSlideshow();
+            loadSliderEnabledState();
+        }
+
+        // Load slider enabled state
+        function loadSliderEnabledState() {
+            const sliderEnabled = localStorage.getItem('goeye_slider_enabled');
+            const checkbox = document.getElementById('slider-enabled');
+            checkbox.checked = sliderEnabled === 'true';
+        }
+
+        // Toggle slider enabled state
+        function toggleSliderEnabled() {
+            const checkbox = document.getElementById('slider-enabled');
+            const isEnabled = checkbox.checked;
+            localStorage.setItem('goeye_slider_enabled', isEnabled ? 'true' : 'false');
+            
+            console.log(`Slider ${isEnabled ? 'enabled' : 'disabled'} in mobile app`);
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            // Remove active class from all tabs and content
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding content
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Stop preview slideshow when leaving slider tab
+            if (tabName !== 'slider' && previewInterval) {
+                clearInterval(previewInterval);
+            } else if (tabName === 'slider') {
+                startPreviewSlideshow();
+            }
+        }
+
+        // Load slides from localStorage or use defaults
+        function loadSlides() {
+            const savedSlides = localStorage.getItem('goeye_dashboard_slides');
+            if (savedSlides) {
+                try {
+                    slides = JSON.parse(savedSlides);
+                    // Ensure each slide has an ID
+                    slides.forEach((slide, index) => {
+                        if (!slide.id) {
+                            slide.id = index + 1;
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error loading slides:', error);
+                    slides = [...defaultSlides];
+                }
+            } else {
+                slides = [...defaultSlides];
+            }
+        }
+
+        // Save slides to localStorage
+        function saveSlides() {
+            localStorage.setItem('goeye_dashboard_slides', JSON.stringify(slides));
+        }
+
+        // Render slides grid
+        function renderSlides() {
+            const slidesGrid = document.getElementById('slides-grid');
+            
+            const slidesHTML = slides.map(slide => `
+                <div class="slide-card" data-id="${slide.id}">
+                    <h3>📷 Slide ${slide.id}</h3>
+                    
+                    <div class="form-group">
+                        <label for="image-${slide.id}">Image URL:</label>
+                        <input type="url" id="image-${slide.id}" class="form-input" 
+                               value="${slide.image}" 
+                               placeholder="https://example.com/image.jpg"
+                               onchange="updateSlide(${slide.id}, 'image', this.value)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="title-${slide.id}">Title:</label>
+                        <input type="text" id="title-${slide.id}" class="form-input" 
+                               value="${slide.title}" 
+                               placeholder="Enter slide title"
+                               onchange="updateSlide(${slide.id}, 'title', this.value)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description-${slide.id}">Description:</label>
+                        <textarea id="description-${slide.id}" class="form-textarea" 
+                                  placeholder="Enter slide description"
+                                  onchange="updateSlide(${slide.id}, 'description', this.value)">${slide.description}</textarea>
+                    </div>
+                    
+                    <div class="image-preview" id="preview-${slide.id}">
+                        ${slide.image ? `<img src="${slide.image}" alt="Preview" onerror="this.parentElement.innerHTML='<span>❌ Invalid image URL</span>';">` : '<span>Image preview will appear here</span>'}
+                    </div>
+                    
+                    <div class="slide-actions">
+                        <button class="btn-delete" onclick="deleteSlide(${slide.id})">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            slidesGrid.innerHTML = slidesHTML;
+        }
+
+        // Update slide data
+        function updateSlide(slideId, field, value) {
+            const slide = slides.find(s => s.id === slideId);
+            if (slide) {
+                slide[field] = value;
+                
+                // Update image preview
+                if (field === 'image') {
+                    const preview = document.getElementById(`preview-${slideId}`);
+                    if (value && value.trim() !== '') {
+                        preview.innerHTML = `<img src="${value}" alt="Preview" onerror="this.parentElement.innerHTML='<span>❌ Invalid image URL</span>';">`;
+                    } else {
+                        preview.innerHTML = '<span>Image preview will appear here</span>';
+                    }
+                }
+                
+                // Update preview
+                renderPreview();
+                saveSlides();
+            }
+        }
+
+        // Add new slide
+        function addNewSlide() {
+            const newId = Math.max(...slides.map(s => s.id)) + 1;
+            const newSlide = {
+                id: newId,
+                image: '',
+                title: `New Slide ${newId}`,
+                description: 'Add your description here'
+            };
+            
+            slides.push(newSlide);
+            renderSlides();
+            renderPreview();
+            saveSlides();
+        }
+
+        // Delete slide
+        function deleteSlide(slideId) {
+            if (slides.length <= 1) {
+                alert('You must have at least one slide!');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to delete this slide?')) {
+                slides = slides.filter(s => s.id !== slideId);
+                renderSlides();
+                renderPreview();
+                saveSlides();
+            }
+        }
+
+        // Render preview
+        function renderPreview() {
+            const sliderPreview = document.getElementById('slider-preview');
+            const previewDots = document.getElementById('preview-dots');
+            
+            const slidesHTML = slides.map((slide, index) => `
+                <div class="preview-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
+                    ${slide.image ? `<img src="${slide.image}" alt="${slide.title}">` : ''}
+                    <div class="preview-content">
+                        <div class="preview-title">${slide.title}</div>
+                        <div class="preview-description">${slide.description}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            const dotsHTML = slides.map((_, index) => `
+                <div class="preview-dot ${index === 0 ? 'active' : ''}" onclick="goToPreviewSlide(${index})"></div>
+            `).join('');
+            
+            sliderPreview.innerHTML = slidesHTML;
+            previewDots.innerHTML = dotsHTML;
+            
+            currentPreviewSlide = 0;
+        }
+
+        // Go to specific preview slide
+        function goToPreviewSlide(index) {
+            currentPreviewSlide = index;
+            
+            // Update slides
+            document.querySelectorAll('.preview-slide').forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            
+            // Update dots
+            document.querySelectorAll('.preview-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        // Start preview slideshow
+        function startPreviewSlideshow() {
+            if (previewInterval) {
+                clearInterval(previewInterval);
+            }
+            
+            previewInterval = setInterval(() => {
+                currentPreviewSlide = (currentPreviewSlide + 1) % slides.length;
+                goToPreviewSlide(currentPreviewSlide);
+            }, 3000);
+        }
+
+        // Save slider settings to mobile app
+        function saveSliderSettings() {
+            // Save to localStorage with the key the mobile app expects
+            localStorage.setItem('goeye_slider_settings', JSON.stringify(slides));
+            
+            // Show success message
+            const successMessage = document.getElementById('success-message');
+            successMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+            
+            console.log('Slider settings deployed to mobile app!');
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            console.log('🎛️ GoEye Store Dashboard loaded successfully!');
+        });
+    </script>
+</body>
+</html> 

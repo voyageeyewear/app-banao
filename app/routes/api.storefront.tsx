@@ -1,13 +1,27 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 
-// TODO: Replace with your actual Storefront API access token from Shopify Admin
-// Go to: Apps > Develop apps > Your App > Storefront API > Install & generate token
-const STOREFRONT_API_TOKEN = "f585ae7a492af9600ab4edbc99c56b00-1751707255";
+// Shopify Storefront API configuration
+const STOREFRONT_API_TOKEN = "a6e835e73d77da35f6f64c05ee42ce68";
 const SHOP_DOMAIN = "tryongoeye.myshopify.com";
+
+// Helper function to add CORS headers for mobile app access
+function addCorsHeaders(response: Response) {
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  return response;
+}
+
+// Handle OPTIONS request for CORS preflight
+export const options = async () => {
+  const response = new Response(null, { status: 200 });
+  return addCorsHeaders(response);
+};
 
 export const action = async ({ request }: LoaderFunctionArgs) => {
   if (request.method !== "POST") {
-    return json({ error: "Method not allowed" }, { status: 405 });
+    const errorResponse = json({ error: "Method not allowed" }, { status: 405 });
+    return addCorsHeaders(errorResponse);
   }
 
   try {
@@ -101,7 +115,8 @@ export const action = async ({ request }: LoaderFunctionArgs) => {
         ],
       };
     } else {
-      return json({ error: "Invalid action" }, { status: 400 });
+      const errorResponse = json({ error: "Invalid action" }, { status: 400 });
+      return addCorsHeaders(errorResponse);
     }
 
     const response = await fetch(`https://${SHOP_DOMAIN}/api/2023-07/graphql.json`, {
@@ -120,12 +135,14 @@ export const action = async ({ request }: LoaderFunctionArgs) => {
 
     if (data.errors) {
       console.error("Storefront API errors:", data.errors);
-      return json({ error: "GraphQL errors", details: data.errors }, { status: 400 });
+      const errorResponse = json({ error: "GraphQL errors", details: data.errors }, { status: 400 });
+      return addCorsHeaders(errorResponse);
     }
 
-    return json(data.data);
+    return addCorsHeaders(json(data.data));
   } catch (error) {
     console.error("Storefront proxy error:", error);
-    return json({ error: "Internal server error" }, { status: 500 });
+    const errorResponse = json({ error: "Internal server error" }, { status: 500 });
+    return addCorsHeaders(errorResponse);
   }
 }; 
