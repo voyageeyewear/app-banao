@@ -3362,12 +3362,13 @@
             }
         }
 
-        // Auto-refresh header settings every 30 seconds
+        // Auto-refresh header settings every 15 seconds
         function startAutoRefresh() {
             setInterval(() => {
                 console.log('🔄 Auto-refreshing header settings...');
                 loadTrendingSlides();
-            }, 30000); // 30 seconds
+                loadHeaderSettings(); // Also refresh navigation and announcement bar
+            }, 15000); // 15 seconds
         }
 
         // Refresh when app comes back into focus
@@ -3381,6 +3382,7 @@
                     // App came back into focus, refresh settings
                     console.log('🔄 App focus restored, refreshing header settings...');
                     loadTrendingSlides();
+                    loadHeaderSettings(); // Also refresh navigation and announcement bar
                     isHidden = false;
                 }
             });
@@ -3390,6 +3392,7 @@
         function refreshHeaderSettings() {
             console.log('🔄 Manual refresh triggered');
             loadTrendingSlides();
+            loadHeaderSettings(); // Also refresh navigation and announcement bar
         }
 
         // Default slides as fallback
@@ -3593,6 +3596,12 @@
         
         // Load header settings on page load
         loadHeaderSettings();
+        
+        // Start auto-refresh system
+        startAutoRefresh();
+        setupFocusRefresh();
+        
+        console.log('🔄 Auto-refresh system activated for navigation and announcement bar');
     </script>
 </body>
 </html> 
