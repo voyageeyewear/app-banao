@@ -135,8 +135,11 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-export async function loader() {
+export async function loader({ request }: ActionFunctionArgs) {
   try {
+    // Authenticate the request
+    await authenticate.admin(request);
+    
     // Load header settings from database
     const headerSettings = await db.headerConfig.findFirst({
       where: { id: 1 }
