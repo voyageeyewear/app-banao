@@ -56,3 +56,44 @@ model SliderConfig {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+model CategoriesConfig {
+  id         Int      @id @default(1)
+  title      String   @default("Eyeglasses")
+  enabled    Boolean  @default(true)
+  categories Json     @default("[]")
+  products   Json     @default("[]")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model SunglassesConfig {
+  id         Int      @id @default(1)
+  title      String   @default("Sunglasses")
+  enabled    Boolean  @default(true)
+  categories Json     @default("[]")
+  products   Json     @default("[]")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model SharkTankConfig {
+  id         Int      @id @default(1)
+  title      String   @default("As Seen on Shark Tank India")
+  subtitle   String   @default("Style it like the Sharks!")
+  enabled    Boolean  @default(true)
+  products   Json     @default("[]")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model HeaderConfig {
+  id             Int      @id @default(1)
+  enabled        Boolean  @default(true)
+  announcement   Json     @default("{}")
+  genderTabs     Json     @default("[]")
+  trendingImages Json     @default("[]")
+  navigation     Json     @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
