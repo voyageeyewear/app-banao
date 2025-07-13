@@ -1507,7 +1507,7 @@
       <div class="menu-drawer-overlay" onclick="document.querySelector('body').classList.remove('menu-open')"></div>
       
       <!-- Announcement Bar -->
-      <div class="announcement-bar" id="announcement-bar" style="display: none;">
+      <div class="announcement-bar" id="announcement-bar" style="display: block;">
         <div class="announcement-content">
           <span class="announcement-text" id="announcement-text">Free shipping on orders over $50! 🚚</span>
         </div>
@@ -1573,7 +1573,37 @@
 
         <nav class="custom-header-nav">
           <ul class="nav-tabs" id="nav-tabs">
-            <!-- Navigation items will be loaded dynamically -->
+            <li>
+              <a href="#" class="active">
+                <span class="nav-tab-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                </span>
+                All
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <span class="nav-tab-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+                </span>
+                Classic
+                <span class="nav-indicator"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <span class="nav-tab-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                </span>
+                Premium
+              </a>
+            </li>
           </ul>
         </nav>
       </div>
@@ -2845,56 +2875,61 @@
             }
         }
 
-        // Load Navigation Items
+        // Load Navigation Items (enhances existing navigation)
         function loadNavigationItems(navItems) {
             const navTabs = document.getElementById('nav-tabs');
             if (!navTabs) return;
 
-            navTabs.innerHTML = '';
+            console.log('🎯 Loading dynamic navigation items:', navItems);
 
-            // Filter enabled items and sort by order
-            const enabledItems = navItems.filter(item => item.enabled).sort((a, b) => a.order - b.order);
+            // Only replace if we have valid items and they're different from defaults
+            if (navItems && navItems.length > 0) {
+                navTabs.innerHTML = '';
 
-            enabledItems.forEach((item, index) => {
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                
-                a.href = item.link || '#';
-                a.className = index === 0 ? 'active' : '';
-                
-                // Create icon span
-                const iconSpan = document.createElement('span');
-                iconSpan.className = 'nav-tab-icon';
-                
-                // Get appropriate icon for each tab
-                const iconSVG = getNavIcon(item.title.toLowerCase());
-                iconSpan.innerHTML = iconSVG;
-                
-                a.appendChild(iconSpan);
-                a.appendChild(document.createTextNode(item.title));
-                
-                // Add click event
-                a.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // Remove active class from all tabs
-                    navTabs.querySelectorAll('a').forEach(tab => tab.classList.remove('active'));
-                    // Add active class to clicked tab
-                    a.classList.add('active');
+                // Filter enabled items and sort by order
+                const enabledItems = navItems.filter(item => item.enabled).sort((a, b) => a.order - b.order);
+
+                enabledItems.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    
+                    a.href = item.link || '#';
+                    a.className = index === 0 ? 'active' : '';
+                    
+                    // Create icon span
+                    const iconSpan = document.createElement('span');
+                    iconSpan.className = 'nav-tab-icon';
+                    
+                    // Get appropriate icon for each tab
+                    const iconSVG = getNavIcon(item.title.toLowerCase());
+                    iconSpan.innerHTML = iconSVG;
+                    
+                    a.appendChild(iconSpan);
+                    a.appendChild(document.createTextNode(item.title));
+                    
+                    // Add click event
+                    a.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // Remove active class from all tabs
+                        navTabs.querySelectorAll('a').forEach(tab => tab.classList.remove('active'));
+                        // Add active class to clicked tab
+                        a.classList.add('active');
+                    });
+                    
+                    li.appendChild(a);
+                    navTabs.appendChild(li);
                 });
-                
-                li.appendChild(a);
-                navTabs.appendChild(li);
-            });
+
+                console.log('✅ Dynamic navigation loaded successfully');
+            } else {
+                console.log('⚠️ Using default navigation (no dynamic items)');
+            }
         }
 
         // Load default navigation items if API fails
         function loadDefaultNavigationItems() {
-            const defaultItems = [
-                { id: "1", title: "All", link: "/collections/all", enabled: true, order: 1 },
-                { id: "2", title: "Classic", link: "/collections/classic", enabled: true, order: 2 },
-                { id: "3", title: "Premium", link: "/collections/premium", enabled: true, order: 3 }
-            ];
-            loadNavigationItems(defaultItems);
+            console.log('📍 Using default hardcoded navigation (API failed)');
+            // Default navigation is already hardcoded in HTML, no need to replace it
         }
 
         // Get navigation icon SVG based on title
