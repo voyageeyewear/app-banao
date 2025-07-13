@@ -36,6 +36,9 @@ export async function action({ request }: ActionFunctionArgs) {
     const navItems = requestData.nav_items || [];
     const announcementBar = requestData.announcement_bar || {};
     const menuSettings = requestData.menu_settings || {};
+    
+    console.log("📊 Nav items to save:", JSON.stringify(navItems, null, 2));
+    console.log("📊 Announcement bar to save:", JSON.stringify(announcementBar, null, 2));
 
     if (!headerSettings) {
       console.error("❌ Missing header settings");
@@ -219,6 +222,9 @@ export async function loader({ request }: ActionFunctionArgs) {
     if (headerSettings && headerSettings.navigation && headerSettings.trendingImages) {
       const navigation = headerSettings.navigation as any;
       const trendingData = headerSettings.trendingImages as any;
+      
+      console.log("📊 Navigation from DB:", JSON.stringify(navigation, null, 2));
+      console.log("📊 Announcement from DB:", JSON.stringify(headerSettings.announcement, null, 2));
       
       responseData = { 
         success: true, 

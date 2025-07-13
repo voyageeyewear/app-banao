@@ -238,6 +238,7 @@ export default function HeaderManagement() {
       };
 
       console.log("📤 Sending data:", JSON.stringify(allData, null, 2));
+      console.log("📤 Nav items specifically:", JSON.stringify(navItems, null, 2));
 
       const response = await fetch('/api/header-settings', {
         method: 'POST',
@@ -288,10 +289,17 @@ export default function HeaderManagement() {
           setTrendingSlides(data.trending_slides);
         }
         if (data.nav_items) {
+          console.log("📥 Loading nav items:", JSON.stringify(data.nav_items, null, 2));
           setNavItems(data.nav_items);
         }
         if (data.announcement_bar) {
-          setAnnouncementBar(data.announcement_bar);
+          setAnnouncementBar({
+            enabled: data.announcement_bar.enabled ?? true,
+            text: data.announcement_bar.text ?? "Free shipping on orders over $50! 🚚",
+            background_color: data.announcement_bar.background_color ?? "#1E1B4B",
+            text_color: data.announcement_bar.text_color ?? "#ffffff",
+            scroll_speed: data.announcement_bar.scroll_speed ?? 5000,
+          });
         }
         if (data.menu_settings) {
           setMenuSettings(data.menu_settings);
@@ -824,7 +832,7 @@ export default function HeaderManagement() {
               <TextField
                 label="Scroll Speed (milliseconds)"
                 type="number"
-                value={announcementBar.scroll_speed.toString()}
+                value={announcementBar.scroll_speed?.toString() || "5000"}
                 onChange={(value) => setAnnouncementBar({...announcementBar, scroll_speed: parseInt(value) || 5000})}
                 placeholder="5000"
                 autoComplete="off"
