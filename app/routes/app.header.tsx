@@ -146,10 +146,13 @@ export default function HeaderManagement() {
   const saveHeaderSettings = async () => {
     setLoading(true);
     try {
+      console.log("🚀 Starting header settings save...");
       const allData = {
         header: headerSettings,
         trending_slides: trendingSlides,
       };
+
+      console.log("📤 Sending data:", JSON.stringify(allData, null, 2));
 
       const response = await fetch('/api/header-settings', {
         method: 'POST',
@@ -159,15 +162,29 @@ export default function HeaderManagement() {
         body: JSON.stringify(allData),
       });
 
-      if (response.ok) {
+      console.log("📡 Response status:", response.status);
+      
+      const responseData = await response.json();
+      console.log("📥 Response data:", responseData);
+
+      if (response.ok && responseData.success) {
         setToastMessage('Header settings and trending slides saved successfully!');
         setShowToast(true);
+        console.log("✅ Save successful!");
       } else {
-        throw new Error('Failed to save settings');
+        const errorMessage = responseData.details 
+          ? `${responseData.error}: ${responseData.details}`
+          : responseData.error || 'Unknown error occurred';
+        
+        console.error("❌ Save failed:", errorMessage);
+        setToastMessage(`Error: ${errorMessage}`);
+        setShowToast(true);
+        throw new Error(errorMessage);
       }
     } catch (error) {
-      console.error('Error saving header settings:', error);
-      setToastMessage('Error saving settings. Please try again.');
+      console.error('❌ Error saving header settings:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setToastMessage(`Error saving settings: ${errorMessage}`);
       setShowToast(true);
     } finally {
       setLoading(false);

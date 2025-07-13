@@ -8,92 +8,125 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    // Authenticate the request
-    await authenticate.admin(request);
+    console.log("🔍 Header settings API: Starting save process");
     
-    const requestData = await request.json();
+    // Authenticate the request
+    try {
+      await authenticate.admin(request);
+      console.log("✅ Authentication successful");
+    } catch (authError) {
+      console.error("❌ Authentication failed:", authError);
+      return json({ 
+        success: false, 
+        error: "Authentication failed",
+        details: authError instanceof Error ? authError.message : "Unknown auth error"
+      }, { status: 401 });
+    }
+    
+    // Parse request data
+    let requestData;
+    try {
+      requestData = await request.json();
+      console.log("✅ Request data parsed successfully");
+      console.log("📝 Request data:", JSON.stringify(requestData, null, 2));
+    } catch (parseError) {
+      console.error("❌ Failed to parse request data:", parseError);
+      return json({ 
+        success: false, 
+        error: "Invalid JSON data",
+        details: parseError instanceof Error ? parseError.message : "Failed to parse request body"
+      }, { status: 400 });
+    }
     
     // Extract header settings and trending slides
     const headerSettings = requestData.header;
     const trendingSlides = requestData.trending_slides || [];
     
-    // Save header settings to database
-    const savedHeaderSettings = await db.headerConfig.upsert({
-      where: { id: 1 },
-      update: {
-        enabled: true,
-        announcement: {
-          text: "Header announcement",
-          enabled: true
-        },
-        genderTabs: {
-          enabled: headerSettings.enable_menu_drawer,
-          tabs: ["All", "Men", "Women"]
-        },
-        trendingImages: {
-          enabled: true,
-          title: headerSettings.trending_title,
-          subtitle: headerSettings.trending_subtitle,
-          slides: trendingSlides
-        },
-        navigation: {
-          logo_url: headerSettings.logo_url,
-          header_background: headerSettings.header_background_color,
-          nav_text_color: headerSettings.nav_text_color,
-          nav_active_color: headerSettings.nav_active_color,
-          enable_wishlist: headerSettings.enable_wishlist_icon,
-          enable_account: headerSettings.enable_account_icon,
-          enable_cart: headerSettings.enable_cart_icon,
-          offer_button: {
-            enabled: headerSettings.enable_offer_button,
-            text: headerSettings.offer_button_text,
-            link: headerSettings.offer_button_link
-          }
-        },
-        updatedAt: new Date()
+    // Validate required data
+    if (!headerSettings) {
+      console.error("❌ Missing header settings in request");
+      return json({ 
+        success: false, 
+        error: "Missing header settings",
+        details: "No header data provided in request"
+      }, { status: 400 });
+    }
+    
+    console.log("✅ Data validation passed");
+    console.log("📊 Header settings:", JSON.stringify(headerSettings, null, 2));
+    console.log("🎯 Trending slides count:", trendingSlides.length);
+    
+    // Prepare data for database
+    const dbData = {
+      enabled: true,
+      announcement: {
+        text: "Header announcement",
+        enabled: true
       },
-      create: {
-        id: 1,
+      genderTabs: {
+        enabled: headerSettings.enable_menu_drawer,
+        tabs: ["All", "Men", "Women"]
+      },
+      trendingImages: {
         enabled: true,
-        announcement: {
-          text: "Header announcement",
-          enabled: true
-        },
-        genderTabs: {
-          enabled: headerSettings.enable_menu_drawer,
-          tabs: ["All", "Men", "Women"]
-        },
-        trendingImages: {
-          enabled: true,
-          title: headerSettings.trending_title,
-          subtitle: headerSettings.trending_subtitle,
-          slides: trendingSlides
-        },
-        navigation: {
-          logo_url: headerSettings.logo_url,
-          header_background: headerSettings.header_background_color,
-          nav_text_color: headerSettings.nav_text_color,
-          nav_active_color: headerSettings.nav_active_color,
-          enable_wishlist: headerSettings.enable_wishlist_icon,
-          enable_account: headerSettings.enable_account_icon,
-          enable_cart: headerSettings.enable_cart_icon,
-          offer_button: {
-            enabled: headerSettings.enable_offer_button,
-            text: headerSettings.offer_button_text,
-            link: headerSettings.offer_button_link
-          }
+        title: headerSettings.trending_title,
+        subtitle: headerSettings.trending_subtitle,
+        slides: trendingSlides
+      },
+      navigation: {
+        logo_url: headerSettings.logo_url,
+        header_background: headerSettings.header_background_color,
+        nav_text_color: headerSettings.nav_text_color,
+        nav_active_color: headerSettings.nav_active_color,
+        enable_wishlist: headerSettings.enable_wishlist_icon,
+        enable_account: headerSettings.enable_account_icon,
+        enable_cart: headerSettings.enable_cart_icon,
+        offer_button: {
+          enabled: headerSettings.enable_offer_button,
+          text: headerSettings.offer_button_text,
+          link: headerSettings.offer_button_link
         }
-      }
-    });
+      },
+      updatedAt: new Date()
+    };
+    
+    console.log("✅ Database data prepared");
+    
+    // Save header settings to database
+    let savedHeaderSettings;
+    try {
+      savedHeaderSettings = await db.headerConfig.upsert({
+        where: { id: 1 },
+        update: dbData,
+        create: {
+          id: 1,
+          ...dbData
+        }
+      });
+      console.log("✅ Database save successful");
+      console.log("💾 Saved config ID:", savedHeaderSettings.id);
+    } catch (dbError) {
+      console.error("❌ Database save failed:", dbError);
+      return json({ 
+        success: false, 
+        error: "Database save failed",
+        details: dbError instanceof Error ? dbError.message : "Unknown database error"
+      }, { status: 500 });
+    }
 
+    console.log("🎉 Header settings save completed successfully");
     return json({ 
       success: true, 
       message: "Header settings and trending slides saved successfully",
-      data: savedHeaderSettings
+      data: {
+        id: savedHeaderSettings.id,
+        updatedAt: savedHeaderSettings.updatedAt
+      }
     });
 
   } catch (error) {
-    console.error("Error saving header settings:", error);
+    console.error("💥 Unexpected error in header settings API:", error);
+    console.error("Stack trace:", error instanceof Error ? error.stack : "No stack trace");
     return json({ 
       success: false, 
       error: "Failed to save header settings",
