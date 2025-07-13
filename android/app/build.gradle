@@ -4,7 +4,7 @@ android {
     namespace "com.appbanao.builder"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.appbanao.builder"
+        applicationId "com.goeye.store"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -91,46 +91,66 @@ export default function SliderPage() {
     }
   }, [slides.length]);
 
-  const loadSliderSettings = () => {
+  const loadSliderSettings = async () => {
     try {
-      const savedSlides = localStorage.getItem('goeye_slider_slides');
-      const savedEnabled = localStorage.getItem('goeye_slider_enabled');
-      const savedSettings = localStorage.getItem('goeye_slider_settings');
-
-      if (savedSlides) {
-        setSlides(JSON.parse(savedSlides));
-      }
-      if (savedEnabled) {
-        setSliderEnabled(savedEnabled === 'true');
-      }
-      if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-        setAutoPlay(settings.autoPlay ?? true);
-        setAutoPlaySpeed(settings.autoPlaySpeed ?? '5000');
-        setShowArrows(settings.showArrows ?? true);
-        setShowDots(settings.showDots ?? true);
+      // Load from database instead of localStorage
+      const response = await fetch('/api/mobile-slider');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          setSlides(data.data.slides || []);
+          setSliderEnabled(data.data.enabled ?? true);
+          setAutoPlay(data.data.settings?.autoPlay ?? true);
+          setAutoPlaySpeed(data.data.settings?.autoPlaySpeed?.toString() ?? '5000');
+          setShowArrows(data.data.settings?.showArrows ?? true);
+          setShowDots(data.data.settings?.showDots ?? true);
+          console.log('✅ Loaded slider settings from database');
+        }
+      } else {
+        console.log('⚠️ Could not load from database, using defaults');
       }
     } catch (error) {
       console.error('Error loading slider settings:', error);
     }
   };
 
-  const saveSliderSettings = () => {
+  const saveSliderSettings = async () => {
     try {
-      localStorage.setItem('goeye_slider_slides', JSON.stringify(slides));
-      localStorage.setItem('goeye_slider_enabled', sliderEnabled.toString());
-      localStorage.setItem('goeye_slider_settings', JSON.stringify({
-        autoPlay,
-        autoPlaySpeed,
-        showArrows,
-        showDots
-      }));
+      // Prepare slider data
+      const sliderData = {
+        enabled: sliderEnabled,
+        slides: slides,
+        settings: {
+          autoPlay,
+          autoPlaySpeed,
+          showArrows,
+          showDots
+        }
+      };
 
-      setToastContent('Slider settings saved successfully!');
+      // Save to database
+      const response = await fetch('/api/slider/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sliderData),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setToastContent('✨ Slider settings saved! Run "./build-apk.sh" to create APK with your changes.');
+        console.log('🔄 Slider settings saved to database successfully');
+      } else {
+        throw new Error(data.error || 'Failed to save to database');
+      }
+      
       setShowToast(true);
+      
     } catch (error) {
       console.error('Error saving slider settings:', error);
-      setToastContent('Error saving slider settings');
+      setToastContent(`Error saving slider settings: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setShowToast(true);
     }
   };
@@ -155,6 +175,11 @@ export default function SliderPage() {
 
   const deleteSlide = (id: string) => {
     setSlides(slides.filter(slide => slide.id !== id));
+    
+    // Update timestamp for dynamic updates
+    const timestamp = Date.now().toString();
+    localStorage.setItem('goeye_slider_last_update', timestamp);
+    console.log('🗑️ Slide deleted, timestamp updated:', timestamp);
   };
 
   const saveSlide = () => {

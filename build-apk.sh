@@ -75,16 +75,30 @@ fi
 log_success "Environment validation passed"
 
 # ========================================
-# STEP 2: Setup Mobile App File
+# STEP 2: Setup Mobile App File with Data Injection
 # ========================================
-log_step "2/7 - Setting up Mobile App Files"
+log_step "2/7 - Setting up Mobile App Files with Slider Data"
 
 # Ensure build/client directory exists
 mkdir -p build/client
 
-# ALWAYS use mobile-app.html as the primary mobile application file
-log_info "Using mobile-app.html as primary mobile application file"
-cp build/client/mobile-app.html build/client/index.html
+# Inject current slider data into mobile-app.html
+log_info "Injecting current slider data into mobile-app.html..."
+if [ -f "inject-slider-data.cjs" ]; then
+    node inject-slider-data.cjs
+    if [ $? -eq 0 ]; then
+        log_success "Slider data injection completed"
+    else
+        log_warning "Slider data injection failed, using original file"
+        # Fallback: copy original file
+        cp build/client/mobile-app.html build/client/index.html
+    fi
+else
+    log_warning "inject-slider-data.cjs not found, using original mobile-app.html"
+    # ALWAYS use mobile-app.html as the primary mobile application file
+    log_info "Using mobile-app.html as primary mobile application file"
+    cp build/client/mobile-app.html build/client/index.html
+fi
 
 # Verify the copy was successful
 if [ ! -f "build/client/index.html" ]; then
