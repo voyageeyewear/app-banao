@@ -2,6 +2,15 @@ import { json, type ActionFunctionArgs } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
 
+// Handle CORS preflight requests
+export async function options() {
+  const response = new Response(null, { status: 200 });
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  return response;
+}
+
 export async function action({ request }: ActionFunctionArgs) {
   if (request.method !== "POST") {
     return json({ error: "Method not allowed" }, { status: 405 });
@@ -119,9 +128,17 @@ export async function loader({ request }: ActionFunctionArgs) {
   console.log("🔍 Header settings loader: Starting...");
   
   try {
-    // Authenticate the request
-    await authenticate.admin(request);
-    console.log("✅ Loader authentication successful");
+    // Only require authentication for admin requests, not for mobile app
+    const userAgent = request.headers.get('user-agent') || '';
+    const isMobileApp = userAgent.includes('Mobile') || userAgent.includes('Android');
+    
+    if (!isMobileApp) {
+      // Authenticate only admin requests
+      await authenticate.admin(request);
+      console.log("✅ Loader authentication successful");
+    } else {
+      console.log("✅ Mobile app access - skipping authentication");
+    }
     
     // Load header settings from database
     const headerSettings = await db.headerConfig.findFirst({
@@ -171,11 +188,12 @@ export async function loader({ request }: ActionFunctionArgs) {
       },
     ];
 
+    let responseData;
     if (headerSettings && headerSettings.navigation && headerSettings.trendingImages) {
       const navigation = headerSettings.navigation as any;
       const trendingData = headerSettings.trendingImages as any;
       
-      return json({ 
+      responseData = { 
         success: true, 
         header: {
           logo_url: navigation.logo_url || "",
@@ -193,9 +211,9 @@ export async function loader({ request }: ActionFunctionArgs) {
           offer_button_link: navigation.offer_button ? navigation.offer_button.link : "",
         },
         trending_slides: trendingData.slides || defaultSlides
-      });
+      };
     } else {
-      return json({ 
+      responseData = { 
         success: true, 
         header: {
           logo_url: "",
@@ -213,14 +231,31 @@ export async function loader({ request }: ActionFunctionArgs) {
           offer_button_link: "",
         },
         trending_slides: defaultSlides
-      });
+      };
     }
+
+    // Create response with CORS headers for mobile app
+    const response = json(responseData);
+    
+    // Add CORS headers to allow mobile app access
+    response.headers.set("Access-Control-Allow-Origin", "*");
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    
+    return response;
 
   } catch (error) {
     console.error("❌ Error loading header settings:", error);
-    return json({ 
+    const errorResponse = json({ 
       success: false, 
       error: "Failed to load header settings"
     }, { status: 500 });
+    
+    // Add CORS headers even for errors
+    errorResponse.headers.set("Access-Control-Allow-Origin", "*");
+    errorResponse.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    errorResponse.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    
+    return errorResponse;
   }
 } 
