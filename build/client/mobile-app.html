@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>GoEye Store</title>
     <style>
         * {
@@ -17,6 +17,7 @@
             color: #333;
             line-height: 1.6;
             padding-bottom: 80px; /* Space for bottom navigation */
+            padding-top: env(safe-area-inset-top, 20px); /* Safe area for system status bar with fallback */
         }
 
         /* Announcement Bar Styles */
@@ -2765,9 +2766,9 @@
 
             if (!data.categories || data.categories.length === 0) {
                 // Keep existing hardcoded categories as fallback
-                return;
-            }
-
+                    return;
+                }
+                
             subcategoriesContainer.innerHTML = data.categories.map(category => `
                 <a href="#" class="subcategory-card" data-category="${category.id}">
                     <div class="subcategory-image">
@@ -2923,7 +2924,7 @@
                     });
 
                     console.log('✅ Dynamic navigation loaded successfully with', enabledItems.length, 'items');
-                } else {
+            } else {
                     console.log('⚠️ No enabled dynamic items, keeping static navigation');
                 }
             } else {
