@@ -19,6 +19,7 @@ import {
   Tabs,
   Badge,
   Divider,
+  Thumbnail,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 
@@ -46,6 +47,16 @@ interface HeaderSettings {
   offer_button_link: string;
 }
 
+// Trending Slide Interface
+interface TrendingSlide {
+  id: string;
+  title: string;
+  image_url: string;
+  link_url: string;
+  enabled: boolean;
+  order: number;
+}
+
 export default function HeaderManagement() {
   const [selectedTab, setSelectedTab] = useState(0);
   const [headerSettings, setHeaderSettings] = useState<HeaderSettings>({
@@ -64,6 +75,25 @@ export default function HeaderManagement() {
     offer_button_link: "",
   });
 
+  const [trendingSlides, setTrendingSlides] = useState<TrendingSlide[]>([
+    {
+      id: "1",
+      title: "Premium Eyeglasses",
+      image_url: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=440&h=540&fit=crop",
+      link_url: "/collections/eyeglasses",
+      enabled: true,
+      order: 1,
+    },
+    {
+      id: "2",
+      title: "Blue Light Blockers",
+      image_url: "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=440&h=540&fit=crop",
+      link_url: "/collections/blue-light",
+      enabled: true,
+      order: 2,
+    },
+  ]);
+
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -76,6 +106,12 @@ export default function HeaderManagement() {
       panelID: 'general-settings-panel',
     },
     {
+      id: 'trending',
+      content: 'Trending Slider',
+      accessibilityLabel: 'Trending slider management',
+      panelID: 'trending-slider-panel',
+    },
+    {
       id: 'colors',
       content: 'Colors & Design',
       accessibilityLabel: 'Colors and design settings',
@@ -86,16 +122,21 @@ export default function HeaderManagement() {
   const saveHeaderSettings = async () => {
     setLoading(true);
     try {
+      const allData = {
+        header: headerSettings,
+        trending_slides: trendingSlides,
+      };
+
       const response = await fetch('/api/header-settings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ header: headerSettings }),
+        body: JSON.stringify(allData),
       });
 
       if (response.ok) {
-        setToastMessage('Header settings saved successfully!');
+        setToastMessage('Header settings and trending slides saved successfully!');
         setShowToast(true);
       } else {
         throw new Error('Failed to save settings');
@@ -117,6 +158,9 @@ export default function HeaderManagement() {
         if (data.header) {
           setHeaderSettings(data.header);
         }
+        if (data.trending_slides) {
+          setTrendingSlides(data.trending_slides);
+        }
       }
     } catch (error) {
       console.error('Error loading header settings:', error);
@@ -126,6 +170,53 @@ export default function HeaderManagement() {
   useEffect(() => {
     loadHeaderSettings();
   }, []);
+
+  // Trending Slides Management Functions
+  const addTrendingSlide = () => {
+    const newSlide: TrendingSlide = {
+      id: Date.now().toString(),
+      title: "New Trending Item",
+      image_url: "",
+      link_url: "",
+      enabled: true,
+      order: trendingSlides.length + 1,
+    };
+    setTrendingSlides([...trendingSlides, newSlide]);
+  };
+
+  const updateTrendingSlide = (id: string, field: keyof TrendingSlide, value: any) => {
+    setTrendingSlides(slides =>
+      slides.map(slide =>
+        slide.id === id ? { ...slide, [field]: value } : slide
+      )
+    );
+  };
+
+  const deleteTrendingSlide = (id: string) => {
+    setTrendingSlides(slides => slides.filter(slide => slide.id !== id));
+  };
+
+  const moveSlide = (id: string, direction: 'up' | 'down') => {
+    const currentIndex = trendingSlides.findIndex(slide => slide.id === id);
+    if (
+      (direction === 'up' && currentIndex === 0) ||
+      (direction === 'down' && currentIndex === trendingSlides.length - 1)
+    ) {
+      return;
+    }
+
+    const newSlides = [...trendingSlides];
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    
+    [newSlides[currentIndex], newSlides[targetIndex]] = [newSlides[targetIndex], newSlides[currentIndex]];
+    
+    // Update order numbers
+    newSlides.forEach((slide, index) => {
+      slide.order = index + 1;
+    });
+    
+    setTrendingSlides(newSlides);
+  };
 
   const renderGeneralSettings = () => (
     <BlockStack gap="400">
@@ -219,6 +310,144 @@ export default function HeaderManagement() {
     </BlockStack>
   );
 
+  const renderTrendingSlider = () => (
+    <BlockStack gap="400">
+      <Card>
+        <BlockStack gap="400">
+          <InlineStack align="space-between">
+            <Text variant="headingMd" as="h3">Trending Slides Management</Text>
+            <Button onClick={addTrendingSlide} variant="primary">
+              Add New Slide
+            </Button>
+          </InlineStack>
+          <Text variant="bodyMd" tone="subdued" as="p">
+            Manage the trending slides displayed in your mobile header. Drag to reorder or use the controls below.
+          </Text>
+        </BlockStack>
+      </Card>
+
+      {trendingSlides.length === 0 ? (
+        <Card>
+          <BlockStack gap="400" align="center">
+            <Text variant="headingMd" as="h3">No Slides Added</Text>
+            <Text variant="bodyMd" tone="subdued" as="p">
+              Add your first trending slide to get started.
+            </Text>
+            <Button onClick={addTrendingSlide} variant="primary">
+              Add First Slide
+            </Button>
+          </BlockStack>
+        </Card>
+      ) : (
+        trendingSlides
+          .sort((a, b) => a.order - b.order)
+          .map((slide, index) => (
+            <Card key={slide.id}>
+              <BlockStack gap="400">
+                <InlineStack align="space-between">
+                  <Text variant="headingSm" as="h4">
+                    Slide #{slide.order}: {slide.title || 'Untitled'}
+                  </Text>
+                  <InlineStack gap="200">
+                    <Badge tone={slide.enabled ? "success" : "critical"}>
+                      {slide.enabled ? "Active" : "Inactive"}
+                    </Badge>
+                    <Button
+                      size="slim"
+                      onClick={() => moveSlide(slide.id, 'up')}
+                      disabled={index === 0}
+                    >
+                      ↑
+                    </Button>
+                    <Button
+                      size="slim"
+                      onClick={() => moveSlide(slide.id, 'down')}
+                      disabled={index === trendingSlides.length - 1}
+                    >
+                      ↓
+                    </Button>
+                    <Button
+                      size="slim"
+                      tone="critical"
+                      onClick={() => deleteTrendingSlide(slide.id)}
+                    >
+                      Delete
+                    </Button>
+                  </InlineStack>
+                </InlineStack>
+
+                <FormLayout>
+                  <InlineStack gap="400">
+                    <div style={{ flex: 2 }}>
+                      <TextField
+                        label="Slide Title"
+                        value={slide.title}
+                        onChange={(value) => updateTrendingSlide(slide.id, 'title', value)}
+                        placeholder="Premium Eyeglasses"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <Checkbox
+                        label="Enable this slide"
+                        checked={slide.enabled}
+                        onChange={(checked) => updateTrendingSlide(slide.id, 'enabled', checked)}
+                      />
+                    </div>
+                  </InlineStack>
+
+                  <TextField
+                    label="Image URL"
+                    value={slide.image_url}
+                    onChange={(value) => updateTrendingSlide(slide.id, 'image_url', value)}
+                    placeholder="https://images.unsplash.com/photo-xyz..."
+                    autoComplete="off"
+                    helpText="Recommended size: 440x540px for best quality"
+                  />
+
+                  <TextField
+                    label="Link URL"
+                    value={slide.link_url}
+                    onChange={(value) => updateTrendingSlide(slide.id, 'link_url', value)}
+                    placeholder="/collections/eyeglasses"
+                    autoComplete="off"
+                    helpText="Where users will go when they click this slide"
+                  />
+
+                  {slide.image_url && (
+                    <Box>
+                      <Text variant="bodyMd" as="p" fontWeight="semibold">Preview:</Text>
+                      <Box paddingBlockStart="200">
+                        <Thumbnail
+                          source={slide.image_url}
+                          alt={slide.title}
+                          size="large"
+                        />
+                      </Box>
+                    </Box>
+                  )}
+                </FormLayout>
+              </BlockStack>
+            </Card>
+          ))
+      )}
+
+      <Card>
+        <BlockStack gap="300">
+          <Text variant="headingSm" as="h3">Trending Slider Stats</Text>
+          <InlineStack gap="400">
+            <Text variant="bodyMd" as="p">
+              Total Slides: <Text variant="bodyMd" as="span" fontWeight="semibold">{trendingSlides.length}</Text>
+            </Text>
+            <Text variant="bodyMd" as="p">
+              Active Slides: <Text variant="bodyMd" as="span" fontWeight="semibold">{trendingSlides.filter(s => s.enabled).length}</Text>
+            </Text>
+          </InlineStack>
+        </BlockStack>
+      </Card>
+    </BlockStack>
+  );
+
   const renderColorsSettings = () => (
     <BlockStack gap="400">
       <Card>
@@ -257,6 +486,8 @@ export default function HeaderManagement() {
       case 0:
         return renderGeneralSettings();
       case 1:
+        return renderTrendingSlider();
+      case 2:
         return renderColorsSettings();
       default:
         return renderGeneralSettings();
@@ -274,9 +505,9 @@ export default function HeaderManagement() {
     <Frame>
       <Page
         title="Header Management"
-        subtitle="Manage your mobile header settings"
+        subtitle="Manage your mobile header settings and trending slides"
         primaryAction={{
-          content: "Save Settings",
+          content: "Save All Settings",
           loading: loading,
           onAction: saveHeaderSettings,
         }}
