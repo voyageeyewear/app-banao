@@ -2409,51 +2409,72 @@
         }
 
         // Data Loading Functions
-        async function loadCollections() {
+        async function loadCollections(retryCount = 0) {
+            const maxRetries = 3;
+            const retryDelay = 2000; // 2 seconds
+            
             try {
-                console.log('📚 Loading collections...');
-                // Try to load from new storefront API with faster timeout
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout for faster UX
-                    
-                    const apiUrl = `${API_BASE}/api/real-shopify?type=collections`;
-                    
-                    const response = await fetch(apiUrl, {
-                        signal: controller.signal
-                    });
-                    clearTimeout(timeoutId);
-                    
-                    console.log('Collections API Response status:', response.status);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('Collections API Data:', data);
+                console.log(`📚 Loading collections... (attempt ${retryCount + 1}/${maxRetries + 1})`);
+                
+                // Try multiple API endpoints in order of preference
+                const endpoints = [
+                    `${API_BASE}/api/mobile-products`,
+                    `${API_BASE}/api/storefront-data?type=collections`,
+                    `${API_BASE}/api/public-products?type=collections`
+                ];
+                
+                for (const apiUrl of endpoints) {
+                    try {
+                        console.log(`🔄 Trying endpoint: ${apiUrl}`);
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
                         
-                        if (data.success && data.collections && data.collections.length > 0) {
-                            collections = data.collections;
-                            renderCollections(collections);
-                            console.log(`✅ Loaded ${collections.length} real collections from Shopify`);
-                            return;
+                        const response = await fetch(apiUrl, {
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+                        
+                        console.log(`Collections API Response status: ${response.status}`);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('Collections API Data:', data);
+                            
+                            if (data.success && data.collections && data.collections.length > 0) {
+                                collections = data.collections;
+                                renderCollections(collections);
+                                console.log(`✅ Loaded ${collections.length} real collections from ${apiUrl}`);
+                                return;
+                            }
                         }
+                    } catch (endpointError) {
+                        console.log(`⚠️ Endpoint ${apiUrl} failed:`, endpointError);
+                        continue; // Try next endpoint
                     }
-                } catch (apiError) {
-                    console.log('⚠️ API failed, showing error message:', apiError);
-                    // Show error message with retry option
-                    const collectionsGrid = document.getElementById('collections-grid');
-                    if (collectionsGrid) {
-                        collectionsGrid.innerHTML = `
-                            <div class="error-message" style="text-align: center; padding: 2rem; color: #666;">
-                                <p>Unable to load collections</p>
-                                <p style="font-size: 0.9em;">Please check your internet connection</p>
-                                <button onclick="loadCollections()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                    Retry
-                                </button>
-                            </div>
-                        `;
-                    }
+                }
+                
+                // If all endpoints fail, retry after delay
+                if (retryCount < maxRetries) {
+                    console.log(`🔄 All endpoints failed, retrying in ${retryDelay}ms...`);
+                    setTimeout(() => loadCollections(retryCount + 1), retryDelay);
                     return;
                 }
+                
+                // Show error message after all retries exhausted
+                console.log('⚠️ All API attempts failed, showing error message');
+                const collectionsGrid = document.getElementById('collections-grid');
+                if (collectionsGrid) {
+                    collectionsGrid.innerHTML = `
+                        <div class="error-message" style="text-align: center; padding: 2rem; color: #666;">
+                            <p>Unable to load collections</p>
+                            <p style="font-size: 0.9em;">Please check your internet connection</p>
+                            <button onclick="loadCollections(0)" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Retry
+                            </button>
+                        </div>
+                    `;
+                }
+                return;
                 
                 // DISABLED Fallback to static collections - real API data should be used
                 console.log('⚠️ Skipping fallback collections - using real API data');
@@ -2500,51 +2521,72 @@
             }
         }
 
-        async function loadProducts() {
+        async function loadProducts(retryCount = 0) {
+            const maxRetries = 3;
+            const retryDelay = 2000; // 2 seconds
+            
             try {
-                console.log('🛍️ Loading products...');
-                // Try to load from new storefront API with faster timeout
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout for faster UX
-                    
-                    const apiUrl = `${API_BASE}/api/real-shopify?type=products`;
-                    
-                    const response = await fetch(apiUrl, {
-                        signal: controller.signal
-                    });
-                    clearTimeout(timeoutId);
-                    
-                    console.log('API Response status:', response.status);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('API Data:', data);
+                console.log(`🛍️ Loading products... (attempt ${retryCount + 1}/${maxRetries + 1})`);
+                
+                // Try multiple API endpoints in order of preference
+                const endpoints = [
+                    `${API_BASE}/api/mobile-products`,
+                    `${API_BASE}/api/storefront-data?type=products`,
+                    `${API_BASE}/api/public-products?type=products`
+                ];
+                
+                for (const apiUrl of endpoints) {
+                    try {
+                        console.log(`🔄 Trying endpoint: ${apiUrl}`);
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
                         
-                        if (data.success && data.products && data.products.length > 0) {
-                            products = data.products;
-                            renderProducts(products);
-                            console.log(`✅ Loaded ${products.length} real products from Shopify`);
-                            return;
+                        const response = await fetch(apiUrl, {
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+                        
+                        console.log(`Products API Response status: ${response.status}`);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('Products API Data:', data);
+                            
+                            if (data.success && data.products && data.products.length > 0) {
+                                products = data.products;
+                                renderProducts(products);
+                                console.log(`✅ Loaded ${products.length} real products from ${apiUrl}`);
+                                return;
+                            }
                         }
+                    } catch (endpointError) {
+                        console.log(`⚠️ Endpoint ${apiUrl} failed:`, endpointError);
+                        continue; // Try next endpoint
                     }
-                } catch (apiError) {
-                    console.log('⚠️ API failed, showing error message:', apiError);
-                    // Show error message with retry option
-                    const productsGrid = document.getElementById('products-grid');
-                    if (productsGrid) {
-                        productsGrid.innerHTML = `
-                            <div class="error-message" style="text-align: center; padding: 2rem; color: #666;">
-                                <p>Unable to load products</p>
-                                <p style="font-size: 0.9em;">Please check your internet connection</p>
-                                <button onclick="loadProducts()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                    Retry
-                                </button>
-                            </div>
-                        `;
-                    }
+                }
+                
+                // If all endpoints fail, retry after delay
+                if (retryCount < maxRetries) {
+                    console.log(`🔄 All endpoints failed, retrying in ${retryDelay}ms...`);
+                    setTimeout(() => loadProducts(retryCount + 1), retryDelay);
                     return;
                 }
+                
+                // Show error message after all retries exhausted
+                console.log('⚠️ All API attempts failed, showing error message');
+                const productsGrid = document.getElementById('products-grid');
+                if (productsGrid) {
+                    productsGrid.innerHTML = `
+                        <div class="error-message" style="text-align: center; padding: 2rem; color: #666;">
+                            <p>Unable to load products</p>
+                            <p style="font-size: 0.9em;">Please check your internet connection</p>
+                            <button onclick="loadProducts(0)" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Retry
+                            </button>
+                        </div>
+                    `;
+                }
+                return;
                 
                 // DISABLED Fallback to static products - real API data should be used
                 console.log('⚠️ Skipping fallback products - using real API data');
@@ -3368,6 +3410,8 @@
                 console.log('🔄 Auto-refreshing header settings...');
                 loadTrendingSlides();
                 loadHeaderSettings(); // Also refresh navigation and announcement bar
+                loadCollections(0); // Auto-refresh collections
+                loadProducts(0); // Auto-refresh products
             }, 15000); // 15 seconds
         }
 
@@ -3380,9 +3424,11 @@
                     isHidden = true;
                 } else if (isHidden) {
                     // App came back into focus, refresh settings
-                    console.log('🔄 App focus restored, refreshing header settings...');
+                    console.log('🔄 App focus restored, refreshing all data...');
                     loadTrendingSlides();
                     loadHeaderSettings(); // Also refresh navigation and announcement bar
+                    loadCollections(0); // Refresh collections
+                    loadProducts(0); // Refresh products
                     isHidden = false;
                 }
             });
@@ -3393,6 +3439,8 @@
             console.log('🔄 Manual refresh triggered');
             loadTrendingSlides();
             loadHeaderSettings(); // Also refresh navigation and announcement bar
+            loadCollections(0); // Refresh collections
+            loadProducts(0); // Refresh products
         }
 
         // Default slides as fallback
@@ -3597,11 +3645,15 @@
         // Load header settings on page load
         loadHeaderSettings();
         
+        // Load collections and products on page load
+        loadCollections(0);
+        loadProducts(0);
+        
         // Start auto-refresh system
         startAutoRefresh();
         setupFocusRefresh();
         
-        console.log('🔄 Auto-refresh system activated for navigation and announcement bar');
+        console.log('🔄 Auto-refresh system activated for navigation, announcement bar, collections and products');
     </script>
 </body>
 </html> 
