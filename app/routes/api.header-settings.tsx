@@ -136,6 +136,14 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
+// Helper function to add CORS headers to responses
+function addCorsHeaders(response: Response) {
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  return response;
+}
+
 export async function loader({ request }: ActionFunctionArgs) {
   console.log("🔍 Header settings loader: Starting...");
   
@@ -254,13 +262,7 @@ export async function loader({ request }: ActionFunctionArgs) {
 
     // Create response with CORS headers for mobile app
     const response = json(responseData);
-    
-    // Add CORS headers to allow mobile app access
-    response.headers.set("Access-Control-Allow-Origin", "*");
-    response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    
-    return response;
+    return addCorsHeaders(response);
 
   } catch (error) {
     console.error("❌ Error loading header settings:", error);
@@ -269,11 +271,6 @@ export async function loader({ request }: ActionFunctionArgs) {
       error: "Failed to load header settings"
     }, { status: 500 });
     
-    // Add CORS headers even for errors
-    errorResponse.headers.set("Access-Control-Allow-Origin", "*");
-    errorResponse.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    errorResponse.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    
-    return errorResponse;
+    return addCorsHeaders(errorResponse);
   }
 } 
