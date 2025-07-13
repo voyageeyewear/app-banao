@@ -40,8 +40,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         success: true,
         categories: categories.map(cat => ({
           id: cat.id,
-          title: cat.title,
-          handle: cat.handle,
+          title: cat.title || cat.id,
+          handle: cat.handle || cat.id,
           image: cat.image,
           description: cat.description || ""
         }))
@@ -56,8 +56,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         success: true,
         products: products.map(product => ({
           id: product.id,
-          title: product.title,
-          handle: product.handle,
+          title: product.title || product.id,
+          handle: product.handle || product.id,
           image: product.image,
           price: product.price,
           description: product.description || ""
@@ -77,15 +77,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         title: config.title,
         categories: categories.map(cat => ({
           id: cat.id,
-          title: cat.title,
-          handle: cat.handle,
+          title: cat.title || cat.id,
+          handle: cat.handle || cat.id,
           image: cat.image,
           description: cat.description || ""
         })),
         products: products.map(product => ({
           id: product.id,
-          title: product.title,
-          handle: product.handle,
+          title: product.title || product.id,
+          handle: product.handle || product.id,
           image: product.image,
           price: product.price,
           description: product.description || ""
