@@ -95,9 +95,9 @@ if [ -f "inject-slider-data.cjs" ]; then
     fi
 else
     log_warning "inject-slider-data.cjs not found, using original mobile-app.html"
-    # ALWAYS use mobile-app.html as the primary mobile application file
-    log_info "Using mobile-app.html as primary mobile application file"
-    cp build/client/mobile-app.html build/client/index.html
+# ALWAYS use mobile-app.html as the primary mobile application file
+log_info "Using mobile-app.html as primary mobile application file"
+cp build/client/mobile-app.html build/client/index.html
 fi
 
 # Verify the copy was successful
