@@ -2875,54 +2875,59 @@
             }
         }
 
-        // Load Navigation Items (enhances existing navigation)
+        // Load Navigation Items (replaces existing navigation)
         function loadNavigationItems(navItems) {
             const navTabs = document.getElementById('nav-tabs');
             if (!navTabs) return;
 
             console.log('🎯 Loading dynamic navigation items:', navItems);
 
-            // Only replace if we have valid items and they're different from defaults
+            // Always replace if we have items from API
             if (navItems && navItems.length > 0) {
+                console.log('📱 Replacing static navigation with dynamic items');
                 navTabs.innerHTML = '';
 
                 // Filter enabled items and sort by order
                 const enabledItems = navItems.filter(item => item.enabled).sort((a, b) => a.order - b.order);
 
-                enabledItems.forEach((item, index) => {
-                    const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    
-                    a.href = item.link || '#';
-                    a.className = index === 0 ? 'active' : '';
-                    
-                    // Create icon span
-                    const iconSpan = document.createElement('span');
-                    iconSpan.className = 'nav-tab-icon';
-                    
-                    // Get appropriate icon for each tab
-                    const iconSVG = getNavIcon(item.title.toLowerCase());
-                    iconSpan.innerHTML = iconSVG;
-                    
-                    a.appendChild(iconSpan);
-                    a.appendChild(document.createTextNode(item.title));
-                    
-                    // Add click event
-                    a.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        // Remove active class from all tabs
-                        navTabs.querySelectorAll('a').forEach(tab => tab.classList.remove('active'));
-                        // Add active class to clicked tab
-                        a.classList.add('active');
+                if (enabledItems.length > 0) {
+                    enabledItems.forEach((item, index) => {
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        
+                        a.href = item.link || '#';
+                        a.className = index === 0 ? 'active' : '';
+                        
+                        // Create icon span
+                        const iconSpan = document.createElement('span');
+                        iconSpan.className = 'nav-tab-icon';
+                        
+                        // Get appropriate icon for each tab
+                        const iconSVG = getNavIcon(item.title.toLowerCase());
+                        iconSpan.innerHTML = iconSVG;
+                        
+                        a.appendChild(iconSpan);
+                        a.appendChild(document.createTextNode(' ' + item.title));
+                        
+                        // Add click event
+                        a.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            // Remove active class from all tabs
+                            navTabs.querySelectorAll('a').forEach(tab => tab.classList.remove('active'));
+                            // Add active class to clicked tab
+                            a.classList.add('active');
+                        });
+                        
+                        li.appendChild(a);
+                        navTabs.appendChild(li);
                     });
-                    
-                    li.appendChild(a);
-                    navTabs.appendChild(li);
-                });
 
-                console.log('✅ Dynamic navigation loaded successfully');
+                    console.log('✅ Dynamic navigation loaded successfully with', enabledItems.length, 'items');
+                } else {
+                    console.log('⚠️ No enabled dynamic items, keeping static navigation');
+                }
             } else {
-                console.log('⚠️ Using default navigation (no dynamic items)');
+                console.log('⚠️ No dynamic items provided, keeping static navigation');
             }
         }
 

@@ -158,17 +158,8 @@ export async function loader({ request }: ActionFunctionArgs) {
   console.log("🔍 Header settings loader: Starting...");
   
   try {
-    // Only require authentication for admin requests, not for mobile app
-    const userAgent = request.headers.get('user-agent') || '';
-    const isMobileApp = userAgent.includes('Mobile') || userAgent.includes('Android');
-    
-    if (!isMobileApp) {
-      // Authenticate only admin requests
-      await authenticate.admin(request);
-      console.log("✅ Loader authentication successful");
-    } else {
-      console.log("✅ Mobile app access - skipping authentication");
-    }
+    // Skip authentication for GET requests (public API for mobile app)
+    console.log("✅ Public API access - skipping authentication for GET request");
     
     // Load header settings from database
     const headerSettings = await db.headerConfig.findFirst({
