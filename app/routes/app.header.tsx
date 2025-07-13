@@ -79,7 +79,7 @@ export default function HeaderManagement() {
     {
       id: "1",
       title: "Premium Eyeglasses",
-      image_url: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=440&h=540&fit=crop",
+      image_url: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=440&h=540&fit=crop&crop=center&q=80",
       link_url: "/collections/eyeglasses",
       enabled: true,
       order: 1,
@@ -87,10 +87,34 @@ export default function HeaderManagement() {
     {
       id: "2",
       title: "Blue Light Blockers",
-      image_url: "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=440&h=540&fit=crop",
+      image_url: "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=440&h=540&fit=crop&crop=center&q=80",
       link_url: "/collections/blue-light",
       enabled: true,
       order: 2,
+    },
+    {
+      id: "3",
+      title: "Designer Sunglasses",
+      image_url: "https://images.unsplash.com/photo-1556306535-38febf6782e7?w=440&h=540&fit=crop&crop=center&q=80",
+      link_url: "/collections/sunglasses",
+      enabled: true,
+      order: 3,
+    },
+    {
+      id: "4",
+      title: "Reading Glasses",
+      image_url: "https://images.unsplash.com/photo-1508296695146-257a814070b4?w=440&h=540&fit=crop&crop=center&q=80",
+      link_url: "/collections/reading",
+      enabled: true,
+      order: 4,
+    },
+    {
+      id: "5",
+      title: "Sports Eyewear",
+      image_url: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=440&h=540&fit=crop&crop=center&q=80",
+      link_url: "/collections/sports",
+      enabled: true,
+      order: 5,
     },
   ]);
 
