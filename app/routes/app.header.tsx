@@ -23,6 +23,33 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 
+// Navigation Item Interface
+interface NavItem {
+  id: string;
+  title: string;
+  link: string;
+  enabled: boolean;
+  order: number;
+}
+
+// Announcement Bar Interface
+interface AnnouncementBar {
+  enabled: boolean;
+  text: string;
+  background_color: string;
+  text_color: string;
+  scroll_speed: number;
+}
+
+// Menu Settings Interface
+interface MenuSettings {
+  background_color: string;
+  text_color: string;
+  hover_color: string;
+  enable_search: boolean;
+  enable_categories: boolean;
+}
+
 // Simplified Header Settings Interface
 interface HeaderSettings {
   // Basic Settings
@@ -85,6 +112,31 @@ export default function HeaderManagement() {
     enable_offer_button: true,
     offer_button_text: "50% OFF",
     offer_button_link: "",
+  });
+
+  // Navigation Items State
+  const [navItems, setNavItems] = useState<NavItem[]>([
+    { id: "1", title: "All", link: "/collections/all", enabled: true, order: 1 },
+    { id: "2", title: "Classic", link: "/collections/classic", enabled: true, order: 2 },
+    { id: "3", title: "Premium", link: "/collections/premium", enabled: true, order: 3 },
+  ]);
+
+  // Announcement Bar State
+  const [announcementBar, setAnnouncementBar] = useState<AnnouncementBar>({
+    enabled: true,
+    text: "Free shipping on orders over $50! 🚚",
+    background_color: "#1E1B4B",
+    text_color: "#ffffff",
+    scroll_speed: 5000,
+  });
+
+  // Menu Settings State
+  const [menuSettings, setMenuSettings] = useState<MenuSettings>({
+    background_color: "#ffffff",
+    text_color: "#333333",
+    hover_color: "#1E1B4B",
+    enable_search: true,
+    enable_categories: true,
   });
 
   const [trendingSlides, setTrendingSlides] = useState<TrendingSlide[]>([
@@ -153,6 +205,24 @@ export default function HeaderManagement() {
       accessibilityLabel: 'Colors and design settings',
       panelID: 'colors-settings-panel',
     },
+    {
+      id: 'navigation',
+      content: 'Navigation',
+      accessibilityLabel: 'Navigation bar management',
+      panelID: 'navigation-settings-panel',
+    },
+    {
+      id: 'announcement',
+      content: 'Announcement Bar',
+      accessibilityLabel: 'Announcement bar settings',
+      panelID: 'announcement-settings-panel',
+    },
+    {
+      id: 'menu',
+      content: 'Menu Settings',
+      accessibilityLabel: 'Menu drawer settings',
+      panelID: 'menu-settings-panel',
+    },
   ];
 
   const saveHeaderSettings = async () => {
@@ -162,6 +232,9 @@ export default function HeaderManagement() {
       const allData = {
         header: headerSettings,
         trending_slides: trendingSlides,
+        nav_items: navItems,
+        announcement_bar: announcementBar,
+        menu_settings: menuSettings,
       };
 
       console.log("📤 Sending data:", JSON.stringify(allData, null, 2));
@@ -214,6 +287,15 @@ export default function HeaderManagement() {
         if (data.trending_slides) {
           setTrendingSlides(data.trending_slides);
         }
+        if (data.nav_items) {
+          setNavItems(data.nav_items);
+        }
+        if (data.announcement_bar) {
+          setAnnouncementBar(data.announcement_bar);
+        }
+        if (data.menu_settings) {
+          setMenuSettings(data.menu_settings);
+        }
       }
     } catch (error) {
       console.error('Error loading header settings:', error);
@@ -223,6 +305,45 @@ export default function HeaderManagement() {
   useEffect(() => {
     loadHeaderSettings();
   }, []);
+
+  // Navigation Items Management Functions
+  const addNavItem = () => {
+    const newNavItem: NavItem = {
+      id: Date.now().toString(),
+      title: "New Tab",
+      link: "/collections/new",
+      enabled: true,
+      order: navItems.length + 1,
+    };
+    setNavItems([...navItems, newNavItem]);
+  };
+
+  const updateNavItem = (id: string, field: keyof NavItem, value: any) => {
+    setNavItems(navItems.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
+  const deleteNavItem = (id: string) => {
+    setNavItems(navItems.filter(item => item.id !== id));
+  };
+
+  const moveNavItem = (id: string, direction: 'up' | 'down') => {
+    const currentIndex = navItems.findIndex(item => item.id === id);
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    
+    if (newIndex >= 0 && newIndex < navItems.length) {
+      const newNavItems = [...navItems];
+      [newNavItems[currentIndex], newNavItems[newIndex]] = [newNavItems[newIndex], newNavItems[currentIndex]];
+      
+      // Update order values
+      newNavItems.forEach((item, index) => {
+        item.order = index + 1;
+      });
+      
+      setNavItems(newNavItems);
+    }
+  };
 
   // Trending Slides Management Functions
   const addTrendingSlide = () => {
@@ -586,6 +707,185 @@ export default function HeaderManagement() {
     </BlockStack>
   );
 
+  const renderNavigationSettings = () => (
+    <Layout>
+      <Layout.Section>
+        <Card>
+          <BlockStack gap="400">
+            <InlineStack align="space-between">
+              <Text variant="headingMd" as="h3">Navigation Items</Text>
+              <Button onClick={addNavItem} variant="primary">Add Navigation Item</Button>
+            </InlineStack>
+          </BlockStack>
+        </Card>
+      </Layout.Section>
+      
+      {navItems.map((item, index) => (
+        <Layout.Section key={item.id}>
+          <Card>
+            <BlockStack gap="400">
+              <InlineStack align="space-between">
+                <Text variant="headingMd" as="h4">Navigation Item {index + 1}</Text>
+                <InlineStack gap="200">
+                  <Button 
+                    onClick={() => moveNavItem(item.id, 'up')}
+                    disabled={index === 0}
+                    size="micro"
+                  >
+                    ↑
+                  </Button>
+                  <Button 
+                    onClick={() => moveNavItem(item.id, 'down')}
+                    disabled={index === navItems.length - 1}
+                    size="micro"
+                  >
+                    ↓
+                  </Button>
+                  <Button onClick={() => deleteNavItem(item.id)} variant="primary" tone="critical" size="micro">
+                    Delete
+                  </Button>
+                </InlineStack>
+              </InlineStack>
+              
+              <FormLayout>
+                <InlineStack gap="400">
+                  <div style={{ flex: 2 }}>
+                    <TextField
+                      label="Tab Title"
+                      value={item.title}
+                      onChange={(value) => updateNavItem(item.id, 'title', value)}
+                      placeholder="All, Classic, Premium..."
+                      autoComplete="off"
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Checkbox
+                      label="Enable this tab"
+                      checked={item.enabled}
+                      onChange={(checked) => updateNavItem(item.id, 'enabled', checked)}
+                    />
+                  </div>
+                </InlineStack>
+                
+                <TextField
+                  label="Link URL"
+                  value={item.link}
+                  onChange={(value) => updateNavItem(item.id, 'link', value)}
+                  placeholder="/collections/all"
+                  autoComplete="off"
+                  helpText="Where users will go when they click this tab"
+                />
+              </FormLayout>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+      ))}
+    </Layout>
+  );
+
+  const renderAnnouncementBar = () => (
+    <Layout>
+      <Layout.Section>
+        <Card>
+          <BlockStack gap="400">
+            <Text variant="headingMd" as="h3">Announcement Bar Settings</Text>
+            <FormLayout>
+              <Checkbox
+                label="Enable Announcement Bar"
+                checked={announcementBar.enabled}
+                onChange={(checked) => setAnnouncementBar({...announcementBar, enabled: checked})}
+              />
+              
+              <TextField
+                label="Announcement Text"
+                value={announcementBar.text}
+                onChange={(value) => setAnnouncementBar({...announcementBar, text: value})}
+                placeholder="Free shipping on orders over $50! 🚚"
+                autoComplete="off"
+                helpText="This text will scroll automatically every 5 seconds"
+              />
+              
+              <TextField
+                label="Background Color"
+                value={announcementBar.background_color}
+                onChange={(value) => setAnnouncementBar({...announcementBar, background_color: value})}
+                placeholder="#1E1B4B"
+                autoComplete="off"
+              />
+              
+              <TextField
+                label="Text Color"
+                value={announcementBar.text_color}
+                onChange={(value) => setAnnouncementBar({...announcementBar, text_color: value})}
+                placeholder="#ffffff"
+                autoComplete="off"
+              />
+              
+              <TextField
+                label="Scroll Speed (milliseconds)"
+                type="number"
+                value={announcementBar.scroll_speed.toString()}
+                onChange={(value) => setAnnouncementBar({...announcementBar, scroll_speed: parseInt(value) || 5000})}
+                placeholder="5000"
+                autoComplete="off"
+                helpText="How long each message displays before scrolling (default: 5000ms = 5 seconds)"
+              />
+            </FormLayout>
+          </BlockStack>
+        </Card>
+      </Layout.Section>
+    </Layout>
+  );
+
+  const renderMenuSettings = () => (
+    <Layout>
+      <Layout.Section>
+        <Card>
+          <BlockStack gap="400">
+            <Text variant="headingMd" as="h3">Menu Drawer Settings</Text>
+            <FormLayout>
+              <TextField
+                label="Menu Background Color"
+                value={menuSettings.background_color}
+                onChange={(value) => setMenuSettings({...menuSettings, background_color: value})}
+                placeholder="#ffffff"
+                autoComplete="off"
+              />
+              
+              <TextField
+                label="Menu Text Color"
+                value={menuSettings.text_color}
+                onChange={(value) => setMenuSettings({...menuSettings, text_color: value})}
+                placeholder="#333333"
+                autoComplete="off"
+              />
+              
+              <TextField
+                label="Menu Hover Color"
+                value={menuSettings.hover_color}
+                onChange={(value) => setMenuSettings({...menuSettings, hover_color: value})}
+                placeholder="#1E1B4B"
+                autoComplete="off"
+              />
+              
+              <Checkbox
+                label="Enable Search in Menu"
+                checked={menuSettings.enable_search}
+                onChange={(checked) => setMenuSettings({...menuSettings, enable_search: checked})}
+              />
+              
+              <Checkbox
+                label="Enable Categories in Menu"
+                checked={menuSettings.enable_categories}
+                onChange={(checked) => setMenuSettings({...menuSettings, enable_categories: checked})}
+              />
+            </FormLayout>
+          </BlockStack>
+        </Card>
+      </Layout.Section>
+    </Layout>
+  );
+
   const renderTabContent = () => {
     switch (selectedTab) {
       case 0:
@@ -594,6 +894,12 @@ export default function HeaderManagement() {
         return renderTrendingSlider();
       case 2:
         return renderColorsSettings();
+      case 3:
+        return renderNavigationSettings();
+      case 4:
+        return renderAnnouncementBar();
+      case 5:
+        return renderMenuSettings();
       default:
         return renderGeneralSettings();
     }

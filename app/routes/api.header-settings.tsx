@@ -33,6 +33,9 @@ export async function action({ request }: ActionFunctionArgs) {
     // Extract and validate data
     const headerSettings = requestData.header;
     const trendingSlides = requestData.trending_slides || [];
+    const navItems = requestData.nav_items || [];
+    const announcementBar = requestData.announcement_bar || {};
+    const menuSettings = requestData.menu_settings || {};
 
     if (!headerSettings) {
       console.error("❌ Missing header settings");
@@ -51,7 +54,7 @@ export async function action({ request }: ActionFunctionArgs) {
       where: { id: 1 },
       update: {
         enabled: true,
-        announcement: { text: "Header announcement", enabled: true },
+        announcement: announcementBar,
         genderTabs: { enabled: headerSettings.enable_menu_drawer, tabs: ["All", "Men", "Women"] },
         trendingImages: {
           enabled: true,
@@ -73,6 +76,8 @@ export async function action({ request }: ActionFunctionArgs) {
           enable_wishlist: headerSettings.enable_wishlist_icon,
           enable_account: headerSettings.enable_account_icon,
           enable_cart: headerSettings.enable_cart_icon,
+          nav_items: navItems,
+          menu_settings: menuSettings,
           offer_button: {
             enabled: headerSettings.enable_offer_button,
             text: headerSettings.offer_button_text,
@@ -84,7 +89,7 @@ export async function action({ request }: ActionFunctionArgs) {
       create: {
         id: 1,
         enabled: true,
-        announcement: { text: "Header announcement", enabled: true },
+        announcement: announcementBar,
         genderTabs: { enabled: headerSettings.enable_menu_drawer, tabs: ["All", "Men", "Women"] },
         trendingImages: {
           enabled: true,
@@ -106,6 +111,8 @@ export async function action({ request }: ActionFunctionArgs) {
           enable_wishlist: headerSettings.enable_wishlist_icon,
           enable_account: headerSettings.enable_account_icon,
           enable_cart: headerSettings.enable_cart_icon,
+          nav_items: navItems,
+          menu_settings: menuSettings,
           offer_button: {
             enabled: headerSettings.enable_offer_button,
             text: headerSettings.offer_button_text,
@@ -236,7 +243,26 @@ export async function loader({ request }: ActionFunctionArgs) {
           offer_button_text: navigation.offer_button ? navigation.offer_button.text : "50% OFF",
           offer_button_link: navigation.offer_button ? navigation.offer_button.link : "",
         },
-        trending_slides: trendingData.slides || defaultSlides
+        trending_slides: trendingData.slides || defaultSlides,
+        nav_items: navigation.nav_items || [
+          { id: "1", title: "All", link: "/collections/all", enabled: true, order: 1 },
+          { id: "2", title: "Classic", link: "/collections/classic", enabled: true, order: 2 },
+          { id: "3", title: "Premium", link: "/collections/premium", enabled: true, order: 3 },
+        ],
+        announcement_bar: headerSettings.announcement || {
+          enabled: true,
+          text: "Free shipping on orders over $50! 🚚",
+          background_color: "#1E1B4B",
+          text_color: "#ffffff",
+          scroll_speed: 5000,
+        },
+        menu_settings: navigation.menu_settings || {
+          background_color: "#ffffff",
+          text_color: "#333333",
+          hover_color: "#1E1B4B",
+          enable_search: true,
+          enable_categories: true,
+        }
       };
     } else {
       responseData = { 
@@ -262,7 +288,26 @@ export async function loader({ request }: ActionFunctionArgs) {
           offer_button_text: "50% OFF",
           offer_button_link: "",
         },
-        trending_slides: defaultSlides
+        trending_slides: defaultSlides,
+        nav_items: [
+          { id: "1", title: "All", link: "/collections/all", enabled: true, order: 1 },
+          { id: "2", title: "Classic", link: "/collections/classic", enabled: true, order: 2 },
+          { id: "3", title: "Premium", link: "/collections/premium", enabled: true, order: 3 },
+        ],
+        announcement_bar: {
+          enabled: true,
+          text: "Free shipping on orders over $50! 🚚",
+          background_color: "#1E1B4B",
+          text_color: "#ffffff",
+          scroll_speed: 5000,
+        },
+        menu_settings: {
+          background_color: "#ffffff",
+          text_color: "#333333",
+          hover_color: "#1E1B4B",
+          enable_search: true,
+          enable_categories: true,
+        }
       };
     }
 
