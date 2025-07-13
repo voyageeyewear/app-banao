@@ -27,6 +27,10 @@ export default function App() {
         <Link to="/app/additional">Additional page</Link>
         <Link to="/app/builder">Website Builder</Link>
         <Link to="/app/slider">Slider</Link>
+        <Link to="/app/header">Header</Link>
+        <Link to="/app/categories">Eyeglasses</Link>
+        <Link to="/app/sunglasses">Sunglasses</Link>
+        <Link to="/app/shark-tank">Shark Tank</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>
