@@ -437,6 +437,35 @@ export default function SliderPage() {
     }
   };
 
+  const saveHeaderSettings = async () => {
+    try {
+      // Save header data to database
+      const response = await fetch('/api/header-settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(headerData),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setToastContent('✨ Header settings saved successfully! Run "./build-apk.sh" to create APK with your changes.');
+        console.log('🔄 Header settings saved to database successfully');
+      } else {
+        throw new Error(data.error || 'Failed to save header settings');
+      }
+      
+      setShowToast(true);
+      
+    } catch (error) {
+      console.error('Error saving header settings:', error);
+      setToastContent(`Error saving header settings: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setShowToast(true);
+    }
+  };
+
   const addNewSlide = () => {
     const newSlide: SlideData = {
       id: Date.now().toString(),
@@ -798,10 +827,7 @@ export default function SliderPage() {
               </BlockStack>
             </Card>
 
-            <Button variant="primary" onClick={() => {
-              setToastContent('✨ Header settings saved!');
-              setShowToast(true);
-            }}>
+            <Button variant="primary" onClick={saveHeaderSettings}>
               Save Header Settings
             </Button>
           </BlockStack>
