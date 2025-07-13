@@ -72,12 +72,12 @@ export default function HeaderManagement() {
     header_background_color: "#FFFFFF",
     nav_text_color: "#6B7280",
     nav_active_color: "#1E1B4B",
-    icon_color: "#6B7280",
-    icon_hover_color: "#1E1B4B",
-    cart_icon_color: "#6B7280",
-    wishlist_icon_color: "#6B7280",
-    account_icon_color: "#6B7280",
-    menu_icon_color: "#6B7280",
+    icon_color: "#ffffff",
+    icon_hover_color: "#ffffff",
+    cart_icon_color: "#ffffff",
+    wishlist_icon_color: "#ffffff",
+    account_icon_color: "#ffffff",
+    menu_icon_color: "#ffffff",
     enable_menu_drawer: true,
     enable_wishlist_icon: true,
     enable_account_icon: true,
@@ -540,7 +540,7 @@ export default function HeaderManagement() {
               label="Default Icon Color"
               value={headerSettings.icon_color}
               onChange={(value) => setHeaderSettings({...headerSettings, icon_color: value})}
-              placeholder="#6B7280"
+              placeholder="#ffffff"
               autoComplete="off"
               helpText="Default color for all icons"
             />
@@ -548,7 +548,7 @@ export default function HeaderManagement() {
               label="Icon Hover Color"
               value={headerSettings.icon_hover_color}
               onChange={(value) => setHeaderSettings({...headerSettings, icon_hover_color: value})}
-              placeholder="#1E1B4B"
+              placeholder="#ffffff"
               autoComplete="off"
               helpText="Color when hovering over icons"
             />
@@ -556,28 +556,28 @@ export default function HeaderManagement() {
               label="Cart Icon Color"
               value={headerSettings.cart_icon_color}
               onChange={(value) => setHeaderSettings({...headerSettings, cart_icon_color: value})}
-              placeholder="#6B7280"
+              placeholder="#ffffff"
               autoComplete="off"
             />
             <TextField
               label="Wishlist Icon Color"
               value={headerSettings.wishlist_icon_color}
               onChange={(value) => setHeaderSettings({...headerSettings, wishlist_icon_color: value})}
-              placeholder="#6B7280"
+              placeholder="#ffffff"
               autoComplete="off"
             />
             <TextField
               label="Account Icon Color"
               value={headerSettings.account_icon_color}
               onChange={(value) => setHeaderSettings({...headerSettings, account_icon_color: value})}
-              placeholder="#6B7280"
+              placeholder="#ffffff"
               autoComplete="off"
             />
             <TextField
               label="Menu Icon Color"
               value={headerSettings.menu_icon_color}
               onChange={(value) => setHeaderSettings({...headerSettings, menu_icon_color: value})}
-              placeholder="#6B7280"
+              placeholder="#ffffff"
               autoComplete="off"
             />
           </FormLayout>
