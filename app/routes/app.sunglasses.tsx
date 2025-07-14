@@ -39,6 +39,8 @@ interface ProductData {
   offer: string;
   image: string;
   category: string;
+  link?: string;
+  linkType?: 'product' | 'collection' | 'external' | 'none';
 }
 
 const defaultCategories: CategoryData[] = [
@@ -489,6 +491,34 @@ export default function SunglassesPage() {
                   value={editingProduct.category}
                   onChange={(value) => setEditingProduct({...editingProduct, category: value})}
                 />
+                <Select
+                  label="Link Type"
+                  options={[
+                    { label: 'None', value: 'none' },
+                    { label: 'Link to Product', value: 'product' },
+                    { label: 'Link to Collection', value: 'collection' },
+                    { label: 'External Link', value: 'external' }
+                  ]}
+                  value={editingProduct.linkType || 'none'}
+                  onChange={(value) => setEditingProduct({...editingProduct, linkType: value as 'product' | 'collection' | 'external' | 'none', link: value === 'none' ? '' : editingProduct.link})}
+                />
+                {editingProduct.linkType && editingProduct.linkType !== 'none' && (
+                  <TextField
+                    label={
+                      editingProduct.linkType === 'product' ? 'Product ID or Handle' :
+                      editingProduct.linkType === 'collection' ? 'Collection ID or Handle' :
+                      'External URL'
+                    }
+                    value={editingProduct.link || ''}
+                    onChange={(value) => setEditingProduct({...editingProduct, link: value})}
+                    autoComplete="off"
+                    helpText={
+                      editingProduct.linkType === 'product' ? 'Enter product ID or handle to link to' :
+                      editingProduct.linkType === 'collection' ? 'Enter collection ID or handle to link to' :
+                      'Enter full URL (e.g., https://example.com)'
+                    }
+                  />
+                )}
               </FormLayout>
             )}
           </Modal.Section>

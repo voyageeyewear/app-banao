@@ -39,6 +39,8 @@ interface ProductData {
   offer: string;
   image: string;
   category: string;
+  link?: string;
+  linkType?: 'product' | 'collection' | 'external' | 'none';
 }
 
 const defaultCategories: CategoryData[] = [
@@ -427,11 +429,13 @@ export default function CategoriesPage() {
                   label="Category Name"
                   value={editingCategory.name}
                   onChange={(value) => setEditingCategory({...editingCategory, name: value})}
+                  autoComplete="off"
                 />
                 <TextField
                   label="Image URL"
                   value={editingCategory.image}
                   onChange={(value) => setEditingCategory({...editingCategory, image: value})}
+                  autoComplete="off"
                 />
               </FormLayout>
             )}
@@ -461,21 +465,25 @@ export default function CategoriesPage() {
                   label="Brand Name"
                   value={editingProduct.brand}
                   onChange={(value) => setEditingProduct({...editingProduct, brand: value})}
+                  autoComplete="off"
                 />
                 <TextField
                   label="Price"
                   value={editingProduct.price}
                   onChange={(value) => setEditingProduct({...editingProduct, price: value})}
+                  autoComplete="off"
                 />
                 <TextField
                   label="Offer"
                   value={editingProduct.offer}
                   onChange={(value) => setEditingProduct({...editingProduct, offer: value})}
+                  autoComplete="off"
                 />
                 <TextField
                   label="Image URL"
                   value={editingProduct.image}
                   onChange={(value) => setEditingProduct({...editingProduct, image: value})}
+                  autoComplete="off"
                 />
                 <Select
                   label="Category"
@@ -483,6 +491,34 @@ export default function CategoriesPage() {
                   value={editingProduct.category}
                   onChange={(value) => setEditingProduct({...editingProduct, category: value})}
                 />
+                <Select
+                  label="Link Type"
+                  options={[
+                    { label: 'None', value: 'none' },
+                    { label: 'Link to Product', value: 'product' },
+                    { label: 'Link to Collection', value: 'collection' },
+                    { label: 'External Link', value: 'external' }
+                  ]}
+                  value={editingProduct.linkType || 'none'}
+                  onChange={(value) => setEditingProduct({...editingProduct, linkType: value as 'product' | 'collection' | 'external' | 'none', link: value === 'none' ? '' : editingProduct.link})}
+                />
+                {editingProduct.linkType && editingProduct.linkType !== 'none' && (
+                  <TextField
+                    label={
+                      editingProduct.linkType === 'product' ? 'Product ID or Handle' :
+                      editingProduct.linkType === 'collection' ? 'Collection ID or Handle' :
+                      'External URL'
+                    }
+                    value={editingProduct.link || ''}
+                    onChange={(value) => setEditingProduct({...editingProduct, link: value})}
+                    autoComplete="off"
+                    helpText={
+                      editingProduct.linkType === 'product' ? 'Enter product ID or handle to link to' :
+                      editingProduct.linkType === 'collection' ? 'Enter collection ID or handle to link to' :
+                      'Enter full URL (e.g., https://example.com)'
+                    }
+                  />
+                )}
               </FormLayout>
             )}
           </Modal.Section>

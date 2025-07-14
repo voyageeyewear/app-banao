@@ -1465,6 +1465,117 @@
                 font-size: 14px;
             }
         }
+        /* Product Modal Styles */
+        .product-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .product-modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .product-modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s ease;
+        }
+
+        .close-button:hover {
+            background: #f0f0f0;
+        }
+
+        .product-modal-body {
+            padding: 20px;
+        }
+
+        .product-modal-image {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .product-modal-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-modal-info h3 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .product-modal-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1E1B4B;
+            margin: 10px 0;
+        }
+
+        .product-modal-offer {
+            color: #666;
+            margin: 10px 0 20px 0;
+            font-size: 14px;
+        }
+
+        .add-to-cart-btn {
+            background: #1E1B4B;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s ease;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #2D2A5B;
+        }
+
+        .add-to-cart-btn:active {
+            transform: translateY(1px);
+        }
     </style>
 </head>
 <body>
@@ -2906,7 +3017,7 @@
                     const productGrid = document.getElementById(`${category.id}-products`);
                     if (productGrid && categoryProducts.length > 0) {
                         productGrid.innerHTML = categoryProducts.map(product => `
-                            <a href="#" class="category-product-card">
+                            <a href="#" class="category-product-card" onclick="handleProductClick('${product.id}', '${product.linkType || 'none'}', '${product.link || ''}', '${product.brand || product.title}', '${product.price}', '${product.image || ''}', '${product.offer || ''}')">
                                 <div class="category-product-image">
                                     <img src="${product.image || product.image_url || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=100&h=100&fit=crop'}" alt="${product.brand || product.title}">
                                 </div>
@@ -2973,7 +3084,7 @@
                     const productGrid = document.getElementById(`${category.id}-products`);
                     if (productGrid && categoryProducts.length > 0) {
                         productGrid.innerHTML = categoryProducts.map(product => `
-                            <a href="#" class="category-product-card">
+                            <a href="#" class="category-product-card" onclick="handleProductClick('${product.id}', '${product.linkType || 'none'}', '${product.link || ''}', '${product.brand || product.title}', '${product.price}', '${product.image || ''}', '${product.offer || ''}')">
                                 <div class="category-product-image">
                                     <img src="${product.image || product.image_url || 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=100&h=100&fit=crop'}" alt="${product.brand || product.title}">
                                 </div>
@@ -3827,6 +3938,156 @@
         // Start auto-refresh system
         startAutoRefresh();
         setupFocusRefresh();
+        
+        // Handle product link clicks
+        function handleProductClick(productId, linkType, link, brand, price, image, offer) {
+            console.log('🔍 Product clicked:', { productId, linkType, link, brand });
+            
+            // Prevent default action
+            event.preventDefault();
+            
+            if (linkType === 'none' || !link) {
+                // Show product details modal
+                showProductModal(productId, brand, price, image, offer);
+            } else if (linkType === 'product') {
+                // Navigate to another product
+                console.log('🔗 Navigating to product:', link);
+                // You can implement product navigation here
+                showToast(`Navigating to product: ${link}`);
+            } else if (linkType === 'collection') {
+                // Navigate to collection
+                console.log('🔗 Navigating to collection:', link);
+                // You can implement collection navigation here
+                showToast(`Navigating to collection: ${link}`);
+            } else if (linkType === 'external') {
+                // Open external link
+                console.log('🔗 Opening external link:', link);
+                if (link.startsWith('http://') || link.startsWith('https://')) {
+                    window.open(link, '_blank');
+                } else {
+                    showToast('Invalid external link');
+                }
+            }
+        }
+        
+        // Show product details modal
+        function showProductModal(productId, brand, price, image, offer) {
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'product-modal';
+            modal.innerHTML = `
+                <div class="product-modal-overlay" onclick="closeProductModal()"></div>
+                <div class="product-modal-content">
+                    <div class="product-modal-header">
+                        <h2>${brand}</h2>
+                        <button class="close-button" onclick="closeProductModal()">×</button>
+                    </div>
+                    <div class="product-modal-body">
+                        <div class="product-modal-image">
+                            <img src="${image || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=300&h=300&fit=crop'}" alt="${brand}">
+                        </div>
+                        <div class="product-modal-info">
+                            <h3>${brand}</h3>
+                            <p class="product-modal-price">₹${price}</p>
+                            <p class="product-modal-offer">${offer || 'Free shipping'}</p>
+                            <button class="add-to-cart-btn" onclick="addToCart('${productId}', '${brand}', '${price}', '${image}')">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add styles
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // Close product modal
+        function closeProductModal() {
+            const modal = document.querySelector('.product-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // Add to cart functionality
+        function addToCart(productId, brand, price, image) {
+            console.log('🛒 Adding to cart:', { productId, brand, price });
+            
+            // Get existing cart or create new one
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            
+            // Check if product already exists in cart
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: productId,
+                    brand: brand,
+                    price: price,
+                    image: image,
+                    quantity: 1
+                });
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            // Show success message
+            showToast(`${brand} added to cart!`);
+            
+            // Close modal
+            closeProductModal();
+        }
+        
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #333;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 6px;
+                z-index: 1001;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => {
+                toast.style.opacity = '1';
+            }, 100);
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
         
         console.log('🔄 Auto-refresh system activated for navigation, announcement bar, collections and products');
     </script>
