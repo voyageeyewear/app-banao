@@ -56,11 +56,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         success: true,
         products: products.map(product => ({
           id: product.id,
-          title: product.title || product.id,
+          title: product.title || product.brand || product.id,
           handle: product.handle || product.id,
           image: product.image,
           price: product.price,
-          description: product.description || ""
+          description: product.description || product.offer || "",
+          category: product.category,
+          brand: product.brand,
+          offer: product.offer
         }))
       }));
     }
@@ -84,11 +87,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         })),
         products: products.map(product => ({
           id: product.id,
-          title: product.title || product.id,
+          title: product.title || product.brand || product.id,
           handle: product.handle || product.id,
           image: product.image,
           price: product.price,
-          description: product.description || ""
+          description: product.description || product.offer || "",
+          category: product.category,
+          brand: product.brand,
+          offer: product.offer
         }))
       }));
     }

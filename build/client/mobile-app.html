@@ -2175,9 +2175,15 @@
 
         // Category Drawer Functions
         function openCategoryDrawer(category) {
+            console.log('Opening eyeglass category drawer for:', category);
             const drawer = document.getElementById('category-drawer');
             const overlay = document.getElementById('category-overlay');
             const categoryTitle = document.getElementById('drawer-category-title');
+            
+            if (!drawer || !overlay || !categoryTitle) {
+                console.error('Missing drawer elements');
+                return;
+            }
             
             // Hide all product grids
             drawer.querySelectorAll('.category-product-grid').forEach(function(grid) {
@@ -2187,7 +2193,34 @@
             // Show the selected category's products
             const gridId = category + '-products';
             const productGrid = document.getElementById(gridId);
+            console.log('Looking for grid:', gridId, 'Found:', !!productGrid);
+            
             if (productGrid) {
+                // If we have global products data, dynamically populate the grid
+                if (window.eyeglassProducts && window.eyeglassProducts.length > 0) {
+                    const categoryProducts = window.eyeglassProducts.filter(product => 
+                        product.category === category || 
+                        product.category === category.toLowerCase() ||
+                        product.id.includes(category)
+                    );
+                    
+                    if (categoryProducts.length > 0) {
+                        productGrid.innerHTML = categoryProducts.map(product => `
+                            <a href="#" class="category-product-card">
+                                <div class="category-product-image">
+                                    <img src="${product.image || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=100&h=100&fit=crop'}" alt="${product.brand || product.title}">
+                                </div>
+                                <div class="category-product-info">
+                                    <div class="category-product-brand">${product.brand || product.title}</div>
+                                    <div class="category-product-price">Starts at ₹${product.price}</div>
+                                    <div class="category-product-offer">${product.offer || 'Free shipping'}</div>
+                                </div>
+                            </a>
+                        `).join('');
+                        console.log(`✅ Dynamically loaded ${categoryProducts.length} products for ${category}`);
+                    }
+                }
+                
                 productGrid.style.display = 'flex';
             }
             
@@ -2198,6 +2231,8 @@
             drawer.classList.add('active');
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            console.log('✅ Eyeglass drawer opened for:', category);
         }
 
         function closeCategoryDrawer() {
@@ -2211,9 +2246,15 @@
 
         // Sunglasses Category Drawer Functions
         function openSunglassesCategoryDrawer(category) {
+            console.log('Opening sunglasses category drawer for:', category);
             const drawer = document.getElementById('sunglasses-category-drawer');
             const overlay = document.getElementById('sunglasses-category-overlay');
             const categoryTitle = document.getElementById('sunglasses-drawer-category-title');
+            
+            if (!drawer || !overlay || !categoryTitle) {
+                console.error('Missing sunglasses drawer elements');
+                return;
+            }
             
             // Hide all product grids
             drawer.querySelectorAll('.category-product-grid').forEach(function(grid) {
@@ -2223,7 +2264,34 @@
             // Show the selected category's products
             const gridId = category + '-products';
             const productGrid = document.getElementById(gridId);
+            console.log('Looking for sunglasses grid:', gridId, 'Found:', !!productGrid);
+            
             if (productGrid) {
+                // If we have global products data, dynamically populate the grid
+                if (window.sunglassProducts && window.sunglassProducts.length > 0) {
+                    const categoryProducts = window.sunglassProducts.filter(product => 
+                        product.category === category || 
+                        product.category === category.toLowerCase() ||
+                        product.id.includes(category)
+                    );
+                    
+                    if (categoryProducts.length > 0) {
+                        productGrid.innerHTML = categoryProducts.map(product => `
+                            <a href="#" class="category-product-card">
+                                <div class="category-product-image">
+                                    <img src="${product.image || 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=100&h=100&fit=crop'}" alt="${product.brand || product.title}">
+                                </div>
+                                <div class="category-product-info">
+                                    <div class="category-product-brand">${product.brand || product.title}</div>
+                                    <div class="category-product-price">Starts at ₹${product.price}</div>
+                                    <div class="category-product-offer">${product.offer || 'Free shipping'}</div>
+                                </div>
+                            </a>
+                        `).join('');
+                        console.log(`✅ Dynamically loaded ${categoryProducts.length} sunglasses products for ${category}`);
+                    }
+                }
+                
                 productGrid.style.display = 'flex';
             }
             
@@ -2235,6 +2303,8 @@
             drawer.classList.add('active');
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            console.log('✅ Sunglasses drawer opened for:', category);
         }
 
         function closeSunglassesCategoryDrawer() {
@@ -2246,37 +2316,68 @@
             document.body.style.overflow = '';
         }
 
-        // Initialize Category Section
+        // Initialize Category Section with Robust Event Delegation
         function initializeCategorySection() {
+            console.log('🔧 Initializing category section...');
+            
             const overlay = document.getElementById('category-overlay');
+            const sunglassesOverlay = document.getElementById('sunglasses-category-overlay');
             
             // Close drawer when overlay is clicked
-            overlay.addEventListener('click', closeCategoryDrawer);
+            if (overlay) {
+                overlay.addEventListener('click', closeCategoryDrawer);
+                console.log('✅ Eyeglasses overlay event listener added');
+            } else {
+                console.error('❌ Eyeglasses overlay not found');
+            }
             
-            // Add click handlers to subcategory cards
-            document.querySelectorAll('.subcategory-card').forEach(function(card) {
-                card.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const category = this.getAttribute('data-category');
-                    if (category.includes('sunglasses')) {
-                        openSunglassesCategoryDrawer(category);
-                    } else {
-                        openCategoryDrawer(category);
-                    }
-                });
-            });
+            if (sunglassesOverlay) {
+                sunglassesOverlay.addEventListener('click', closeSunglassesCategoryDrawer);
+                console.log('✅ Sunglasses overlay event listener added');
+            } else {
+                console.error('❌ Sunglasses overlay not found');
+            }
             
-            console.log('✅ Category section initialized');
+            // Remove any existing event listeners to prevent duplicates
+            document.body.removeEventListener('click', handleCategoryClick);
+            
+            // Add fresh event listener with proper delegation
+            document.body.addEventListener('click', handleCategoryClick);
+            
+            console.log('✅ Category section initialized with event delegation for', document.querySelectorAll('.subcategory-card').length, 'cards');
         }
 
-        // Initialize Sunglasses Category Section
+        // Separate click handler function for better debugging
+        function handleCategoryClick(e) {
+            // Check if clicked element or its parent is a subcategory card
+            const subcategoryCard = e.target.closest('.subcategory-card');
+            
+            if (subcategoryCard) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const category = subcategoryCard.getAttribute('data-category');
+                console.log('🔥 Category card clicked:', category);
+                console.log('📍 Card element:', subcategoryCard);
+                
+                if (category) {
+                    if (category.includes('sunglasses')) {
+                        console.log('🕶️ Opening sunglasses drawer for:', category);
+                        openSunglassesCategoryDrawer(category);
+                    } else {
+                        console.log('👓 Opening eyeglasses drawer for:', category);
+                        openCategoryDrawer(category);
+                    }
+                } else {
+                    console.error('⚠️ No category data found for clicked card');
+                    console.log('Card HTML:', subcategoryCard.outerHTML);
+                }
+            }
+        }
+
+        // Initialize Sunglasses Category Section (handled by main initializeCategorySection)
         function initializeSunglassesCategorySection() {
-            const overlay = document.getElementById('sunglasses-category-overlay');
-            
-            // Close drawer when overlay is clicked
-            overlay.addEventListener('click', closeSunglassesCategoryDrawer);
-            
-            console.log('✅ Sunglasses category section initialized');
+            console.log('✅ Sunglasses category section initialized (handled by main function)');
         }
 
         // Initialize Shark Tank Section
@@ -2380,7 +2481,7 @@
             } else {
                 cartBadge.style.display = 'flex';
                 cartBadge.textContent = cart.length;
-                cartTotal.style.display = 'block';
+            cartTotal.style.display = 'block';
                 
                 // Calculate total
                 const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
@@ -2556,8 +2657,8 @@
                                 products = data.products;
                                 renderProducts(products);
                                 console.log(`✅ Loaded ${products.length} real products from ${apiUrl}`);
-                                return;
-                            }
+                    return;
+                }
                         }
                     } catch (endpointError) {
                         console.log(`⚠️ Endpoint ${apiUrl} failed:`, endpointError);
@@ -2592,15 +2693,15 @@
                 console.log('⚠️ Skipping fallback products - using real API data');
                 /*
                 products = [
-                    {
-                        id: '1',
+                        {
+                            id: '1',
                         title: 'Classic Aviator Sunglasses',
                         price: '₹2,499',
                         image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&h=400&fit=crop',
                         handle: 'classic-aviator'
-                    },
-                    {
-                        id: '2',
+                        },
+                        {
+                            id: '2',
                         title: 'Modern Square Frames',
                         price: '₹1,899',
                         image: 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&h=400&fit=crop',
@@ -2639,7 +2740,7 @@
                 renderProducts(products);
                 */
                 console.log('✅ DISABLED default products - using real API data');
-                
+
             } catch (error) {
                 console.error('❌ Error loading products:', error);
                 document.getElementById('products-grid').innerHTML = `
@@ -2790,7 +2891,44 @@
                 </a>
             `).join('');
 
+            // Update products for each category if products data is available
+            if (data.products && data.products.length > 0) {
+                // Store products globally for use in drawer
+                window.eyeglassProducts = data.products;
+                
+                data.categories.forEach(category => {
+                    const categoryProducts = data.products.filter(product => 
+                        product.category === category.id || 
+                        product.category === category.title?.toLowerCase() ||
+                        product.id.includes(category.id)
+                    );
+                    
+                    const productGrid = document.getElementById(`${category.id}-products`);
+                    if (productGrid && categoryProducts.length > 0) {
+                        productGrid.innerHTML = categoryProducts.map(product => `
+                            <a href="#" class="category-product-card">
+                                <div class="category-product-image">
+                                    <img src="${product.image || product.image_url || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=100&h=100&fit=crop'}" alt="${product.brand || product.title}">
+                                </div>
+                                <div class="category-product-info">
+                                    <div class="category-product-brand">${product.brand || product.title}</div>
+                                    <div class="category-product-price">Starts at ₹${product.price}</div>
+                                    <div class="category-product-offer">${product.offer || 'Free shipping'}</div>
+                                </div>
+                            </a>
+                        `).join('');
+                        console.log(`✅ Loaded ${categoryProducts.length} products for ${category.id}`);
+                    }
+                });
+            }
+
             console.log(`✅ Rendered ${data.categories.length} eyeglasses categories`);
+            
+            // Re-initialize event handlers after dynamic content is loaded
+            setTimeout(() => {
+                initializeCategorySection();
+                console.log('🔄 Re-initialized category section after eyeglasses render');
+            }, 100);
         }
 
         // Live Sunglasses Render Function
@@ -2820,7 +2958,44 @@
                 </a>
             `).join('');
 
+            // Update products for each category if products data is available
+            if (data.products && data.products.length > 0) {
+                // Store products globally for use in drawer
+                window.sunglassProducts = data.products;
+                
+                data.categories.forEach(category => {
+                    const categoryProducts = data.products.filter(product => 
+                        product.category === category.id || 
+                        product.category === category.title?.toLowerCase() ||
+                        product.id.includes(category.id)
+                    );
+                    
+                    const productGrid = document.getElementById(`${category.id}-products`);
+                    if (productGrid && categoryProducts.length > 0) {
+                        productGrid.innerHTML = categoryProducts.map(product => `
+                            <a href="#" class="category-product-card">
+                                <div class="category-product-image">
+                                    <img src="${product.image || product.image_url || 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=100&h=100&fit=crop'}" alt="${product.brand || product.title}">
+                                </div>
+                                <div class="category-product-info">
+                                    <div class="category-product-brand">${product.brand || product.title}</div>
+                                    <div class="category-product-price">Starts at ₹${product.price}</div>
+                                    <div class="category-product-offer">${product.offer || 'Free shipping'}</div>
+                                </div>
+                            </a>
+                        `).join('');
+                        console.log(`✅ Loaded ${categoryProducts.length} products for ${category.id}`);
+                    }
+                });
+            }
+
             console.log(`✅ Rendered ${data.categories.length} sunglasses categories`);
+            
+            // Re-initialize event handlers after dynamic content is loaded
+            setTimeout(() => {
+                initializeCategorySection();
+                console.log('🔄 Re-initialized category section after sunglasses render');
+            }, 100);
         }
 
         // Product/Collection Navigation
