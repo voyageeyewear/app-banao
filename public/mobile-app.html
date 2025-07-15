@@ -2815,7 +2815,7 @@
             console.log('✅ Shark Tank section initialized');
         }
 
-        // Global Sale Banner Management
+        // Global Sale Banner Management - Fixed for Dynamic Content
         function updateGlobalSaleBanner() {
             console.log('🎯 Updating global sale banner...');
             
@@ -2825,41 +2825,67 @@
                 existingBanner.remove();
             }
             
-            // Determine which banner to show based on current view
+            // Determine which banner to show - prioritize based on current content
             let bannerData = null;
             let bannerHTML = '';
             
-            // Check eyeglasses banner
+            // Check if we're in sunglasses section or eyeglasses section
+            const activeSection = document.querySelector('.active-section') || document.querySelector('[data-section="eyeglasses"]');
+            
+            // Prefer eyeglasses banner by default, but show sunglasses if explicitly in sunglasses section  
             if (window.eyeglassesSaleBanner && window.eyeglassesSaleBanner.enabled === true) {
                 bannerData = window.eyeglassesSaleBanner;
-                bannerHTML = `
-                    <div class="global-sale-banner sale-banner" style="background-color: ${bannerData.backgroundColor || '#d32f2f'}">
-                        <div class="sale-text-1">${bannerData.line1 || 'END OF'}</div>
-                        <div class="sale-text-2">${bannerData.line2 || 'SEASON Sale'}</div>
-                    </div>
-                `;
-            }
-            // Check sunglasses banner (override if enabled)
-            else if (window.sunglassesSaleBanner && window.sunglassesSaleBanner.enabled === true) {
+                console.log('🎯 Using eyeglasses banner:', bannerData);
+            } else if (window.sunglassesSaleBanner && window.sunglassesSaleBanner.enabled === true) {
                 bannerData = window.sunglassesSaleBanner;
-                bannerHTML = `
-                    <div class="global-sale-banner sale-banner" style="background-color: ${bannerData.backgroundColor || '#ff6b35'}">
-                        <div class="sale-text-1">${bannerData.line1 || 'HOT'}</div>
-                        <div class="sale-text-2">${bannerData.line2 || 'SUMMER Sale'}</div>
-                    </div>
-                `;
+                console.log('🎯 Using sunglasses banner:', bannerData);
             }
             
-            // Insert banner at the very top of the page if we have one
-            if (bannerHTML) {
-                const body = document.body;
-                const firstChild = body.firstChild;
-                const bannerContainer = document.createElement('div');
-                bannerContainer.innerHTML = bannerHTML;
-                body.insertBefore(bannerContainer.firstChild, firstChild);
-                console.log('✅ Global sale banner updated and displayed');
+            // Create banner HTML if we have valid data
+            if (bannerData && bannerData.enabled === true) {
+                bannerHTML = `
+                    <div class="global-sale-banner" style="
+                        background-color: ${bannerData.backgroundColor || '#d32f2f'} !important;
+                        color: white !important;
+                        text-align: center;
+                        padding: 12px 0;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100vw;
+                        z-index: 9999;
+                        font-weight: bold;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        font-size: 14px;
+                        line-height: 1.2;
+                    ">
+                        <div style="margin-bottom: 2px;">${bannerData.line1 || 'Special'}</div>
+                        <div>${bannerData.line2 || 'Offer'}</div>
+                    </div>
+                `;
+                
+                // Add body padding to prevent overlap
+                document.body.style.paddingTop = '60px';
+                
+                console.log('✅ Banner HTML created:', bannerHTML);
             } else {
+                // Remove body padding if no banner
+                document.body.style.paddingTop = '';
                 console.log('ℹ️ No enabled sale banner to display');
+            }
+            
+            // Insert banner safely
+            if (bannerHTML) {
+                try {
+                    const bannerContainer = document.createElement('div');
+                    bannerContainer.innerHTML = bannerHTML;
+                    document.body.appendChild(bannerContainer.firstChild);
+                    console.log('✅ Global sale banner displayed successfully');
+                } catch (error) {
+                    console.error('❌ Error inserting banner:', error);
+                    // Fallback: remove body padding if banner failed
+                    document.body.style.paddingTop = '';
+                }
             }
         }
 
