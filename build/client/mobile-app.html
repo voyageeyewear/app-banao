@@ -2446,7 +2446,7 @@
         };
 
         // API Configuration - Updated Vercel URL for APK
-        const API_BASE = 'https://app-banao-dntv28isx-voyageeyewears-projects.vercel.app';
+        const API_BASE = 'https://app-banao-70al9clt6-voyageeyewears-projects.vercel.app';
         const STOREFRONT_ACCESS_TOKEN = 'your-storefront-access-token';
         const SHOP_DOMAIN = 'your-shop.myshopify.com';
         
@@ -2603,6 +2603,11 @@
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
             
+            // Add sale banner using new system
+            setTimeout(() => {
+                showBannerInDrawer(category, 'eyeglasses');
+            }, 100);
+            
             console.log('✅ Eyeglass drawer opened for:', category);
         }
 
@@ -2703,6 +2708,11 @@
             drawer.classList.add('active');
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            // Add sale banner using new system
+            setTimeout(() => {
+                showBannerInDrawer(category, 'sunglasses');
+            }, 100);
             
             console.log('✅ Sunglasses drawer opened for:', category);
         }
@@ -4282,6 +4292,9 @@
         loadCollections(0);
         loadProducts(0);
         
+        // Initialize sale banner system
+        initializeSaleBannerSystem();
+        
         // Start auto-refresh system
         startAutoRefresh();
         setupFocusRefresh();
@@ -4437,6 +4450,150 @@
         }
         
         console.log('🔄 Auto-refresh system activated for navigation, announcement bar, collections and products');
+
+        // ====================
+        // SALE BANNER SYSTEM - REBUILT FROM SCRATCH  
+        // ====================
+        
+        // Global banner data storage
+        window.saleBannerData = {
+            eyeglasses: null,
+            sunglasses: null
+        };
+        
+        // Create sale banner HTML element
+        function createSaleBannerElement(bannerData, sectionType = 'eyeglasses') {
+            if (!bannerData || !bannerData.enabled || !bannerData.line1 || !bannerData.line2) {
+                console.log('❌ Banner data invalid or disabled:', bannerData);
+                return null;
+            }
+            
+            console.log('✅ Creating sale banner element:', bannerData);
+            
+            const bannerElement = document.createElement('div');
+            bannerElement.className = 'sale-banner-new';
+            bannerElement.setAttribute('data-section', sectionType);
+            
+            bannerElement.style.cssText = `
+                background-color: ${bannerData.backgroundColor || '#000000'};
+                color: white;
+                text-align: center;
+                padding: 16px 20px;
+                margin: 0 0 20px 0;
+                width: 100%;
+                font-family: Arial, sans-serif;
+                font-weight: bold;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                position: relative;
+                overflow: hidden;
+                display: block;
+                z-index: 10;
+            `;
+            
+            bannerElement.innerHTML = `
+                <div style="font-size: 14px; margin-bottom: 4px; letter-spacing: 0.5px;">
+                    ${bannerData.line1}
+                </div>
+                <div style="font-size: 22px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">
+                    ${bannerData.line2}
+                </div>
+            `;
+            
+            return bannerElement;
+        }
+        
+        // Show banner in drawer when category is opened
+        function showBannerInDrawer(categoryType, sectionType = 'eyeglasses') {
+            console.log(`🎯 Showing banner in drawer for ${categoryType} (${sectionType})`);
+            
+            const bannerData = window.saleBannerData[sectionType];
+            if (!bannerData || !bannerData.enabled) {
+                console.log('❌ No banner data available for section:', sectionType);
+                return;
+            }
+            
+            // Find the drawer content area
+            const drawer = sectionType === 'eyeglasses' 
+                ? document.querySelector('#category-drawer')
+                : document.querySelector('#sunglasses-category-drawer');
+            const drawerContent = drawer?.querySelector('.drawer-content');
+            
+            if (!drawerContent) {
+                console.log('❌ Drawer content not found');
+                return;
+            }
+            
+            // Remove any existing banners
+            const existingBanners = drawerContent.querySelectorAll('.sale-banner-new');
+            existingBanners.forEach(banner => banner.remove());
+            
+            // Create and insert the banner at the top of drawer content
+            const bannerElement = createSaleBannerElement(bannerData, sectionType);
+            if (bannerElement) {
+                drawerContent.insertBefore(bannerElement, drawerContent.firstChild);
+                console.log('✅ Banner added to drawer:', categoryType);
+            }
+        }
+        
+        // Load banner data from API
+        async function loadSaleBannerData() {
+            console.log('🔄 Loading sale banner data from APIs...');
+            
+            try {
+                // Load eyeglasses banner data
+                const eyeglassesResponse = await fetch(`${API_BASE}/api/live-eyeglasses`);
+                if (eyeglassesResponse.ok) {
+                    const eyeglassesData = await eyeglassesResponse.json();
+                    if (eyeglassesData.success && eyeglassesData.saleBanner) {
+                        // Parse if it's a JSON string
+                        const bannerData = typeof eyeglassesData.saleBanner === 'string' 
+                            ? JSON.parse(eyeglassesData.saleBanner) 
+                            : eyeglassesData.saleBanner;
+                        
+                        window.saleBannerData.eyeglasses = bannerData;
+                        console.log('✅ Eyeglasses banner data loaded:', bannerData);
+                    }
+                }
+                
+                // Load sunglasses banner data
+                const sunglassesResponse = await fetch(`${API_BASE}/api/live-sunglasses`);
+                if (sunglassesResponse.ok) {
+                    const sunglassesData = await sunglassesResponse.json();
+                    if (sunglassesData.success && sunglassesData.saleBanner) {
+                        // Parse if it's a JSON string
+                        const bannerData = typeof sunglassesData.saleBanner === 'string' 
+                            ? JSON.parse(sunglassesData.saleBanner) 
+                            : sunglassesData.saleBanner;
+                            
+                        window.saleBannerData.sunglasses = bannerData;
+                        console.log('✅ Sunglasses banner data loaded:', bannerData);
+                    }
+                }
+                
+                console.log('🎉 Sale banner data loading completed');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Error loading sale banner data:', error);
+                return false;
+            }
+        }
+        
+        // Initialize sale banner system
+        async function initializeSaleBannerSystem() {
+            console.log('🚀 Initializing sale banner system...');
+            
+            // Load banner data from APIs
+            const loaded = await loadSaleBannerData();
+            if (!loaded) {
+                console.log('❌ Failed to load banner data');
+                return;
+            }
+            
+            console.log('✅ Sale banner system initialized successfully');
+        }
+
     </script>
 </body>
 </html> 
