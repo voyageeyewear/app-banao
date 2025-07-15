@@ -684,7 +684,7 @@
         .drawer-header {
             padding: 24px 20px;
             border-bottom: 1px solid #e8ecf0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #000000;
             position: sticky;
             top: 0;
             z-index: 10;
@@ -2535,9 +2535,9 @@
                         const initialProducts = categoryProducts.slice(0, 2);
                         const remainingProducts = categoryProducts.slice(2);
                         
-                        // Add dynamic sale banner
+                        // Add dynamic sale banner - only if explicitly enabled
                         let productHTML = '';
-                        if (window.eyeglassesSaleBanner && window.eyeglassesSaleBanner.enabled) {
+                        if (window.eyeglassesSaleBanner && window.eyeglassesSaleBanner.enabled === true) {
                             productHTML = `
                                 <div class="sale-banner" style="background-color: ${window.eyeglassesSaleBanner.backgroundColor || '#d32f2f'}">
                                     <div class="sale-text-1">${window.eyeglassesSaleBanner.line1 || 'END OF'}</div>
@@ -2602,14 +2602,7 @@
                                 `;
                             }).join('');
                             
-                            // Add show more button
-                            productHTML += `
-                                <div class="show-more-container">
-                                    <button class="show-more-btn" onclick="showMoreProducts(this)">
-                                        View More Products (+${remainingProducts.length})
-                                    </button>
-                                </div>
-                            `;
+                            // Show all products directly - no "View More" button needed
                         }
                         
                         productGrid.innerHTML = productHTML;
@@ -2672,9 +2665,9 @@
                     );
                     
                     if (categoryProducts.length > 0) {
-                        // Add dynamic sale banner
+                        // Add dynamic sale banner - only if explicitly enabled
                         let productHTML = '';
-                        if (window.sunglassesSaleBanner && window.sunglassesSaleBanner.enabled) {
+                        if (window.sunglassesSaleBanner && window.sunglassesSaleBanner.enabled === true) {
                             productHTML = `
                                 <div class="sale-banner" style="background-color: ${window.sunglassesSaleBanner.backgroundColor || '#ff6b35'}">
                                     <div class="sale-text-1">${window.sunglassesSaleBanner.line1 || 'HOT'}</div>
