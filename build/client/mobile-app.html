@@ -684,7 +684,7 @@
         .drawer-header {
             padding: 24px 20px;
             border-bottom: 1px solid #e8ecf0;
-            background: #000000;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             position: sticky;
             top: 0;
             z-index: 10;
@@ -888,7 +888,7 @@
 
         /* Sale banner styles */
         .sale-banner {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); /* fallback */
             color: white;
             text-align: center;
             padding: 12px 0;
@@ -897,6 +897,11 @@
             overflow: hidden;
             width: 100vw;
             margin-left: calc(-50vw + 50%);
+        }
+        
+        /* Dynamic background color override */
+        .sale-banner[style*="background-color"] {
+            background: var(--sale-banner-bg, #dc2626) !important;
         }
 
         .sale-banner::before {
@@ -2530,11 +2535,11 @@
                         const initialProducts = categoryProducts.slice(0, 2);
                         const remainingProducts = categoryProducts.slice(2);
                         
-                        // Add dynamic sale banner for eyeglasses
+                        // Add dynamic sale banner
                         let productHTML = '';
                         if (window.eyeglassesSaleBanner && window.eyeglassesSaleBanner.enabled) {
-                            productHTML += `
-                                <div class="sale-banner" style="background: ${window.eyeglassesSaleBanner.backgroundColor || '#d32f2f'}">
+                            productHTML = `
+                                <div class="sale-banner" style="background-color: ${window.eyeglassesSaleBanner.backgroundColor || '#d32f2f'}">
                                     <div class="sale-text-1">${window.eyeglassesSaleBanner.line1 || 'END OF'}</div>
                                     <div class="sale-text-2">${window.eyeglassesSaleBanner.line2 || 'SEASON Sale'}</div>
                                 </div>
@@ -2597,7 +2602,14 @@
                                 `;
                             }).join('');
                             
-                            // Show all products - no pagination needed
+                            // Add show more button
+                            productHTML += `
+                                <div class="show-more-container">
+                                    <button class="show-more-btn" onclick="showMoreProducts(this)">
+                                        View More Products (+${remainingProducts.length})
+                                    </button>
+                                </div>
+                            `;
                         }
                         
                         productGrid.innerHTML = productHTML;
@@ -2660,11 +2672,11 @@
                     );
                     
                     if (categoryProducts.length > 0) {
-                        // Add dynamic sale banner for sunglasses
+                        // Add dynamic sale banner
                         let productHTML = '';
                         if (window.sunglassesSaleBanner && window.sunglassesSaleBanner.enabled) {
-                            productHTML += `
-                                <div class="sale-banner" style="background: ${window.sunglassesSaleBanner.backgroundColor || '#d32f2f'}">
+                            productHTML = `
+                                <div class="sale-banner" style="background-color: ${window.sunglassesSaleBanner.backgroundColor || '#ff6b35'}">
                                     <div class="sale-text-1">${window.sunglassesSaleBanner.line1 || 'HOT'}</div>
                                     <div class="sale-text-2">${window.sunglassesSaleBanner.line2 || 'SUMMER Sale'}</div>
                                 </div>
@@ -3292,12 +3304,6 @@
             const categoriesSection = document.getElementById('categories-section');
             if (!categoriesSection) return;
 
-            // Store sale banner data globally for use in product grids
-            if (data.saleBanner) {
-                window.eyeglassesSaleBanner = data.saleBanner;
-                console.log('🎨 Eyeglasses sale banner data loaded:', data.saleBanner);
-            }
-
             const categoryHeader = categoriesSection.querySelector('.category-title');
             if (categoryHeader && data.title) {
                 categoryHeader.textContent = data.title;
@@ -3324,6 +3330,11 @@
             if (data.products && data.products.length > 0) {
                 // Store products globally for use in drawer
                 window.eyeglassProducts = data.products;
+            }
+            
+            // Store sale banner data globally
+            if (data.saleBanner) {
+                window.eyeglassesSaleBanner = data.saleBanner;
                 
                 data.categories.forEach(category => {
                     const categoryProducts = data.products.filter(product => 
@@ -3365,12 +3376,6 @@
             const sunglassesSection = document.getElementById('sunglasses-categories-section');
             if (!sunglassesSection) return;
 
-            // Store sale banner data globally for use in product grids
-            if (data.saleBanner) {
-                window.sunglassesSaleBanner = data.saleBanner;
-                console.log('🎨 Sunglasses sale banner data loaded:', data.saleBanner);
-            }
-
             const categoryHeader = sunglassesSection.querySelector('.category-title');
             if (categoryHeader && data.title) {
                 categoryHeader.textContent = data.title;
@@ -3397,6 +3402,11 @@
             if (data.products && data.products.length > 0) {
                 // Store products globally for use in drawer
                 window.sunglassProducts = data.products;
+            }
+            
+            // Store sale banner data globally
+            if (data.saleBanner) {
+                window.sunglassesSaleBanner = data.saleBanner;
                 
                 data.categories.forEach(category => {
                     const categoryProducts = data.products.filter(product => 

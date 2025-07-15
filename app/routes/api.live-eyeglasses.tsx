@@ -72,12 +72,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       // Return both categories and products
       const categories = (config.categories as any[]) || [];
       const products = (config.products as any[]) || [];
+      const saleBanner = (config.saleBanner as any) || {
+        enabled: false,
+        line1: "END OF",
+        line2: "SEASON Sale",
+        backgroundColor: "#d32f2f"
+      };
       
-      console.log(`✅ Loaded ${categories.length} categories and ${products.length} products for eyeglasses`);
+      console.log(`✅ Loaded ${categories.length} categories, ${products.length} products, and sale banner for eyeglasses`);
       
       return addCorsHeaders(json({
         success: true,
         title: config.title === "EyeglassesS" ? "Eyeglasses" : config.title,
+        saleBanner: saleBanner,
         categories: categories.map(cat => ({
           id: cat.id,
           title: cat.title || cat.id,

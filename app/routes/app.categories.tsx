@@ -145,6 +145,12 @@ export default function CategoriesPage() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastContent, setToastContent] = useState('');
+  
+  // Sale Banner State
+  const [saleBannerEnabled, setSaleBannerEnabled] = useState(false);
+  const [saleBannerLine1, setSaleBannerLine1] = useState('END OF');
+  const [saleBannerLine2, setSaleBannerLine2] = useState('SEASON Sale');
+  const [saleBannerColor, setSaleBannerColor] = useState('#d32f2f');
 
   // Load saved settings on component mount
   useEffect(() => {
@@ -161,6 +167,18 @@ export default function CategoriesPage() {
           setProducts(data.data.products || defaultProducts);
           setSectionTitle(data.data.title || 'Eyeglasses');
           setSectionEnabled(data.data.enabled !== false);
+          
+          // Load sale banner data
+          const saleBanner = data.data.saleBanner || {
+            enabled: false,
+            line1: "END OF",
+            line2: "SEASON Sale",
+            backgroundColor: "#d32f2f"
+          };
+          setSaleBannerEnabled(saleBanner.enabled);
+          setSaleBannerLine1(saleBanner.line1);
+          setSaleBannerLine2(saleBanner.line2);
+          setSaleBannerColor(saleBanner.backgroundColor);
         }
       }
     } catch (error) {
@@ -179,7 +197,13 @@ export default function CategoriesPage() {
           title: sectionTitle,
           enabled: sectionEnabled,
           categories: categories,
-          products: products
+          products: products,
+          saleBanner: {
+            enabled: saleBannerEnabled,
+            line1: saleBannerLine1,
+            line2: saleBannerLine2,
+            backgroundColor: saleBannerColor
+          }
         }),
       });
 
@@ -356,10 +380,94 @@ export default function CategoriesPage() {
     </Layout>
   );
 
+  const renderSaleBannerTab = () => (
+    <Layout>
+      <Layout.Section>
+        <Card>
+          <BlockStack gap="400">
+            <Text variant="headingMd" as="h2">Sale Banner Settings</Text>
+            <FormLayout>
+              <Checkbox
+                label="Enable Sale Banner"
+                checked={saleBannerEnabled}
+                onChange={setSaleBannerEnabled}
+                helpText="Show sale banner at the top of product listings"
+              />
+              
+              {saleBannerEnabled && (
+                <>
+                  <TextField
+                    label="Banner Text Line 1"
+                    value={saleBannerLine1}
+                    onChange={setSaleBannerLine1}
+                    placeholder="e.g., END OF"
+                    autoComplete="off"
+                  />
+                  
+                  <TextField
+                    label="Banner Text Line 2" 
+                    value={saleBannerLine2}
+                    onChange={setSaleBannerLine2}
+                    placeholder="e.g., SEASON Sale"
+                    autoComplete="off"
+                  />
+                  
+                  <TextField
+                    label="Background Color"
+                    value={saleBannerColor}
+                    onChange={setSaleBannerColor}
+                    placeholder="#d32f2f"
+                    autoComplete="off"
+                    helpText="Use hex color code (e.g., #d32f2f for red)"
+                  />
+                  
+                  <Card>
+                    <BlockStack gap="200">
+                      <Text variant="headingMd" as="h3">Preview</Text>
+                      <div
+                        style={{
+                          background: saleBannerColor,
+                          color: 'white',
+                          padding: '16px',
+                          textAlign: 'center',
+                          borderRadius: '8px'
+                        }}
+                      >
+                        <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{saleBannerLine1}</div>
+                        <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{saleBannerLine2}</div>
+                      </div>
+                    </BlockStack>
+                  </Card>
+                </>
+              )}
+            </FormLayout>
+          </BlockStack>
+        </Card>
+      </Layout.Section>
+    </Layout>
+  );
+
   const tabs = [
-    { id: 'categories', content: 'Categories' },
-    { id: 'products', content: 'Products' },
-    { id: 'settings', content: 'Settings' },
+    {
+      id: 'categories',
+      content: 'Categories',
+      accessibilityLabel: 'Categories Tab',
+    },
+    {
+      id: 'products',
+      content: 'Products',
+      accessibilityLabel: 'Products Tab',
+    },
+    {
+      id: 'settings',
+      content: 'Settings',
+      accessibilityLabel: 'Settings Tab',
+    },
+    {
+      id: 'saleBanner',
+      content: 'Sale Banner',
+      accessibilityLabel: 'Sale Banner Tab',
+    },
   ];
 
   const renderTabContent = () => {
@@ -370,6 +478,8 @@ export default function CategoriesPage() {
         return renderProductsTab();
       case 2:
         return renderSettingsTab();
+      case 3:
+        return renderSaleBannerTab();
       default:
         return renderCategoriesTab();
     }
@@ -386,11 +496,15 @@ export default function CategoriesPage() {
                 tabs={tabs} 
                 selected={selectedTab} 
                 onSelect={setSelectedTab}
-              />
+              >
+                <BlockStack gap="400">
+                  {selectedTab === 0 && renderCategoriesTab()}
+                  {selectedTab === 1 && renderProductsTab()}
+                  {selectedTab === 2 && renderSettingsTab()}
+                  {selectedTab === 3 && renderSaleBannerTab()}
+                </BlockStack>
+              </Tabs>
             </Card>
-          </Layout.Section>
-          <Layout.Section>
-            {renderTabContent()}
           </Layout.Section>
           <Layout.Section>
             <Card>
