@@ -888,36 +888,26 @@
 
         /* Sale banner styles */
         .sale-banner {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); /* fallback */
+            background: #dc2626; /* fallback color */
             color: white;
             text-align: center;
-            padding: 12px 0;
+            padding: 15px 0;
             margin: 0;
-            position: relative;
-            overflow: hidden;
+            position: sticky;
+            top: 0;
             width: 100vw;
             margin-left: calc(-50vw + 50%);
+            z-index: 1001;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border: none;
+            overflow: visible;
+            display: block !important;
+            visibility: visible !important;
         }
         
-        /* Dynamic background color override */
-        .sale-banner[style*="background-color"] {
-            background: var(--sale-banner-bg, #dc2626) !important;
-        }
-
-        .sale-banner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
+        /* Ensure dynamic background color always applies */
+        .sale-banner[style] {
+            background: inherit !important;
         }
 
         .sale-banner .sale-text-1 {
@@ -2825,6 +2815,54 @@
             console.log('✅ Shark Tank section initialized');
         }
 
+        // Global Sale Banner Management
+        function updateGlobalSaleBanner() {
+            console.log('🎯 Updating global sale banner...');
+            
+            // Remove any existing banner
+            const existingBanner = document.querySelector('.global-sale-banner');
+            if (existingBanner) {
+                existingBanner.remove();
+            }
+            
+            // Determine which banner to show based on current view
+            let bannerData = null;
+            let bannerHTML = '';
+            
+            // Check eyeglasses banner
+            if (window.eyeglassesSaleBanner && window.eyeglassesSaleBanner.enabled === true) {
+                bannerData = window.eyeglassesSaleBanner;
+                bannerHTML = `
+                    <div class="global-sale-banner sale-banner" style="background-color: ${bannerData.backgroundColor || '#d32f2f'}">
+                        <div class="sale-text-1">${bannerData.line1 || 'END OF'}</div>
+                        <div class="sale-text-2">${bannerData.line2 || 'SEASON Sale'}</div>
+                    </div>
+                `;
+            }
+            // Check sunglasses banner (override if enabled)
+            else if (window.sunglassesSaleBanner && window.sunglassesSaleBanner.enabled === true) {
+                bannerData = window.sunglassesSaleBanner;
+                bannerHTML = `
+                    <div class="global-sale-banner sale-banner" style="background-color: ${bannerData.backgroundColor || '#ff6b35'}">
+                        <div class="sale-text-1">${bannerData.line1 || 'HOT'}</div>
+                        <div class="sale-text-2">${bannerData.line2 || 'SUMMER Sale'}</div>
+                    </div>
+                `;
+            }
+            
+            // Insert banner at the very top of the page if we have one
+            if (bannerHTML) {
+                const body = document.body;
+                const firstChild = body.firstChild;
+                const bannerContainer = document.createElement('div');
+                bannerContainer.innerHTML = bannerHTML;
+                body.insertBefore(bannerContainer.firstChild, firstChild);
+                console.log('✅ Global sale banner updated and displayed');
+            } else {
+                console.log('ℹ️ No enabled sale banner to display');
+            }
+        }
+
         // Navigation Functions
         function showPage(page) {
             currentView = page;
@@ -3328,6 +3366,7 @@
             // Store sale banner data globally
             if (data.saleBanner) {
                 window.eyeglassesSaleBanner = data.saleBanner;
+                updateGlobalSaleBanner(); // Update global banner immediately
                 
                 data.categories.forEach(category => {
                     const categoryProducts = data.products.filter(product => 
@@ -3400,6 +3439,7 @@
             // Store sale banner data globally
             if (data.saleBanner) {
                 window.sunglassesSaleBanner = data.saleBanner;
+                updateGlobalSaleBanner(); // Update global banner immediately
                 
                 data.categories.forEach(category => {
                     const categoryProducts = data.products.filter(product => 
@@ -4025,6 +4065,7 @@
                 loadHeaderSettings(); // Also refresh navigation and announcement bar
                 loadCollections(0); // Auto-refresh collections
                 loadProducts(0); // Auto-refresh products
+                updateGlobalSaleBanner(); // Refresh sale banner
             }, 15000); // 15 seconds
         }
 
@@ -4042,6 +4083,7 @@
                     loadHeaderSettings(); // Also refresh navigation and announcement bar
                     loadCollections(0); // Refresh collections
                     loadProducts(0); // Refresh products
+                    updateGlobalSaleBanner(); // Refresh sale banner
                     isHidden = false;
                 }
             });
@@ -4054,6 +4096,7 @@
             loadHeaderSettings(); // Also refresh navigation and announcement bar
             loadCollections(0); // Refresh collections
             loadProducts(0); // Refresh products
+            updateGlobalSaleBanner(); // Refresh sale banner
         }
 
         // Default slides as fallback
