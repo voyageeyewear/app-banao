@@ -640,6 +640,8 @@
             text-align: center;
         }
 
+
+
         /* Category Drawer Styles */
         .category-overlay {
             position: fixed;
@@ -664,13 +666,15 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 70vh;
-            background: white;
-            border-radius: 20px 20px 0 0;
+            height: 75vh;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 24px 24px 0 0;
             z-index: 999;
             transform: translateY(100%);
-            transition: transform 0.3s ease;
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             overflow: hidden;
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+            backdrop-filter: blur(10px);
         }
 
         .category-drawer.active {
@@ -678,12 +682,13 @@
         }
 
         .drawer-header {
-            padding: 20px;
-            border-bottom: 1px solid #f0f0f0;
-            background: white;
+            padding: 24px 20px;
+            border-bottom: 1px solid #e8ecf0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             position: sticky;
             top: 0;
             z-index: 10;
+            backdrop-filter: blur(20px);
         }
 
         .drawer-title {
@@ -693,25 +698,34 @@
         }
 
         .drawer-title span {
-            font-size: 18px;
-            font-weight: 600;
-            color: #02003D;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .close-drawer {
-            background: none;
+            background: rgba(255, 255, 255, 0.1);
             border: none;
-            padding: 8px;
+            padding: 12px;
             cursor: pointer;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s ease;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            color: white;
+            width: 44px;
+            height: 44px;
         }
 
         .close-drawer:hover {
-            background: #f0f0f0;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .drawer-content {
@@ -721,62 +735,198 @@
         }
 
         .category-product-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 20px;
+            max-height: calc(75vh - 100px);
+            overflow-y: auto;
         }
 
+        .category-product-grid.show-all {
+            /* Keep same layout */
+        }
+
+
+
+
+
         .category-product-card {
-            display: block;
+            display: flex;
+            align-items: center;
             text-decoration: none;
             color: inherit;
             background: white;
             border-radius: 12px;
             padding: 16px;
-            border: 1px solid #f0f0f0;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #e8ecf0;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
         }
 
         .category-product-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .category-product-card::before {
+            display: none;
         }
 
         .category-product-image {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             border-radius: 8px;
             overflow: hidden;
-            margin-bottom: 12px;
+            margin-right: 16px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .category-product-image::after {
+            display: none;
         }
 
         .category-product-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .category-product-card:hover .category-product-image img {
+            transform: scale(1.05);
         }
 
         .category-product-info {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
+            flex: 1;
+            position: relative;
         }
 
         .category-product-brand {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
-            color: #02003D;
+            color: #1a1a1a;
+            line-height: 1.3;
+            margin-bottom: 4px;
         }
 
         .category-product-price {
-            font-size: 13px;
-            color: #666;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 2px 0;
         }
 
         .category-product-offer {
-            font-size: 12px;
-            color: #007C89;
+            font-size: 14px;
+            color: #667eea;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .category-product-offer::before {
+            content: '✓';
+            background: #667eea;
+            color: white;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .category-product-card::after {
+            content: '›';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #9ca3af;
+            font-weight: 300;
+        }
+
+        .category-product-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #1a1a1a;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .category-product-badge.premium {
+            background: #fbbf24;
+            color: #1a1a1a;
+        }
+
+        .category-product-badge.shark-tank {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Sale banner styles */
+        .sale-banner {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+        }
+
+        .sale-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .sale-banner .sale-text-1 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            opacity: 0.9;
+        }
+
+        .sale-banner .sale-text-2 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         /* Shark Tank Section */
@@ -1450,8 +1600,26 @@
             z-index: 1000;
         }
 
-        /* Ensure proper mobile scaling */
+        /* Responsive Design for Category Drawer */
         @media (max-width: 480px) {
+            .category-drawer {
+                height: 80vh;
+            }
+            
+            .category-product-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+                padding: 20px 16px;
+            }
+            
+            .drawer-header {
+                padding: 20px 16px;
+            }
+            
+            .drawer-title span {
+                font-size: 20px;
+            }
+            
             .shark-tank-card {
                 width: 160px;
                 height: 200px;
@@ -1465,6 +1633,49 @@
                 font-size: 14px;
             }
         }
+
+        @media (max-width: 360px) {
+            .category-product-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .category-product-card {
+                max-width: 280px;
+                margin: 0 auto;
+            }
+        }
+        /* Smooth Scrollbar for Category Drawer */
+        .category-drawer::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .category-drawer::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .category-drawer::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+
+        .category-drawer::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+
+        .category-product-grid::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .category-product-grid::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .category-product-grid::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
         /* Product Modal Styles */
         .product-modal-overlay {
             position: fixed;
@@ -2316,18 +2527,84 @@
                     );
                     
                     if (categoryProducts.length > 0) {
-                        productGrid.innerHTML = categoryProducts.map(product => `
-                            <a href="#" class="category-product-card">
-                                <div class="category-product-image">
-                                    <img src="${product.image || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=100&h=100&fit=crop'}" alt="${product.brand || product.title}">
+                        const initialProducts = categoryProducts.slice(0, 2);
+                        const remainingProducts = categoryProducts.slice(2);
+                        
+                        // Add sale banner
+                        let productHTML = `
+                            <div class="sale-banner">
+                                <div class="sale-text-1">END OF</div>
+                                <div class="sale-text-2">SEASON Sale</div>
+                            </div>
+                        `;
+                        
+                        // Add initial products
+                        productHTML += initialProducts.map((product, index) => {
+                            const getBadge = (product, index) => {
+                                if (product.brand?.toLowerCase().includes('premium') || index === 0) {
+                                    return '<div class="category-product-badge premium">PREMIUM</div>';
+                                }
+                                if (product.brand?.toLowerCase().includes('shark') || index === 2) {
+                                    return '<div class="category-product-badge shark-tank">AS SEEN ON SHARK TANK</div>';
+                                }
+                                return '';
+                            };
+                            
+                            return `
+                                <a href="#" class="category-product-card">
+                                    <div class="category-product-image">
+                                        ${getBadge(product, index)}
+                                        <img src="${product.image || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=100&h=100&fit=crop'}" alt="${product.brand || product.title}">
+                                    </div>
+                                    <div class="category-product-info">
+                                        <div class="category-product-brand">${product.brand || product.title}</div>
+                                        <div class="category-product-price">Starts at ₹${product.price}</div>
+                                        <div class="category-product-offer">${product.offer || 'with premium designs'}</div>
+                                    </div>
+                                </a>
+                            `;
+                        }).join('');
+                        
+                        // Add hidden products
+                        if (remainingProducts.length > 0) {
+                            productHTML += remainingProducts.map((product, index) => {
+                                const getBadge = (product, index) => {
+                                    const actualIndex = index + 2; // Offset by initial products
+                                    if (product.brand?.toLowerCase().includes('premium') || actualIndex === 0) {
+                                        return '<div class="category-product-badge premium">PREMIUM</div>';
+                                    }
+                                    if (product.brand?.toLowerCase().includes('shark') || actualIndex === 2) {
+                                        return '<div class="category-product-badge shark-tank">AS SEEN ON SHARK TANK</div>';
+                                    }
+                                    return '';
+                                };
+                                
+                                return `
+                                    <a href="#" class="category-product-card hidden-product" style="display: none;">
+                                        <div class="category-product-image">
+                                            ${getBadge(product, index)}
+                                            <img src="${product.image || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=100&h=100&fit=crop'}" alt="${product.brand || product.title}">
+                                        </div>
+                                        <div class="category-product-info">
+                                            <div class="category-product-brand">${product.brand || product.title}</div>
+                                            <div class="category-product-price">Starts at ₹${product.price}</div>
+                                            <div class="category-product-offer">${product.offer || 'with premium designs'}</div>
+                                        </div>
+                                    </a>
+                                `;
+                            }).join('');
+                            
+                            // Add show more button
+                            productHTML += `
+                                <div class="show-more-container">
+                                    <button class="show-more-btn" onclick="showMoreProducts(this)">
+                                        View More Products (+${remainingProducts.length})
+                                    </button>
                                 </div>
-                                <div class="category-product-info">
-                                    <div class="category-product-brand">${product.brand || product.title}</div>
-                                    <div class="category-product-price">Starts at ₹${product.price}</div>
-                                    <div class="category-product-offer">${product.offer || 'Free shipping'}</div>
-                                </div>
-                            </a>
-                        `).join('');
+                            `;
+                        }
+                        
+                        productGrid.innerHTML = productHTML;
                         console.log(`✅ Dynamically loaded ${categoryProducts.length} products for ${category}`);
                     }
                 }
@@ -2387,18 +2664,52 @@
                     );
                     
                     if (categoryProducts.length > 0) {
-                        productGrid.innerHTML = categoryProducts.map(product => `
-                            <a href="#" class="category-product-card">
-                                <div class="category-product-image">
-                                    <img src="${product.image || 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=100&h=100&fit=crop'}" alt="${product.brand || product.title}">
-                                </div>
-                                <div class="category-product-info">
-                                    <div class="category-product-brand">${product.brand || product.title}</div>
-                                    <div class="category-product-price">Starts at ₹${product.price}</div>
-                                    <div class="category-product-offer">${product.offer || 'Free shipping'}</div>
-                                </div>
-                            </a>
-                        `).join('');
+                        // Add sale banner
+                        let productHTML = `
+                            <div class="sale-banner">
+                                <div class="sale-text-1">END OF</div>
+                                <div class="sale-text-2">SEASON Sale</div>
+                            </div>
+                        `;
+                        
+                        // Add all products
+                        productHTML += categoryProducts.map((product, index) => {
+                            const getBadge = (product, index) => {
+                                if (product.brand?.toLowerCase().includes('premium') || index === 0) {
+                                    return '<div class="category-product-badge premium">PREMIUM</div>';
+                                }
+                                if (product.brand?.toLowerCase().includes('shark') || index === 2) {
+                                    return '<div class="category-product-badge shark-tank">AS SEEN ON SHARK TANK</div>';
+                                }
+                                return '';
+                            };
+                            
+                            const getOffer = (product, index) => {
+                                const offers = [
+                                    'with premium designs',
+                                    'with 100% UV protection', 
+                                    'with flexible material',
+                                    '60% Off | limited range'
+                                ];
+                                return offers[index] || product.offer || 'with premium designs';
+                            };
+                            
+                            return `
+                                <a href="#" class="category-product-card">
+                                    <div class="category-product-image">
+                                        ${getBadge(product, index)}
+                                        <img src="${product.image || 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=100&h=100&fit=crop'}" alt="${product.brand || product.title}">
+                                    </div>
+                                    <div class="category-product-info">
+                                        <div class="category-product-brand">${product.brand || product.title}</div>
+                                        <div class="category-product-price">Starts at ₹${product.price}</div>
+                                        <div class="category-product-offer">${getOffer(product, index)}</div>
+                                    </div>
+                                </a>
+                            `;
+                        }).join('');
+                        
+                        productGrid.innerHTML = productHTML;
                         console.log(`✅ Dynamically loaded ${categoryProducts.length} sunglasses products for ${category}`);
                     }
                 }
@@ -2426,6 +2737,8 @@
             overlay.classList.remove('active');
             document.body.style.overflow = '';
         }
+
+
 
         // Initialize Category Section with Robust Event Delegation
         function initializeCategorySection() {
