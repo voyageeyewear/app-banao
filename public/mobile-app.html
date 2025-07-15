@@ -2446,7 +2446,7 @@
         };
 
         // API Configuration - Updated Vercel URL for APK
-        const API_BASE = 'https://app-banao-pzj6xe128-voyageeyewears-projects.vercel.app';
+        const API_BASE = 'https://app-banao-dntv28isx-voyageeyewears-projects.vercel.app';
         const STOREFRONT_ACCESS_TOKEN = 'your-storefront-access-token';
         const SHOP_DOMAIN = 'your-shop.myshopify.com';
         
@@ -2525,16 +2525,8 @@
                         const initialProducts = categoryProducts.slice(0, 2);
                         const remainingProducts = categoryProducts.slice(2);
                         
-                        // Add dynamic sale banner - only if explicitly enabled
-                        let productHTML = '';
-                        if (window.eyeglassesSaleBanner && window.eyeglassesSaleBanner.enabled === true) {
-                            productHTML = `
-                                <div class="sale-banner" style="background-color: ${window.eyeglassesSaleBanner.backgroundColor || '#d32f2f'}">
-                                    <div class="sale-text-1">${window.eyeglassesSaleBanner.line1 || 'END OF'}</div>
-                                    <div class="sale-text-2">${window.eyeglassesSaleBanner.line2 || 'SEASON Sale'}</div>
-                                </div>
-                            `;
-                        }
+                        // Add dynamic sale banner using helper function
+                        let productHTML = createSaleBannerHTML(window.eyeglassesSaleBanner, '#d32f2f');
                         
                         // Add initial products
                         productHTML += initialProducts.map((product, index) => {
@@ -2655,16 +2647,8 @@
                     );
                     
                     if (categoryProducts.length > 0) {
-                        // Add dynamic sale banner - only if explicitly enabled
-                        let productHTML = '';
-                        if (window.sunglassesSaleBanner && window.sunglassesSaleBanner.enabled === true) {
-                            productHTML = `
-                                <div class="sale-banner" style="background-color: ${window.sunglassesSaleBanner.backgroundColor || '#ff6b35'}">
-                                    <div class="sale-text-1">${window.sunglassesSaleBanner.line1 || 'HOT'}</div>
-                                    <div class="sale-text-2">${window.sunglassesSaleBanner.line2 || 'SUMMER Sale'}</div>
-                                </div>
-                            `;
-                        }
+                        // Add dynamic sale banner using helper function
+                        let productHTML = createSaleBannerHTML(window.sunglassesSaleBanner, '#ff6b35');
                         
                         // Add all products
                         productHTML += categoryProducts.map((product, index) => {
@@ -2815,99 +2799,48 @@
             console.log('✅ Shark Tank section initialized');
         }
 
-        // Simple Sale Banner Management - Fixed White Screen Issue
+        // Sale Banner Management - Place Inside Category Sections
         function updateGlobalSaleBanner() {
-            console.log('🎯 Updating global sale banner...');
+            console.log('🎯 Sale banner data updated - banners will show inside category sections');
             
-            try {
-                // Remove any existing banner safely
-                const existingBanners = document.querySelectorAll('.global-sale-banner, .sale-banner-fixed');
-                existingBanners.forEach(banner => {
-                    if (banner && banner.parentNode) {
-                        banner.parentNode.removeChild(banner);
-                    }
-                });
-                
-                // Reset body padding
-                document.body.style.paddingTop = '';
-                
-                // Determine which banner to show
-                let bannerData = null;
-                
-                // Check eyeglasses banner first
-                if (window.eyeglassesSaleBanner && window.eyeglassesSaleBanner.enabled === true) {
-                    bannerData = window.eyeglassesSaleBanner;
-                    console.log('✅ Using eyeglasses banner:', bannerData);
-                } else if (window.sunglassesSaleBanner && window.sunglassesSaleBanner.enabled === true) {
-                    bannerData = window.sunglassesSaleBanner;
-                    console.log('✅ Using sunglasses banner:', bannerData);
-                }
-                
-                // Create and insert banner if we have valid data
-                if (bannerData && bannerData.enabled === true && bannerData.line1 && bannerData.line2) {
-                    const bannerElement = document.createElement('div');
-                    bannerElement.className = 'sale-banner-fixed';
-                    bannerElement.innerHTML = `
-                        <div style="
-                            background-color: ${bannerData.backgroundColor || '#d32f2f'};
-                            color: white;
-                            text-align: center;
-                            padding: 8px 16px;
-                            font-size: 14px;
-                            font-weight: bold;
-                            line-height: 1.3;
-                            width: 100%;
-                            box-sizing: border-box;
-                        ">
-                            <div>${bannerData.line1}</div>
-                            <div>${bannerData.line2}</div>
-                        </div>
-                    `;
-                    
-                    bannerElement.style.cssText = `
-                        position: fixed !important;
-                        top: 0 !important;
-                        left: 0 !important;
-                        right: 0 !important;
-                        width: 100% !important;
-                        z-index: 999999 !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        border: none !important;
-                        display: block !important;
-                        visibility: visible !important;
-                        opacity: 1 !important;
-                    `;
-                    
-                    // Insert banner at the very beginning of body
-                    document.body.insertBefore(bannerElement, document.body.firstChild);
-                    
-                    // Add body padding to account for banner
-                    document.body.style.paddingTop = '50px';
-                    
-                    console.log('✅ Sale banner displayed successfully');
-                    
-                    // Ensure banner stays visible (prevent any hiding)
-                    setTimeout(() => {
-                        if (bannerElement && bannerElement.parentNode) {
-                            bannerElement.style.display = 'block';
-                            bannerElement.style.visibility = 'visible';
-                            bannerElement.style.opacity = '1';
-                        }
-                    }, 100);
-                    
-                    return true;
-                } else {
-                    console.log('ℹ️ No valid sale banner data to display');
-                    return false;
-                }
-                
-            } catch (error) {
-                console.error('❌ Error in updateGlobalSaleBanner:', error);
-                // Reset body padding on error
-                document.body.style.paddingTop = '';
-                return false;
+            // Don't add global banners - they will be added inside category sections
+            // This function just ensures the banner data is available globally
+            
+            if (window.eyeglassesSaleBanner && window.eyeglassesSaleBanner.enabled === true) {
+                console.log('✅ Eyeglasses sale banner ready:', window.eyeglassesSaleBanner);
             }
+            
+            if (window.sunglassesSaleBanner && window.sunglassesSaleBanner.enabled === true) {
+                console.log('✅ Sunglasses sale banner ready:', window.sunglassesSaleBanner);
+            }
+        }
+
+        // Helper function to create sale banner HTML
+        function createSaleBannerHTML(bannerData, defaultColor = '#d32f2f') {
+            if (!bannerData || !bannerData.enabled || !bannerData.line1 || !bannerData.line2) {
+                return '';
+            }
+            
+            return `
+                <div class="sale-banner" style="
+                    background-color: ${bannerData.backgroundColor || defaultColor};
+                    color: white;
+                    text-align: center;
+                    padding: 12px 0;
+                    margin: 0;
+                    position: relative;
+                    overflow: hidden;
+                    width: 100vw;
+                    margin-left: calc(-50vw + 50%);
+                    font-weight: bold;
+                    font-size: 14px;
+                    line-height: 1.2;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                ">
+                    <div style="margin-bottom: 2px;">${bannerData.line1}</div>
+                    <div>${bannerData.line2}</div>
+                </div>
+            `;
         }
 
         // Navigation Functions
@@ -4112,7 +4045,6 @@
                 loadHeaderSettings(); // Also refresh navigation and announcement bar
                 loadCollections(0); // Auto-refresh collections
                 loadProducts(0); // Auto-refresh products
-                updateGlobalSaleBanner(); // Refresh sale banner
             }, 15000); // 15 seconds
         }
 
@@ -4130,7 +4062,6 @@
                     loadHeaderSettings(); // Also refresh navigation and announcement bar
                     loadCollections(0); // Refresh collections
                     loadProducts(0); // Refresh products
-                    updateGlobalSaleBanner(); // Refresh sale banner
                     isHidden = false;
                 }
             });
@@ -4143,7 +4074,6 @@
             loadHeaderSettings(); // Also refresh navigation and announcement bar
             loadCollections(0); // Refresh collections
             loadProducts(0); // Refresh products
-            updateGlobalSaleBanner(); // Refresh sale banner
         }
 
         // Default slides as fallback
