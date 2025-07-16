@@ -2379,7 +2379,7 @@
         };
 
         // API Configuration - Updated Vercel URL for APK
-        const API_BASE = 'https://app-banao-jwn5g2nig-voyageeyewears-projects.vercel.app';
+        const API_BASE = 'https://app-banao-5d13mdw96-voyageeyewears-projects.vercel.app';
         const STOREFRONT_ACCESS_TOKEN = 'your-storefront-access-token';
         const SHOP_DOMAIN = 'your-shop.myshopify.com';
         
@@ -2734,7 +2734,7 @@
         }
 
         // Load Shark Tank data from live API
-        async function loadSharkTankData() {
+        async function loadSharkTankData(silent = false) {
             const sharkTankTrack = document.getElementById('shark-tank-track');
             const sharkTankTitle = document.getElementById('shark-tank-title');
             const sharkTankSubtitle = document.getElementById('shark-tank-subtitle');
@@ -2745,11 +2745,15 @@
             }
 
             try {
-                console.log('🦈 Loading Shark Tank data from API...');
-                sharkTankTrack.innerHTML = '<div class="loading">Loading Shark Tank products...</div>';
+                console.log(`🦈 Loading Shark Tank data from API... ${silent ? '(silent)' : ''}`);
+                
+                // Only show loading message if not silent refresh
+                if (!silent) {
+                    sharkTankTrack.innerHTML = '<div class="loading">Loading Shark Tank products...</div>';
+                }
 
                 const endpoints = [
-                    '/api/live-shark-tank',
+                    `${API_BASE}/api/live-shark-tank`,
                     'https://app-banao-5d13mdw96-voyageeyewears-projects.vercel.app/api/live-shark-tank',
                     'https://app-banao-cm19o4e9k-voyageeyewears-projects.vercel.app/api/live-shark-tank',
                     'https://app-banao-lfficgpvp-voyageeyewears-projects.vercel.app/api/live-shark-tank',
@@ -2792,15 +2796,15 @@
                 console.log('🦈 Shark Tank data received:', data);
 
                 // Update titles if provided
-                if (data.title && sharkTankTitle) {
-                    sharkTankTitle.textContent = data.title;
+                if (data.section?.title && sharkTankTitle) {
+                    sharkTankTitle.textContent = data.section.title;
                 }
-                if (data.subtitle && sharkTankSubtitle) {
-                    sharkTankSubtitle.textContent = data.subtitle;
+                if (data.section?.subtitle && sharkTankSubtitle) {
+                    sharkTankSubtitle.textContent = data.section.subtitle;
                 }
 
-                // Check if section should be hidden
-                if (data.isHidden) {
+                // Check if section should be hidden or disabled
+                if (data.isHidden || !data.enabled) {
                     const sharkTankSection = document.getElementById('shark-tank-section');
                     if (sharkTankSection) {
                         sharkTankSection.style.display = 'none';
@@ -2809,21 +2813,24 @@
                 }
 
                 // Render shark tank products
-                if (data.products && data.products.length > 0) {
-                    renderSharkTankProducts(data.products);
+                if (data.section?.products && data.section.products.length > 0) {
+                    renderSharkTankProducts(data.section.products);
                 } else {
                     sharkTankTrack.innerHTML = '<div class="loading">No Shark Tank products available</div>';
                 }
 
             } catch (error) {
                 console.error('❌ Failed to load Shark Tank data:', error);
-                sharkTankTrack.innerHTML = `
-                    <div class="loading" style="color: #dc2626;">
-                        Unable to load Shark Tank products
-                        <br><button onclick="loadSharkTankData()" style="
-                            margin-top: 10px; 
-                            padding: 8px 16px; 
-                            background: #667eea; 
+                
+                // Only show error message if not silent refresh
+                if (!silent) {
+                    sharkTankTrack.innerHTML = `
+                        <div class="loading" style="color: #dc2626;">
+                            Unable to load Shark Tank products
+                            <br><button onclick="loadSharkTankData()" style="
+                                margin-top: 10px; 
+                                padding: 8px 16px; 
+                                background: #667eea; 
                             color: white; 
                             border: none; 
                             border-radius: 6px; 
@@ -2831,6 +2838,7 @@
                         ">Retry</button>
                     </div>
                 `;
+                }
             }
         }
 
@@ -4134,7 +4142,7 @@
                 loadHeaderSettings(); // Also refresh navigation and announcement bar
                 loadCollections(0); // Auto-refresh collections
                 loadProducts(0); // Auto-refresh products
-                loadSharkTankData(); // Auto-refresh Shark Tank section
+                loadSharkTankData(true); // Auto-refresh Shark Tank section (silent)
             }, 15000); // 15 seconds
         }
 
@@ -4152,7 +4160,7 @@
                     loadHeaderSettings(); // Also refresh navigation and announcement bar
                     loadCollections(0); // Refresh collections
                     loadProducts(0); // Refresh products
-                    loadSharkTankData(); // Refresh Shark Tank section
+                    loadSharkTankData(true); // Refresh Shark Tank section (silent)
                     isHidden = false;
                 }
             });
@@ -4163,7 +4171,7 @@
             console.log('🔄 Manual refresh triggered');
             loadTrendingSlides();
             loadHeaderSettings(); // Also refresh navigation and announcement bar
-            loadSharkTankData(); // Refresh Shark Tank section
+            loadSharkTankData(true); // Refresh Shark Tank section (silent)
             loadCollections(0); // Refresh collections
             loadProducts(0); // Refresh products
         }
