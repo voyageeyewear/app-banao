@@ -31,6 +31,7 @@ interface SharkTankProductData {
   brand: string;
   title: string;
   image: string;
+  video?: string; // MP4 video URL (optional)
   tag: string;
   showTag: boolean;
 }
@@ -41,6 +42,7 @@ const defaultProducts: SharkTankProductData[] = [
     brand: 'PHONIC',
     title: 'Smart Audio Glasses',
     image: 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=330&h=400&fit=crop&crop=center&q=80',
+    video: '', // Optional video URL
     tag: 'NEW LAUNCH',
     showTag: true
   },
@@ -49,6 +51,7 @@ const defaultProducts: SharkTankProductData[] = [
     brand: 'BLUECUT',
     title: 'Blue Light Blockers',
     image: 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=330&h=400&fit=crop&crop=center&q=80',
+    video: '', // Optional video URL
     tag: 'FEATURED',
     showTag: true
   },
@@ -57,6 +60,7 @@ const defaultProducts: SharkTankProductData[] = [
     brand: 'LUXE',
     title: 'Designer Collection',
     image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=330&h=400&fit=crop&crop=center&q=80',
+    video: '', // Optional video URL
     tag: 'PREMIUM',
     showTag: true
   },
@@ -65,6 +69,7 @@ const defaultProducts: SharkTankProductData[] = [
     brand: 'ACTIVE',
     title: 'Performance Sunglasses',
     image: 'https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=330&h=400&fit=crop&crop=center&q=80',
+    video: '', // Optional video URL
     tag: 'SPORT',
     showTag: true
   },
@@ -73,6 +78,7 @@ const defaultProducts: SharkTankProductData[] = [
     brand: 'JUNIOR',
     title: 'Kids Safety Glasses',
     image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=330&h=400&fit=crop&crop=center&q=80',
+    video: '', // Optional video URL
     tag: 'KIDS',
     showTag: true
   }
@@ -150,6 +156,7 @@ export default function SharkTankPage() {
       brand: 'NEW BRAND',
       title: 'New Product',
       image: 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=330&h=400&fit=crop&crop=center&q=80',
+      video: '', // Optional video URL
       tag: 'NEW',
       showTag: true
     };
@@ -375,6 +382,15 @@ export default function SharkTankPage() {
                   value={editingProduct.image}
                   onChange={(value) => setEditingProduct({...editingProduct, image: value})}
                   autoComplete="off"
+                  helpText="Product image (JPG, PNG, WebP supported)"
+                />
+                <TextField
+                  label="Video URL (MP4)"
+                  value={editingProduct.video || ''}
+                  onChange={(value) => setEditingProduct({...editingProduct, video: value})}
+                  autoComplete="off"
+                  helpText="Optional: MP4 video that will play in loop and muted"
+                  placeholder="https://example.com/video.mp4"
                 />
                 <TextField
                   label="Tag Text"

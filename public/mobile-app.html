@@ -2246,83 +2246,16 @@
     </div>
 
     <!-- Shark Tank Products Section -->
-    <div class="shark-tank-section">
+    <div class="shark-tank-section" id="shark-tank-section">
         <div class="section-header">
-            <h2 class="section-title">As Seen on Shark Tank India</h2>
-            <p class="section-subtitle">Style it like the Sharks!</p>
+            <h2 class="section-title" id="shark-tank-title">As Seen on Shark Tank India</h2>
+            <p class="section-subtitle" id="shark-tank-subtitle">Style it like the Sharks!</p>
         </div>
 
         <div class="shark-tank-slider">
-            <div class="shark-tank-slider__track">
-                <div class="shark-tank-slide">
-                    <div class="shark-tank-card">
-                        <div class="shark-tank-card__media">
-                            <img src="https://images.unsplash.com/photo-1556306535-38febf6782e7?w=330&h=400&fit=crop&crop=center&q=80" alt="PHONIC Eyewear" loading="lazy" width="330" height="400">
-                        </div>
-                        <div class="shark-tank-card__overlay"></div>
-                        <span class="shark-tank-card__tag">NEW LAUNCH</span>
-                        <div class="shark-tank-card__content">
-                            <h3 class="shark-tank-card__brand phonic">PHONIC</h3>
-                            <p class="shark-tank-card__title">Smart Audio Glasses</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="shark-tank-slide">
-                    <div class="shark-tank-card">
-                        <div class="shark-tank-card__media">
-                            <img src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=330&h=400&fit=crop&crop=center&q=80" alt="Blue Light Glasses" loading="lazy" width="330" height="400">
-                        </div>
-                        <div class="shark-tank-card__overlay"></div>
-                        <span class="shark-tank-card__tag">FEATURED</span>
-                        <div class="shark-tank-card__content">
-                            <h3 class="shark-tank-card__brand">BLUECUT</h3>
-                            <p class="shark-tank-card__title">Blue Light Blockers</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="shark-tank-slide">
-                    <div class="shark-tank-card">
-                        <div class="shark-tank-card__media">
-                            <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=330&h=400&fit=crop&crop=center&q=80" alt="Premium Frames" loading="lazy" width="330" height="400">
-                        </div>
-                        <div class="shark-tank-card__overlay"></div>
-                        <span class="shark-tank-card__tag">PREMIUM</span>
-                        <div class="shark-tank-card__content">
-                            <h3 class="shark-tank-card__brand">LUXE</h3>
-                            <p class="shark-tank-card__title">Designer Collection</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="shark-tank-slide">
-                    <div class="shark-tank-card">
-                        <div class="shark-tank-card__media">
-                            <img src="https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=330&h=400&fit=crop&crop=center&q=80" alt="Sport Sunglasses" loading="lazy" width="330" height="400">
-                        </div>
-                        <div class="shark-tank-card__overlay"></div>
-                        <span class="shark-tank-card__tag">SPORT</span>
-                        <div class="shark-tank-card__content">
-                            <h3 class="shark-tank-card__brand">ACTIVE</h3>
-                            <p class="shark-tank-card__title">Performance Sunglasses</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="shark-tank-slide">
-                    <div class="shark-tank-card">
-                        <div class="shark-tank-card__media">
-                            <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=330&h=400&fit=crop&crop=center&q=80" alt="Kids Eyewear" loading="lazy" width="330" height="400">
-                        </div>
-                        <div class="shark-tank-card__overlay"></div>
-                        <span class="shark-tank-card__tag">KIDS</span>
-                        <div class="shark-tank-card__content">
-                            <h3 class="shark-tank-card__brand">JUNIOR</h3>
-                            <p class="shark-tank-card__title">Kids Safety Glasses</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="shark-tank-slider__track" id="shark-tank-track">
+                <!-- Dynamic Shark Tank products will be loaded here -->
+                <div class="loading">Loading Shark Tank products...</div>
             </div>
         </div>
     </div>
@@ -2794,19 +2727,202 @@
 
         // Initialize Shark Tank Section
         function initializeSharkTankSection() {
+            console.log('🦈 Initializing Shark Tank section...');
+            
+            // Load shark tank data from API
+            loadSharkTankData();
+        }
+
+        // Load Shark Tank data from live API
+        async function loadSharkTankData() {
+            const sharkTankTrack = document.getElementById('shark-tank-track');
+            const sharkTankTitle = document.getElementById('shark-tank-title');
+            const sharkTankSubtitle = document.getElementById('shark-tank-subtitle');
+            
+            if (!sharkTankTrack) {
+                console.log('⚠️ Shark Tank track element not found');
+                return;
+            }
+
+            try {
+                console.log('🦈 Loading Shark Tank data from API...');
+                sharkTankTrack.innerHTML = '<div class="loading">Loading Shark Tank products...</div>';
+
+                const endpoints = [
+                    '/api/live-shark-tank',
+                    'https://app-banao-jbj9de37d-voyageeyewears-projects.vercel.app/api/live-shark-tank',
+                    'https://app-banao-30tr42of1-voyageeyewears-projects.vercel.app/api/live-shark-tank',
+                    'https://app-banao-dmc0dl409-voyageeyewears-projects.vercel.app/api/live-shark-tank',
+                    'https://app-banao-4j0k2i868-voyageeyewears-projects.vercel.app/api/live-shark-tank'
+                ];
+
+                let response = null;
+                let lastError = null;
+
+                for (const endpoint of endpoints) {
+                    try {
+                        console.log(`🦈 Trying endpoint: ${endpoint}`);
+                        const res = await fetch(endpoint, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Cache-Control': 'no-cache'
+                            }
+                        });
+
+                        if (res.ok) {
+                            response = res;
+                            console.log(`✅ Shark Tank API connected: ${endpoint}`);
+                            break;
+                        } else {
+                            console.log(`❌ Failed: ${endpoint} (${res.status})`);
+                        }
+                    } catch (error) {
+                        console.log(`❌ Error with ${endpoint}:`, error.message);
+                        lastError = error;
+                    }
+                }
+
+                if (!response) {
+                    throw new Error(lastError?.message || 'All API endpoints failed');
+                }
+
+                const data = await response.json();
+                console.log('🦈 Shark Tank data received:', data);
+
+                // Update titles if provided
+                if (data.title && sharkTankTitle) {
+                    sharkTankTitle.textContent = data.title;
+                }
+                if (data.subtitle && sharkTankSubtitle) {
+                    sharkTankSubtitle.textContent = data.subtitle;
+                }
+
+                // Check if section should be hidden
+                if (data.isHidden) {
+                    const sharkTankSection = document.getElementById('shark-tank-section');
+                    if (sharkTankSection) {
+                        sharkTankSection.style.display = 'none';
+                    }
+                    return;
+                }
+
+                // Render shark tank products
+                if (data.products && data.products.length > 0) {
+                    renderSharkTankProducts(data.products);
+                } else {
+                    sharkTankTrack.innerHTML = '<div class="loading">No Shark Tank products available</div>';
+                }
+
+            } catch (error) {
+                console.error('❌ Failed to load Shark Tank data:', error);
+                sharkTankTrack.innerHTML = `
+                    <div class="loading" style="color: #dc2626;">
+                        Unable to load Shark Tank products
+                        <br><button onclick="loadSharkTankData()" style="
+                            margin-top: 10px; 
+                            padding: 8px 16px; 
+                            background: #667eea; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 6px; 
+                            cursor: pointer;
+                        ">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Render Shark Tank products with video support
+        function renderSharkTankProducts(products) {
+            const sharkTankTrack = document.getElementById('shark-tank-track');
+            
+            if (!sharkTankTrack) return;
+
+            const productsHTML = products.map(product => {
+                // Determine media element (video or image)
+                let mediaElement = '';
+                if (product.video && product.video.trim()) {
+                    // MP4 video with autoplay, loop, muted
+                    mediaElement = `
+                        <video 
+                            src="${product.video}" 
+                            autoplay 
+                            loop 
+                            muted 
+                            playsinline
+                            poster="${product.image || ''}"
+                            style="
+                                width: 100%; 
+                                height: 100%; 
+                                object-fit: cover;
+                                object-position: center;
+                            "
+                            onloadstart="console.log('🎥 Video loading:', '${product.brand} - ${product.title}')"
+                            onplay="console.log('▶️ Video playing:', '${product.brand} - ${product.title}')"
+                            onerror="console.error('❌ Video error:', '${product.brand} - ${product.title}'); this.style.display='none'; this.nextElementSibling.style.display='block';"
+                        ></video>
+                        <img 
+                            src="${product.image}" 
+                            alt="${product.brand} - ${product.title}"
+                            style="
+                                width: 100%; 
+                                height: 100%; 
+                                object-fit: cover; 
+                                object-position: center;
+                                display: none;
+                            "
+                        />
+                    `;
+                } else {
+                    // Regular image
+                    mediaElement = `
+                        <img 
+                            src="${product.image}" 
+                            alt="${product.brand} - ${product.title}"
+                            style="
+                                width: 100%; 
+                                height: 100%; 
+                                object-fit: cover; 
+                                object-position: center;
+                            "
+                        />
+                    `;
+                }
+
+                return `
+                    <div class="shark-tank-slide">
+                        <div class="shark-tank-card" onclick="handleSharkTankCardClick('${product.brand}', '${product.title}')">
+                            <div class="shark-tank-card__media">
+                                ${mediaElement}
+                                <div class="shark-tank-card__overlay"></div>
+                                ${product.showTag && product.tag ? `<span class="shark-tank-card__tag">${product.tag}</span>` : ''}
+                                <div class="shark-tank-card__content">
+                                    <h3 class="shark-tank-card__brand ${product.brand.toLowerCase()}">${product.brand}</h3>
+                                    <p class="shark-tank-card__title">${product.title}</p>
+                                    <div class="shark-tank-card__button">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            sharkTankTrack.innerHTML = productsHTML;
+
+            // Initialize click handlers for new cards
             const sharkTankCards = document.querySelectorAll('.shark-tank-card');
-            
-            // Add click handlers to shark tank cards
-            sharkTankCards.forEach(function(card) {
-                card.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const brandName = this.querySelector('.shark-tank-card__brand').textContent;
-                    const productTitle = this.querySelector('.shark-tank-card__title').textContent;
-                    showToast(`${brandName} - ${productTitle}`);
-                });
-            });
-            
-            console.log('✅ Shark Tank section initialized');
+            console.log(`✅ Rendered ${products.length} Shark Tank products with video support`);
+        }
+
+        // Handle Shark Tank card clicks
+        function handleSharkTankCardClick(brand, title) {
+            console.log('🦈 Shark Tank card clicked:', brand, '-', title);
+            showToast(`${brand} - ${title}`);
         }
 
         // Sale Banner Management - Place Inside Category Sections
@@ -4017,6 +4133,7 @@
                 loadHeaderSettings(); // Also refresh navigation and announcement bar
                 loadCollections(0); // Auto-refresh collections
                 loadProducts(0); // Auto-refresh products
+                loadSharkTankData(); // Auto-refresh Shark Tank section
             }, 15000); // 15 seconds
         }
 
@@ -4034,6 +4151,7 @@
                     loadHeaderSettings(); // Also refresh navigation and announcement bar
                     loadCollections(0); // Refresh collections
                     loadProducts(0); // Refresh products
+                    loadSharkTankData(); // Refresh Shark Tank section
                     isHidden = false;
                 }
             });
@@ -4044,6 +4162,7 @@
             console.log('🔄 Manual refresh triggered');
             loadTrendingSlides();
             loadHeaderSettings(); // Also refresh navigation and announcement bar
+            loadSharkTankData(); // Refresh Shark Tank section
             loadCollections(0); // Refresh collections
             loadProducts(0); // Refresh products
         }
