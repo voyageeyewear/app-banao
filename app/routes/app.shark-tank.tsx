@@ -1,410 +1,471 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import { Form, useActionData, useLoaderData, useNavigation, useSubmit } from "@remix-run/react";
 import {
-  Box,
-  Card,
-  Layout,
   Page,
-  Text,
-  BlockStack,
-  InlineStack,
+  Layout,
+  Card,
   Button,
   TextField,
   Select,
   Checkbox,
   Banner,
-  Modal,
-  Form,
-  FormLayout,
-  Frame,
   Toast,
-  Tabs,
+  Frame,
+  Modal,
+  FormLayout,
+  ButtonGroup,
+  DataTable,
   Badge,
-  EmptyState,
+  InlineStack,
   Thumbnail,
-  Icon,
+  TextContainer,
+  BlockStack,
 } from "@shopify/polaris";
-import { TitleBar } from "@shopify/app-bridge-react";
-import { ImageIcon, DeleteIcon, EditIcon, ViewIcon } from "@shopify/polaris-icons";
+import { authenticate } from "../shopify.server";
+import { PrismaClient } from "@prisma/client";
 
-interface SharkTankProductData {
-  id: string;
+const prisma = new PrismaClient();
+
+// Types
+interface SharkTankProduct {
+  id?: number;
   brand: string;
   title: string;
   image: string;
-  video?: string; // MP4 video URL (optional)
+  video?: string;
   tag: string;
   showTag: boolean;
+  order: number;
+  enabled: boolean;
 }
 
-const defaultProducts: SharkTankProductData[] = [
-  {
-    id: 'st1',
-    brand: 'PHONIC',
-    title: 'Smart Audio Glasses',
-    image: 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=330&h=400&fit=crop&crop=center&q=80',
-    video: '', // Optional video URL
-    tag: 'NEW LAUNCH',
-    showTag: true
-  },
-  {
-    id: 'st2',
-    brand: 'BLUECUT',
-    title: 'Blue Light Blockers',
-    image: 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=330&h=400&fit=crop&crop=center&q=80',
-    video: '', // Optional video URL
-    tag: 'FEATURED',
-    showTag: true
-  },
-  {
-    id: 'st3',
-    brand: 'LUXE',
-    title: 'Designer Collection',
-    image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=330&h=400&fit=crop&crop=center&q=80',
-    video: '', // Optional video URL
-    tag: 'PREMIUM',
-    showTag: true
-  },
-  {
-    id: 'st4',
-    brand: 'ACTIVE',
-    title: 'Performance Sunglasses',
-    image: 'https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=330&h=400&fit=crop&crop=center&q=80',
-    video: '', // Optional video URL
-    tag: 'SPORT',
-    showTag: true
-  },
-  {
-    id: 'st5',
-    brand: 'JUNIOR',
-    title: 'Kids Safety Glasses',
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=330&h=400&fit=crop&crop=center&q=80',
-    video: '', // Optional video URL
-    tag: 'KIDS',
-    showTag: true
-  }
-];
+interface SharkTankConfig {
+  id: number;
+  title: string;
+  subtitle: string;
+  enabled: boolean;
+}
 
-export default function SharkTankPage() {
-  const [products, setProducts] = useState<SharkTankProductData[]>(defaultProducts);
-  const [sectionTitle, setSectionTitle] = useState('As Seen on Shark Tank India');
-  const [sectionSubtitle, setSectionSubtitle] = useState('Style it like the Sharks!');
-  const [sectionEnabled, setSectionEnabled] = useState(true);
-  const [selectedTab, setSelectedTab] = useState(0);
-  const [editingProduct, setEditingProduct] = useState<SharkTankProductData | null>(null);
-  const [showProductModal, setShowProductModal] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastContent, setToastContent] = useState('');
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  await authenticate.admin(request);
 
-  // Load saved settings on component mount
-  useEffect(() => {
-    loadSharkTankSettings();
-  }, []);
-
-  const loadSharkTankSettings = async () => {
-    try {
-      const response = await fetch('/api/shark-tank-settings');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data) {
-          setProducts(data.data.products || defaultProducts);
-          setSectionTitle(data.data.title || 'As Seen on Shark Tank India');
-          setSectionSubtitle(data.data.subtitle || 'Style it like the Sharks!');
-          setSectionEnabled(data.data.enabled !== false);
+  try {
+    // Get Shark Tank configuration
+    let config = await prisma.sharkTankConfig.findFirst();
+    if (!config) {
+      config = await prisma.sharkTankConfig.create({
+        data: {
+          title: "As Seen on Shark Tank India",
+          subtitle: "Style it like the Sharks!",
+          enabled: true,
         }
-      }
-    } catch (error) {
-      console.error('Error loading shark tank settings:', error);
-    }
-  };
-
-  const saveSharkTankSettings = async () => {
-    try {
-      const response = await fetch('/api/shark-tank-settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: sectionTitle,
-          subtitle: sectionSubtitle,
-          enabled: sectionEnabled,
-          products: products
-        }),
       });
+    }
 
-      if (response.ok) {
-        setToastContent('Shark Tank section settings saved successfully!');
-        setShowToast(true);
-      } else {
-        throw new Error('Failed to save settings');
-      }
-    } catch (error) {
-      console.error('Error saving shark tank settings:', error);
-      setToastContent('Error saving settings. Please try again.');
+    // Get all Shark Tank products
+    const products = await prisma.sharkTankProduct.findMany({
+      orderBy: { order: 'asc' }
+    });
+
+    return json({ config, products });
+  } catch (error) {
+    console.error("Loader error:", error);
+    return json({ 
+      config: { id: 1, title: "As Seen on Shark Tank India", subtitle: "Style it like the Sharks!", enabled: true },
+      products: []
+    });
+  }
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  await authenticate.admin(request);
+
+  const formData = await request.formData();
+  const actionType = formData.get("actionType") as string;
+
+  try {
+    switch (actionType) {
+      case "updateConfig":
+        await prisma.sharkTankConfig.update({
+          where: { id: 1 },
+          data: {
+            title: formData.get("title") as string,
+            subtitle: formData.get("subtitle") as string,
+            enabled: formData.get("enabled") === "true",
+          }
+        });
+        return json({ success: true, message: "Configuration updated successfully!" });
+
+      case "addProduct":
+        await prisma.sharkTankProduct.create({
+          data: {
+            brand: formData.get("brand") as string,
+            title: formData.get("title") as string,
+            image: formData.get("image") as string,
+            video: formData.get("video") as string || "",
+            tag: formData.get("tag") as string,
+            showTag: formData.get("showTag") === "true",
+            order: parseInt(formData.get("order") as string) || 0,
+            enabled: formData.get("enabled") === "true",
+          }
+        });
+        return json({ success: true, message: "Product added successfully!" });
+
+      case "updateProduct":
+        const productId = parseInt(formData.get("productId") as string);
+        await prisma.sharkTankProduct.update({
+          where: { id: productId },
+          data: {
+            brand: formData.get("brand") as string,
+            title: formData.get("title") as string,
+            image: formData.get("image") as string,
+            video: formData.get("video") as string || "",
+            tag: formData.get("tag") as string,
+            showTag: formData.get("showTag") === "true",
+            order: parseInt(formData.get("order") as string) || 0,
+            enabled: formData.get("enabled") === "true",
+          }
+        });
+        return json({ success: true, message: "Product updated successfully!" });
+
+      case "deleteProduct":
+        const deleteId = parseInt(formData.get("productId") as string);
+        await prisma.sharkTankProduct.delete({
+          where: { id: deleteId }
+        });
+        return json({ success: true, message: "Product deleted successfully!" });
+
+      default:
+        return json({ success: false, message: "Invalid action" });
+    }
+  } catch (error) {
+    console.error("Action error:", error);
+    return json({ success: false, message: "An error occurred" });
+  }
+};
+
+export default function SharkTankManagement() {
+  const { config, products } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const submit = useSubmit();
+
+  // State
+  const [activeTab, setActiveTab] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [toastContent, setToastContent] = useState("");
+  const [editingProduct, setEditingProduct] = useState<SharkTankProduct | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Configuration state
+  const [configState, setConfigState] = useState({
+    title: config.title,
+    subtitle: config.subtitle,
+    enabled: config.enabled,
+  });
+
+  // Product form state
+  const [productForm, setProductForm] = useState<SharkTankProduct>({
+    brand: "",
+    title: "",
+    image: "",
+    video: "",
+    tag: "",
+    showTag: true,
+    order: 0,
+    enabled: true,
+  });
+
+  // Handle action response
+  useEffect(() => {
+    if (actionData?.success) {
       setShowToast(true);
+      setToastContent(actionData.message);
+      setShowModal(false);
+      setEditingProduct(null);
+      setProductForm({
+        brand: "",
+        title: "",
+        image: "",
+        video: "",
+        tag: "",
+        showTag: true,
+        order: 0,
+        enabled: true,
+      });
+    } else if (actionData?.success === false) {
+      setShowToast(true);
+      setToastContent(actionData.message);
     }
+  }, [actionData]);
+
+  // Handlers
+  const handleConfigSave = () => {
+    const formData = new FormData();
+    formData.append("actionType", "updateConfig");
+    formData.append("title", configState.title);
+    formData.append("subtitle", configState.subtitle);
+    formData.append("enabled", configState.enabled.toString());
+    submit(formData, { method: "post" });
   };
 
-  const editProduct = (product: SharkTankProductData) => {
+  const handleAddProduct = () => {
+    setIsEditing(false);
+    setProductForm({
+      brand: "",
+      title: "",
+      image: "",
+      video: "",
+      tag: "",
+      showTag: true,
+      order: products.length,
+      enabled: true,
+    });
+    setShowModal(true);
+  };
+
+  const handleEditProduct = (product: any) => {
+    setIsEditing(true);
     setEditingProduct(product);
-    setShowProductModal(true);
+    setProductForm(product);
+    setShowModal(true);
   };
 
-  const addNewProduct = () => {
-    const newProduct: SharkTankProductData = {
-      id: Date.now().toString(),
-      brand: 'NEW BRAND',
-      title: 'New Product',
-      image: 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=330&h=400&fit=crop&crop=center&q=80',
-      video: '', // Optional video URL
-      tag: 'NEW',
-      showTag: true
-    };
-    setEditingProduct(newProduct);
-    setShowProductModal(true);
-  };
-
-  const saveProduct = () => {
-    if (!editingProduct) return;
-    
-    const existingIndex = products.findIndex(p => p.id === editingProduct.id);
-    if (existingIndex >= 0) {
-      const updatedProducts = [...products];
-      updatedProducts[existingIndex] = editingProduct;
-      setProducts(updatedProducts);
-    } else {
-      setProducts([...products, editingProduct]);
+  const handleDeleteProduct = (productId: number) => {
+    if (confirm("Are you sure you want to delete this product?")) {
+      const formData = new FormData();
+      formData.append("actionType", "deleteProduct");
+      formData.append("productId", productId.toString());
+      submit(formData, { method: "post" });
     }
-    setShowProductModal(false);
-    setEditingProduct(null);
   };
 
-  const deleteProduct = (id: string) => {
-    setProducts(products.filter(p => p.id !== id));
+  const handleProductSave = () => {
+    const formData = new FormData();
+    formData.append("actionType", isEditing ? "updateProduct" : "addProduct");
+    if (isEditing && editingProduct?.id) {
+      formData.append("productId", editingProduct.id.toString());
+    }
+    formData.append("brand", productForm.brand);
+    formData.append("title", productForm.title);
+    formData.append("image", productForm.image);
+    formData.append("video", productForm.video || "");
+    formData.append("tag", productForm.tag);
+    formData.append("showTag", productForm.showTag.toString());
+    formData.append("order", productForm.order.toString());
+    formData.append("enabled", productForm.enabled.toString());
+    submit(formData, { method: "post" });
   };
 
-  const renderProductsTab = () => (
-    <Layout>
-      <Layout.Section>
-        <Card>
-          <BlockStack gap="400">
-            <InlineStack align="space-between">
-              <Text variant="headingMd" as="h2">Shark Tank Products</Text>
-              <Button onClick={addNewProduct}>Add Product</Button>
-            </InlineStack>
-            <BlockStack gap="300">
-              {products.map((product) => (
-                <Card key={product.id} padding="300">
-                  <InlineStack align="space-between">
-                    <InlineStack gap="300">
-                      <Thumbnail source={product.image} alt={product.brand} size="small" />
-                      <BlockStack gap="100">
-                        <Text variant="bodyMd" fontWeight="semibold" as="p">{product.brand}</Text>
-                        <Text variant="bodySm" tone="subdued" as="p">{product.title}</Text>
-                        {product.showTag && (
-                          <Badge tone="info">{product.tag}</Badge>
-                        )}
-                      </BlockStack>
-                    </InlineStack>
-                    <InlineStack gap="200">
-                      <Button icon={EditIcon} onClick={() => editProduct(product)}>
-                        Edit
-                      </Button>
-                      <Button 
-                        icon={DeleteIcon} 
-                        variant="primary"
-                        tone="critical"
-                        onClick={() => deleteProduct(product.id)}
-                      >
-                        Delete
-                      </Button>
-                    </InlineStack>
-                  </InlineStack>
-                </Card>
-              ))}
-            </BlockStack>
-          </BlockStack>
-        </Card>
-      </Layout.Section>
-    </Layout>
-  );
-
-  const renderSettingsTab = () => (
-    <Layout>
-      <Layout.Section>
-        <Card>
-          <BlockStack gap="400">
-            <Text variant="headingMd" as="h2">Section Settings</Text>
-            <FormLayout>
-              <TextField
-                label="Section Title"
-                value={sectionTitle}
-                onChange={setSectionTitle}
-                placeholder="Enter section title"
-                autoComplete="off"
-              />
-              <TextField
-                label="Section Subtitle"
-                value={sectionSubtitle}
-                onChange={setSectionSubtitle}
-                placeholder="Enter section subtitle"
-                autoComplete="off"
-              />
-              <Checkbox
-                label="Enable Shark Tank Section"
-                checked={sectionEnabled}
-                onChange={setSectionEnabled}
-              />
-            </FormLayout>
-          </BlockStack>
-        </Card>
-      </Layout.Section>
-    </Layout>
-  );
-
-  const renderPreviewTab = () => (
-    <Layout>
-      <Layout.Section>
-        <Card>
-          <BlockStack gap="400">
-            <Text variant="headingMd" as="h2">Section Preview</Text>
-            <Text variant="bodyMd" as="p">Preview how the Shark Tank section will appear in the mobile app:</Text>
-            <Box 
-              background="bg-surface-secondary" 
-              padding="400" 
-              borderRadius="200"
-            >
-              <BlockStack gap="300">
-                <Text variant="headingLg" as="h3">{sectionTitle}</Text>
-                <Text variant="bodyMd" tone="subdued" as="p">{sectionSubtitle}</Text>
-                <InlineStack gap="200">
-                  {products.slice(0, 3).map((product) => (
-                    <Box key={product.id} background="bg-surface" padding="200" borderRadius="100">
-                      <BlockStack gap="100">
-                        <Thumbnail source={product.image} alt={product.brand} size="small" />
-                        <Text variant="bodySm" fontWeight="semibold" as="p">{product.brand}</Text>
-                        <Text variant="bodySm" tone="subdued" as="p">{product.title}</Text>
-                      </BlockStack>
-                    </Box>
-                  ))}
-                </InlineStack>
-              </BlockStack>
-            </Box>
-          </BlockStack>
-        </Card>
-      </Layout.Section>
-    </Layout>
-  );
-
+  // Tabs
   const tabs = [
     { id: 'products', content: 'Products' },
     { id: 'settings', content: 'Settings' },
     { id: 'preview', content: 'Preview' },
   ];
 
-  const renderTabContent = () => {
-    switch (selectedTab) {
-      case 0:
-        return renderProductsTab();
-      case 1:
-        return renderSettingsTab();
-      case 2:
-        return renderPreviewTab();
-      default:
-        return renderProductsTab();
-    }
-  };
+  // Products table data
+  const productRows = products.map((product: any) => [
+    <Thumbnail
+      source={product.image || "https://via.placeholder.com/100"}
+      alt={product.title}
+      size="small"
+    />,
+    product.brand,
+    product.title,
+    product.video ? (
+      <Badge tone="success">Has Video</Badge>
+    ) : (
+      <Badge>No Video</Badge>
+    ),
+    product.showTag ? product.tag : "Hidden",
+    product.enabled ? (
+      <Badge tone="success">Enabled</Badge>
+    ) : (
+      <Badge tone="critical">Disabled</Badge>
+    ),
+    <ButtonGroup>
+      <Button onClick={() => handleEditProduct(product)} size="slim">
+        Edit
+      </Button>
+      <Button 
+        onClick={() => handleDeleteProduct(product.id)} 
+        variant="primary"
+        tone="critical"
+        size="slim"
+      >
+        Delete
+      </Button>
+    </ButtonGroup>
+  ]);
 
   return (
     <Frame>
-      <Page title="Shark Tank Section">
-        <TitleBar title="Shark Tank Section Management" />
+      <Page
+        title="Shark Tank Section Management"
+        subtitle="Manage your Shark Tank products and settings"
+        primaryAction={{
+          content: "Add Product",
+          onAction: handleAddProduct,
+        }}
+      >
         <Layout>
           <Layout.Section>
             <Card>
-              <Tabs 
-                tabs={tabs} 
-                selected={selectedTab} 
-                onSelect={setSelectedTab}
-              />
+              <div style={{ padding: '16px 0' }}>
+                <InlineStack gap="400" align="center">
+                  {tabs.map((tab, index) => (
+                    <Button
+                      key={tab.id}
+                      pressed={activeTab === index}
+                      onClick={() => setActiveTab(index)}
+                    >
+                      {tab.content}
+                    </Button>
+                  ))}
+                </InlineStack>
+              </div>
             </Card>
           </Layout.Section>
+
           <Layout.Section>
-            {renderTabContent()}
-          </Layout.Section>
-          <Layout.Section>
-            <Card>
-              <InlineStack align="space-between">
-                <Button onClick={saveSharkTankSettings} variant="primary">
-                  Save Settings
-                </Button>
-                <Badge tone="info">
-                  {sectionEnabled ? 'Enabled' : 'Disabled'}
-                </Badge>
-              </InlineStack>
-            </Card>
+            {activeTab === 0 && (
+              <Card>
+                <div style={{ padding: '16px' }}>
+                  <h2 style={{ marginBottom: '16px' }}>Shark Tank Products</h2>
+                  <DataTable
+                    columnContentTypes={['text', 'text', 'text', 'text', 'text', 'text', 'text']}
+                    headings={['Image', 'Brand', 'Title', 'Video', 'Tag', 'Status', 'Actions']}
+                    rows={productRows}
+                  />
+                </div>
+              </Card>
+            )}
+
+            {activeTab === 1 && (
+              <Card>
+                <div style={{ padding: '16px' }}>
+                  <h2 style={{ marginBottom: '16px' }}>Shark Tank Settings</h2>
+                  <FormLayout>
+                    <TextField
+                      label="Section Title"
+                      value={configState.title}
+                      onChange={(value) => setConfigState({ ...configState, title: value })}
+                      autoComplete="off"
+                    />
+                    <TextField
+                      label="Section Subtitle"
+                      value={configState.subtitle}
+                      onChange={(value) => setConfigState({ ...configState, subtitle: value })}
+                      autoComplete="off"
+                    />
+                    <Checkbox
+                      label="Enable Shark Tank Section"
+                      checked={configState.enabled}
+                      onChange={(value) => setConfigState({ ...configState, enabled: value })}
+                    />
+                    <Button
+                      variant="primary"
+                      onClick={handleConfigSave}
+                      loading={navigation.state === "submitting"}
+                    >
+                      Save Settings
+                    </Button>
+                  </FormLayout>
+                </div>
+              </Card>
+            )}
+
+            {activeTab === 2 && (
+              <Card>
+                <div style={{ padding: '16px' }}>
+                  <h2 style={{ marginBottom: '16px' }}>Live Preview</h2>
+                  <TextContainer>
+                    <p>Your Shark Tank section will appear in the mobile app with {products.length} products.</p>
+                    <p>Section: {configState.enabled ? "Enabled" : "Disabled"}</p>
+                    <p>Title: {configState.title}</p>
+                    <p>Subtitle: {configState.subtitle}</p>
+                  </TextContainer>
+                </div>
+              </Card>
+            )}
           </Layout.Section>
         </Layout>
 
-        {/* Product Edit Modal */}
+        {/* Product Modal */}
         <Modal
-          open={showProductModal}
-          onClose={() => setShowProductModal(false)}
-          title="Edit Product"
+          open={showModal}
+          onClose={() => setShowModal(false)}
+          title={isEditing ? "Edit Product" : "Add Product"}
           primaryAction={{
-            content: 'Save',
-            onAction: saveProduct,
+            content: isEditing ? "Update Product" : "Add Product",
+            onAction: handleProductSave,
+            loading: navigation.state === "submitting",
           }}
           secondaryActions={[
             {
-              content: 'Cancel',
-              onAction: () => setShowProductModal(false),
+              content: "Cancel",
+              onAction: () => setShowModal(false),
             },
           ]}
         >
           <Modal.Section>
-            {editingProduct && (
-              <FormLayout>
-                <TextField
-                  label="Brand Name"
-                  value={editingProduct.brand}
-                  onChange={(value) => setEditingProduct({...editingProduct, brand: value})}
-                  autoComplete="off"
-                />
-                <TextField
-                  label="Product Title"
-                  value={editingProduct.title}
-                  onChange={(value) => setEditingProduct({...editingProduct, title: value})}
-                  autoComplete="off"
-                />
-                <TextField
-                  label="Image URL"
-                  value={editingProduct.image}
-                  onChange={(value) => setEditingProduct({...editingProduct, image: value})}
-                  autoComplete="off"
-                  helpText="Product image (JPG, PNG, WebP supported)"
-                />
-                <TextField
-                  label="Video URL (MP4)"
-                  value={editingProduct.video || ''}
-                  onChange={(value) => setEditingProduct({...editingProduct, video: value})}
-                  autoComplete="off"
-                  helpText="Optional: MP4 video that will play in loop and muted"
-                  placeholder="https://example.com/video.mp4"
-                />
-                <TextField
-                  label="Tag Text"
-                  value={editingProduct.tag}
-                  onChange={(value) => setEditingProduct({...editingProduct, tag: value})}
-                  autoComplete="off"
-                />
-                <Checkbox
-                  label="Show Tag"
-                  checked={editingProduct.showTag}
-                  onChange={(value) => setEditingProduct({...editingProduct, showTag: value})}
-                />
-              </FormLayout>
-            )}
+            <FormLayout>
+              <TextField
+                label="Brand Name"
+                value={productForm.brand}
+                onChange={(value) => setProductForm({ ...productForm, brand: value })}
+                autoComplete="off"
+              />
+              <TextField
+                label="Product Title"
+                value={productForm.title}
+                onChange={(value) => setProductForm({ ...productForm, title: value })}
+                autoComplete="off"
+              />
+              <TextField
+                label="Image URL"
+                value={productForm.image}
+                onChange={(value) => setProductForm({ ...productForm, image: value })}
+                autoComplete="off"
+                helpText="Product image (JPG, PNG, WebP supported)"
+              />
+              <TextField
+                label="🎥 Video URL (MP4)"
+                value={productForm.video || ""}
+                onChange={(value) => setProductForm({ ...productForm, video: value })}
+                autoComplete="off"
+                helpText="⭐ Optional: MP4 video that will play in loop and muted in mobile app"
+                placeholder="https://example.com/video.mp4"
+              />
+              <TextField
+                label="Tag Text"
+                value={productForm.tag}
+                onChange={(value) => setProductForm({ ...productForm, tag: value })}
+                autoComplete="off"
+                helpText='e.g., "NEW", "POPULAR", "LIMITED"'
+              />
+              <TextField
+                label="Display Order"
+                type="number"
+                value={productForm.order.toString()}
+                onChange={(value) => setProductForm({ ...productForm, order: parseInt(value) || 0 })}
+                autoComplete="off"
+                helpText="Lower numbers appear first"
+              />
+              <Checkbox
+                label="Show Tag"
+                checked={productForm.showTag}
+                onChange={(value) => setProductForm({ ...productForm, showTag: value })}
+              />
+              <Checkbox
+                label="Enable Product"
+                checked={productForm.enabled}
+                onChange={(value) => setProductForm({ ...productForm, enabled: value })}
+              />
+            </FormLayout>
           </Modal.Section>
         </Modal>
 

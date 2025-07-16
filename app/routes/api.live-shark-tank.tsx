@@ -1,5 +1,8 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import db from "../db.server";
+import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 // Helper function to add CORS headers for mobile app access
 function addCorsHeaders(response: Response) {
@@ -10,132 +13,73 @@ function addCorsHeaders(response: Response) {
   return response;
 }
 
-// Handle OPTIONS requests for CORS preflight  
-export const options = async () => {
-  const response = new Response(null, { status: 200 });
-  return addCorsHeaders(response);
-};
+// Handle preflight requests
+export async function loader({ request }: LoaderFunctionArgs) {
+  // Handle preflight CORS request
+  if (request.method === "OPTIONS") {
+    const response = new Response(null, { status: 200 });
+    return addCorsHeaders(response);
+  }
 
-// This is a PUBLIC endpoint - no authentication required
-// Specifically designed for mobile app access
-export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
-    console.log("🦈 Live Shark Tank API - Loading data for mobile app...");
-    
-    // Get shark tank config from database
-    const sharkTankConfig = await db.sharkTankConfig.findFirst({
-      where: { id: 1 }
+    // Get Shark Tank configuration
+    let config = await prisma.sharkTankConfig.findFirst();
+    if (!config) {
+      config = await prisma.sharkTankConfig.create({
+        data: {
+          title: "As Seen on Shark Tank India",
+          subtitle: "Style it like the Sharks!",
+          enabled: true,
+        }
+      });
+    }
+
+    // Get enabled Shark Tank products ordered by display order
+    const products = await (prisma as any).sharkTankProduct.findMany({
+      where: { enabled: true },
+      orderBy: { order: 'asc' }
     });
 
-    let responseData;
-    
-    if (sharkTankConfig && sharkTankConfig.enabled) {
-      console.log("✅ Found active shark tank config:", {
-        title: sharkTankConfig.title,
-        subtitle: sharkTankConfig.subtitle,
-        enabled: sharkTankConfig.enabled,
-        productsCount: Array.isArray(sharkTankConfig.products) ? (sharkTankConfig.products as any[]).length : 0,
-        updatedAt: sharkTankConfig.updatedAt
-      });
-      
-      responseData = {
-        success: true,
-        enabled: true,
-        section: {
-          title: sharkTankConfig.title || 'As Seen on Shark Tank India',
-          subtitle: sharkTankConfig.subtitle || 'Style it like the Sharks!',
-          enabled: sharkTankConfig.enabled
-        },
-        products: sharkTankConfig.products as any[] || [],
-        lastUpdate: sharkTankConfig.updatedAt.getTime(),
-        source: 'database'
-      };
-    } else {
-      console.log("⚠️ No active shark tank config found, using defaults");
-      
-      // Default shark tank data for mobile app with video support
-      responseData = {
-        success: true,
-        enabled: true,
-        section: {
-          title: 'As Seen on Shark Tank India',
-          subtitle: 'Style it like the Sharks!',
-          enabled: true
-        },
-        products: [
-          {
-            id: 'st1',
-            brand: 'PHONIC',
-            title: 'Smart Audio Glasses',
-            image: 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=330&h=400&fit=crop&crop=center&q=80',
-            video: '',
-            tag: 'NEW LAUNCH',
-            showTag: true
-          },
-          {
-            id: 'st2',
-            brand: 'BLUECUT',
-            title: 'Blue Light Blockers',
-            image: 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=330&h=400&fit=crop&crop=center&q=80',
-            video: '',
-            tag: 'FEATURED',
-            showTag: true
-          },
-          {
-            id: 'st3',
-            brand: 'LUXE',
-            title: 'Designer Collection',
-            image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=330&h=400&fit=crop&crop=center&q=80',
-            video: '',
-            tag: 'PREMIUM',
-            showTag: true
-          },
-          {
-            id: 'st4',
-            brand: 'ACTIVE',
-            title: 'Performance Sunglasses',
-            image: 'https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=330&h=400&fit=crop&crop=center&q=80',
-            video: '',
-            tag: 'SPORT',
-            showTag: true
-          },
-          {
-            id: 'st5',
-            brand: 'JUNIOR',
-            title: 'Kids Safety Glasses',
-            image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=330&h=400&fit=crop&crop=center&q=80',
-            video: '',
-            tag: 'KIDS',
-            showTag: true
-          }
-        ],
-        lastUpdate: Date.now(),
-        source: 'default'
-      };
-    }
+    // Format response for mobile app
+    const responseData = {
+      success: true,
+      enabled: config.enabled,
+      section: {
+        title: config.title,
+        subtitle: config.subtitle,
+        products: products.map((product: any) => ({
+          id: product.id,
+          brand: product.brand,
+          title: product.title,
+          image: product.image,
+          video: product.video || "", // Video URL for MP4 playback
+          tag: product.tag,
+          showTag: product.showTag,
+          order: product.order
+        }))
+      }
+    };
 
     const response = json(responseData);
     return addCorsHeaders(response);
 
   } catch (error) {
-    console.error("❌ Live Shark Tank API Error:", error);
+    console.error("Shark Tank API Error:", error);
     
+    // Return error with fallback data
     const errorResponse = json({
       success: false,
       enabled: false,
-      error: error instanceof Error ? error.message : "Failed to load shark tank data",
+      error: error instanceof Error ? error.message : "Unknown error occurred",
       section: {
-        title: 'As Seen on Shark Tank India',
-        subtitle: 'Style it like the Sharks!',
-        enabled: false
-      },
-      products: [],
-      lastUpdate: Date.now(),
-      source: 'error'
-    }, { status: 500 });
+        title: "As Seen on Shark Tank India",
+        subtitle: "Style it like the Sharks!",
+        products: []
+      }
+    });
 
     return addCorsHeaders(errorResponse);
   }
-};
+}
 
  

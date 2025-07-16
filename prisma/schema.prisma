@@ -87,6 +87,22 @@ model SharkTankConfig {
   updatedAt  DateTime @updatedAt
 }
 
+model SharkTankProduct {
+  id       Int     @id @default(autoincrement())
+  brand    String
+  title    String
+  image    String
+  video    String? // MP4 video URL
+  tag      String  @default("")
+  showTag  Boolean @default(true)
+  order    Int     @default(0)
+  enabled  Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("shark_tank_products")
+}
+
 model HeaderConfig {
   id             Int      @id @default(1)
   enabled        Boolean  @default(true)
