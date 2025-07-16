@@ -63,7 +63,6 @@ model CategoriesConfig {
   enabled    Boolean  @default(true)
   categories Json     @default("[]")
   products   Json     @default("[]")
-  saleBanner Json     @default("{\"enabled\": false, \"line1\": \"END OF\", \"line2\": \"SEASON Sale\", \"backgroundColor\": \"#d32f2f\"}")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -74,7 +73,6 @@ model SunglassesConfig {
   enabled    Boolean  @default(true)
   categories Json     @default("[]")
   products   Json     @default("[]")
-  saleBanner Json     @default("{\"enabled\": false, \"line1\": \"HOT\", \"line2\": \"SUMMER Sale\", \"backgroundColor\": \"#ff6b35\"}")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }

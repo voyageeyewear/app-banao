@@ -1949,28 +1949,28 @@
             <div class="subcategories">
                 <a href="#" class="subcategory-card" data-category="men">
                     <div class="subcategory-image">
-                        <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=200&h=200&fit=crop&crop=center&q=80" alt="Men Eyeglasses">
+                        <img src="https://goeye.in/cdn/shop/files/men.jpg?v=1750675041" alt="Men Eyeglasses">
                     </div>
                     <div class="subcategory-title">Men</div>
                 </a>
                 
                 <a href="#" class="subcategory-card" data-category="women">
                     <div class="subcategory-image">
-                        <img src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=200&h=200&fit=crop&crop=center&q=80" alt="Women Eyeglasses">
+                        <img src="https://goeye.in/cdn/shop/files/women.jpg?v=1750675041" alt="Women Eyeglasses">
                     </div>
                     <div class="subcategory-title">Women</div>
                 </a>
                 
                 <a href="#" class="subcategory-card" data-category="kids">
                     <div class="subcategory-image">
-                        <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop&crop=center&q=80" alt="Kids Eyeglasses">
+                        <img src="https://goeye.in/cdn/shop/files/kid-1.jpg?v=1750675041" alt="Kids Eyeglasses">
                     </div>
                     <div class="subcategory-title">Kids</div>
                 </a>
                 
                 <a href="#" class="subcategory-card essentials-card" data-category="essentials">
                     <div class="subcategory-image">
-                        <img src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=200&h=200&fit=crop&crop=center&q=80" alt="Essentials Eyeglasses">
+                        <img src="https://goeye.in/cdn/shop/files/kid_copy_2.jpg?v=1750675041" alt="Essentials Eyeglasses">
                     </div>
                     <div class="subcategory-title">Essentials</div>
                 </a>
@@ -2102,28 +2102,28 @@
             <div class="subcategories">
                 <a href="#" class="subcategory-card" data-category="men-sunglasses">
                     <div class="subcategory-image">
-                        <img src="https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=200&h=200&fit=crop&crop=center&q=80" alt="Men Sunglasses">
+                        <img src="https://goeye.in/cdn/shop/files/men_copy.jpg?v=1750675042" alt="Men Sunglasses">
                     </div>
                     <div class="subcategory-title">Men</div>
                 </a>
                 
                 <a href="#" class="subcategory-card" data-category="women-sunglasses">
                     <div class="subcategory-image">
-                        <img src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=200&h=200&fit=crop&crop=center&q=80" alt="Women Sunglasses">
+                        <img src="https://goeye.in/cdn/shop/files/women_copy_2.jpg?v=1750675041" alt="Women Sunglasses">
                     </div>
                     <div class="subcategory-title">Women</div>
                 </a>
                 
                 <a href="#" class="subcategory-card" data-category="kids-sunglasses">
                     <div class="subcategory-image">
-                        <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop&crop=center&q=80" alt="Kids Sunglasses">
+                        <img src="https://goeye.in/cdn/shop/files/kid.jpg?v=1750675041" alt="Kids Sunglasses">
                     </div>
                     <div class="subcategory-title">Kids</div>
                 </a>
                 
                 <a href="#" class="subcategory-card essentials-card" data-category="essentials-sunglasses">
                     <div class="subcategory-image">
-                        <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=200&h=200&fit=crop&crop=center&q=80" alt="Essentials Sunglasses">
+                        <img src="https://goeye.in/cdn/shop/files/kid_copy_3.jpg?v=1750675040" alt="Essentials Sunglasses">
                     </div>
                     <div class="subcategory-title">Essentials</div>
                 </a>
@@ -2446,7 +2446,7 @@
         };
 
         // API Configuration - Updated Vercel URL for APK
-        const API_BASE = 'https://app-banao-70al9clt6-voyageeyewears-projects.vercel.app';
+        const API_BASE = 'https://app-banao-jwn5g2nig-voyageeyewears-projects.vercel.app';
         const STOREFRONT_ACCESS_TOKEN = 'your-storefront-access-token';
         const SHOP_DOMAIN = 'your-shop.myshopify.com';
         
@@ -3208,64 +3208,26 @@
             }
         }
 
-        // Live Eyeglasses Data Loading
+        // Live Eyeglasses Data Loading - DISABLED to prevent 500 errors
         async function loadLiveEyeglasses() {
             try {
-                console.log('👓 Loading live eyeglasses data...');
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
-                
-                const apiUrl = `${API_BASE}/api/live-eyeglasses`;
-                
-                const response = await fetch(apiUrl, {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-                
-                console.log('Eyeglasses API Response status:', response.status);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Eyeglasses API Data:', data);
-                    
-                    if (data.success) {
-                        renderLiveEyeglasses(data);
-                        console.log(`✅ Loaded live eyeglasses data: ${data.categories?.length || 0} categories`);
-                        return;
-                    }
-                }
+                console.log('👓 Live eyeglasses loading disabled to prevent 500 errors');
+                // API call disabled temporarily to fix 500 errors
+                // const apiUrl = `${API_BASE}/api/live-eyeglasses`;
+                return; // Skip API call
             } catch (apiError) {
                 console.log('⚠️ Eyeglasses API failed:', apiError);
                 // Keep existing hardcoded data as fallback
             }
         }
 
-        // Live Sunglasses Data Loading  
+                // Live Sunglasses Data Loading - DISABLED to prevent 500 errors
         async function loadLiveSunglasses() {
             try {
-                console.log('🕶️ Loading live sunglasses data...');
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
-                
-                const apiUrl = `${API_BASE}/api/live-sunglasses`;
-                
-                const response = await fetch(apiUrl, {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-                
-                console.log('Sunglasses API Response status:', response.status);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Sunglasses API Data:', data);
-                    
-                    if (data.success) {
-                        renderLiveSunglasses(data);
-                        console.log(`✅ Loaded live sunglasses data: ${data.categories?.length || 0} categories`);
-                        return;
-                    }
-                }
+                console.log('🕶️ Live sunglasses loading disabled to prevent 500 errors');
+                // API call disabled temporarily to fix 500 errors
+                // const apiUrl = `${API_BASE}/api/live-sunglasses`;
+                return; // Skip API call
             } catch (apiError) {
                 console.log('⚠️ Sunglasses API failed:', apiError);
                 // Keep existing hardcoded data as fallback

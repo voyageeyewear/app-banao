@@ -72,7 +72,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       // Return both categories and products
       const categories = (config.categories as any[]) || [];
       const products = (config.products as any[]) || [];
-      const saleBanner = (config.saleBanner as any) || {
+      const saleBanner = {
         enabled: false,
         line1: "END OF",
         line2: "SEASON Sale",

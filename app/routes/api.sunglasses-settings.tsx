@@ -17,8 +17,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           title: settings.title,
           enabled: settings.enabled,
           categories: settings.categories as any[],
-          products: settings.products as any[],
-          saleBanner: settings.saleBanner as any
+          products: settings.products as any[]
         }
       });
     } else {
@@ -45,7 +44,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   try {
     const body = await request.json();
-    const { title, enabled, categories, products, saleBanner } = body;
+    const { title, enabled, categories, products } = body;
 
     const settings = await db.sunglassesConfig.upsert({
       where: { id: 1 },
@@ -54,7 +53,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         enabled,
         categories: categories as any,
         products: products as any,
-        saleBanner: saleBanner as any,
         updatedAt: new Date()
       },
       create: {
@@ -63,7 +61,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         enabled,
         categories: categories as any,
         products: products as any,
-        saleBanner: saleBanner as any,
         createdAt: new Date(),
         updatedAt: new Date()
       }
