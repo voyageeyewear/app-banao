@@ -1,0 +1,450 @@
+{% style %}
+.style-finder-container {
+  padding: 16px 0;
+  background: #f5f5ff;
+  margin: 0 auto;
+}
+
+.style-finder-header {
+  margin-bottom: 16px;
+  text-align: left;
+  padding: 0 16px;
+}
+
+.style-finder-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.style-finder-title span {
+  font-family: 'Satisfy', cursive;
+  font-size: 28px;
+  font-style: italic;
+  color: #000;
+}
+
+.style-finder-title strong {
+  background: #000;
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-family: sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.style-finder-subtitle {
+  font-size: 16px;
+  color: #666B7E;
+  margin: 0;
+  font-weight: 400;
+}
+
+.style-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.style-row {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 0;
+  margin: 0 -16px;
+}
+
+.style-row::-webkit-scrollbar {
+  display: none;
+}
+
+.style-grid {
+  display: flex;
+  gap: 8px;
+  min-width: max-content;
+  padding: 0 26px;
+}
+
+.style-card {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  width: 100px;
+  height: 120px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+.style-card.explore {
+  padding: 16px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 20px;
+  height: 120px;
+  min-width: 100px;
+}
+
+.style-card.explore.men {
+  background: #F0F1FF;
+}
+
+.style-card.explore.women {
+  background: #FFF0F0;
+}
+
+.explore-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1B224B;
+  margin: 0 0 2px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.explore-subtitle {
+  font-size: 13px;
+  color: #1B224B;
+  margin: 0;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.explore-arrow {
+  width: 28px;
+  height: 28px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.explore-arrow svg {
+  width: 16px;
+  height: 16px;
+}
+
+.style-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.style-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32px 12px 12px;
+  color: #fff;
+}
+
+.style-card-title {
+  font-size: 12px;
+  font-weight: 900;
+  margin: 0;
+  text-align: center;
+  line-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  
+}
+
+@media screen and (min-width: 768px) {
+  .style-row {
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 12px;
+  }
+  
+  .style-grid {
+    padding-left: max(12px, calc((100vw - 600px) / 2));
+    padding-right: 12px;
+  }
+}
+{% endstyle %}
+
+<div class="style-finder-container">
+  <div class="style-finder-header">
+    <h2 class="style-finder-title">
+      <span>{{ section.settings.title_cursive }}</span>
+      <strong>{{ section.settings.title_bold }}</strong>
+    </h2>
+    <p class="style-finder-subtitle">{{ section.settings.subtitle }}</p>
+  </div>
+
+  <div class="style-content">
+    <div class="style-row">
+      <div class="style-grid">
+        <a href="{{ section.settings.men_explore_link }}" class="style-card explore men">
+          <h3 class="explore-title">{{ section.settings.men_explore_title }}</h3>
+          <p class="explore-subtitle">{{ section.settings.men_explore_subtitle }}</p>
+          <div class="explore-arrow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 4L10.59 5.41L16.17 11H4V13H16.17L10.59 18.59L12 20L20 12L12 4Z" fill="#1B224B"/>
+            </svg>
+          </div>
+        </a>
+        
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'men_style' -%}
+            <a href="{{ block.settings.link }}" class="style-card">
+              <img 
+                src="{{ block.settings.image | img_url: '600x600', crop: 'center' }}"
+                alt="{{ block.settings.title }}"
+                class="style-card-image"
+                width="600"
+                height="600"
+                loading="lazy"
+              >
+              <div class="style-card-overlay">
+                <h3 class="style-card-title">{{ block.settings.title }}</h3>
+              </div>
+            </a>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <div class="style-row">
+      <div class="style-grid">
+        <a href="{{ section.settings.women_explore_link }}" class="style-card explore women">
+          <h3 class="explore-title">{{ section.settings.women_explore_title }}</h3>
+          <p class="explore-subtitle">{{ section.settings.women_explore_subtitle }}</p>
+          <div class="explore-arrow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 4L10.59 5.41L16.17 11H4V13H16.17L10.59 18.59L12 20L20 12L12 4Z" fill="#1B224B"/>
+            </svg>
+          </div>
+        </a>
+        
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'women_style' -%}
+            <a href="{{ block.settings.link }}" class="style-card">
+              <img 
+                src="{{ block.settings.image | img_url: '600x600', crop: 'center' }}"
+                alt="{{ block.settings.title }}"
+                class="style-card-image"
+                width="600"
+                height="600"
+                loading="lazy"
+              >
+              <div class="style-card-overlay">
+                <h3 class="style-card-title">{{ block.settings.title }}</h3>
+              </div>
+            </a>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tabs = document.querySelectorAll('.style-tab');
+  const panels = document.querySelectorAll('.style-panel');
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      
+      // Update tabs
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      
+      // Update panels
+      panels.forEach(panel => {
+        if (panel.dataset.panel === target) {
+          panel.classList.add('active');
+        } else {
+          panel.classList.remove('active');
+        }
+      });
+    });
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "Style Finder",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Header Settings"
+    },
+    {
+      "type": "text",
+      "id": "title_cursive",
+      "label": "Title Cursive Text",
+      "default": "Style"
+    },
+    {
+      "type": "text",
+      "id": "title_bold",
+      "label": "Title Bold Text",
+      "default": "FINDER"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Discover every look, for every you"
+    },
+    {
+      "type": "range",
+      "id": "blocks_per_row",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 3,
+      "label": "Number of Style Cards per Row"
+    },
+    {
+      "type": "header",
+      "content": "Tab Settings"
+    },
+    {
+      "type": "text",
+      "id": "men_tab_text",
+      "label": "Men Tab Text",
+      "default": "Men"
+    },
+    {
+      "type": "text",
+      "id": "women_tab_text",
+      "label": "Women Tab Text",
+      "default": "Women"
+    },
+    {
+      "type": "header",
+      "content": "Men's Section"
+    },
+    {
+      "type": "text",
+      "id": "men_explore_title",
+      "label": "Men Explore Title",
+      "default": "Men"
+    },
+    {
+      "type": "text",
+      "id": "men_explore_subtitle",
+      "label": "Men Explore Subtitle",
+      "default": "Explore All"
+    },
+    {
+      "type": "url",
+      "id": "men_explore_link",
+      "label": "Men Explore Link"
+    },
+    {
+      "type": "header",
+      "content": "Women's Section"
+    },
+    {
+      "type": "text",
+      "id": "women_explore_title",
+      "label": "Women Explore Title",
+      "default": "Women"
+    },
+    {
+      "type": "text",
+      "id": "women_explore_subtitle",
+      "label": "Women Explore Subtitle",
+      "default": "Explore All"
+    },
+    {
+      "type": "url",
+      "id": "women_explore_link",
+      "label": "Women Explore Link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "men_style",
+      "name": "Men Style Card",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Style Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Style Title",
+          "default": "CEO Look"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Style Link"
+        }
+      ]
+    },
+    {
+      "type": "women_style",
+      "name": "Women Style Card",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Style Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Style Title",
+          "default": "Glam Queen"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Style Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Style Finder",
+      "blocks": [
+        {
+          "type": "men_style"
+        },
+        {
+          "type": "men_style"
+        },
+        {
+          "type": "men_style"
+        },
+        {
+          "type": "women_style"
+        },
+        {
+          "type": "women_style"
+        },
+        {
+          "type": "women_style"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %} 

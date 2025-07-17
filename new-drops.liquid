@@ -1,0 +1,548 @@
+{% style %}
+.new-drops-container {
+  padding: 0 16px;
+  margin-bottom: 16px;
+  margin-top: -8px;
+  background: #FFFFFF;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.new-drops-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  margin-top: 15px;
+  
+}
+
+.new-drops-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #141C57;
+  margin: 0;
+  padding: 0;
+  
+}
+
+.new-drops-subtitle {
+  font-size: 13px;
+  color: #666666;
+  margin: 4px 0 12px;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+.banner-card {
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  text-decoration: none;
+  display: block;
+  background: #000000;
+}
+
+.banner-slideshow {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.banner-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  text-decoration: none;
+  display: block;
+}
+
+.banner-slide.active {
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+}
+
+.banner-image {
+  width: 100%;
+  aspect-ratio: 358/480;
+  object-fit: cover;
+  display: block;
+}
+
+.banner-progress-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  z-index: 2;
+}
+
+.progress-dash {
+  width: 24px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: background-color 0.3s ease;
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.progress-dash.active {
+  background: #FFFFFF;
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.banner-dots {
+  display: none;
+}
+
+.banner-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-logo {
+  position: absolute;
+  z-index: 2;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.banner-logo.position-top-left {
+  top: 12px;
+  left: 12px;
+}
+
+.banner-logo.position-top-center {
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.banner-logo.position-top-right {
+  top: 12px;
+  right: 12px;
+}
+
+.banner-logo.position-bottom-left {
+  bottom: 12px;
+  left: 12px;
+}
+
+.banner-logo.position-bottom-right {
+  bottom: 12px;
+  right: 12px;
+}
+
+.banner-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logo-divider {
+  margin: 0 8px;
+  color: #FFFFFF;
+  font-size: 20px;
+  font-weight: 300;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.logo-container {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.banner-content-overlay {
+  position: absolute;
+  bottom: 36px;
+  left: 24px;
+  right: 24px;
+  z-index: 2;
+  text-align: center;
+}
+
+.banner-slide-heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0 0 8px;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  text-align:center;
+}
+
+.banner-slide-subheading {
+  font-size: 12px;
+  color: #FFFFFF;
+  
+  line-height: 1.4;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    text-align:center;
+
+}
+
+.shop-now-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  background: #FFFFFF;
+  color: #000000;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.shop-now-button:hover {
+  transform: translateY(-2px);
+  background: #F5F5F5;
+}
+
+{% endstyle %}
+
+<div class="new-drops-container">
+  <div class="new-drops-header">
+    <h2 class="new-drops-title">{{ section.settings.title }}</h2>
+  </div>
+  <p class="new-drops-subtitle">{{ section.settings.subtitle }}</p>
+  
+  <div class="banner-card">
+    <div class="banner-slideshow">
+      {%- if section.blocks.size > 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.settings.slide_image != blank -%}
+            <a href="{{ block.settings.slide_link }}" class="banner-slide{% if forloop.first %} active{% endif %}" {{ block.shopify_attributes }}>
+              <div class="banner-image-container">
+                <div class="logo-container">
+                  {%- for i in (1..3) -%}
+                    {%- assign logo_key = 'logo_' | append: i -%}
+                    {%- assign position_key = 'logo_' | append: i | append: '_position' -%}
+                    {%- assign size_key = 'logo_' | append: i | append: '_size' -%}
+                    {%- assign next_logo_key = 'logo_' | append: forloop.index1 -%}
+                    {%- if block.settings[logo_key] != blank -%}
+                      <div class="banner-logo position-{{ block.settings[position_key] }}" style="max-width: {{ block.settings[size_key] }}px; max-height: {{ block.settings[size_key] }}px;">
+                        <img 
+                          src="{{ block.settings[logo_key] | img_url: '100x' }}"
+                          alt="{{ block.settings[logo_key].alt | escape }}"
+                          loading="lazy"
+                        >
+                      </div>
+                      {%- unless forloop.last -%}
+                        {%- if block.settings[next_logo_key] != blank -%}
+                          <div class="logo-divider">|</div>
+                        {%- endif -%}
+                      {%- endunless -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                </div>
+                {%- if block.settings.slide_heading != blank or block.settings.slide_subheading != blank -%}
+                  <div class="banner-content-overlay">
+                    {%- if block.settings.slide_heading != blank -%}
+                      <h3 class="banner-slide-heading">{{ block.settings.slide_heading }}</h3>
+                    {%- endif -%}
+                    {%- if block.settings.slide_subheading != blank -%}
+                      <p class="banner-slide-subheading">{{ block.settings.slide_subheading }}</p>
+                    {%- endif -%}
+                    {%- if block.settings.button_text != blank -%}
+                      <div class="shop-now-button">{{ block.settings.button_text }}</div>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+                <img 
+                  src="{{ block.settings.slide_image | img_url: '1200x' }}"
+                  alt="{{ block.settings.slide_image.alt | escape }}"
+                  loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                  class="banner-image"
+                  width="1200"
+                >
+              </div>
+            </a>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+      
+      <div class="banner-progress-container">
+        {%- for block in section.blocks -%}
+          {%- if block.settings.slide_image != blank -%}
+            <div class="progress-dash{% if forloop.first %} active{% endif %}" data-index="{{ forloop.index0 }}"></div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  const slideshow = document.querySelector('.banner-slideshow');
+  if (!slideshow) return;
+
+  const slides = slideshow.querySelectorAll('.banner-slide');
+  const progressDashes = slideshow.querySelectorAll('.progress-dash');
+  if (slides.length <= 1) return;
+
+  let currentIndex = 0;
+  const intervalDuration = {{ section.settings.slide_interval | times: 1000 }};
+
+  function showSlide(index) {
+    // Update index with wrap-around
+    currentIndex = (index + slides.length) % slides.length;
+
+    // Update slides
+    slides.forEach((slide, i) => {
+      if (i === currentIndex) {
+        slide.classList.add('active');
+      } else {
+        slide.classList.remove('active');
+      }
+    });
+
+    // Update progress dashes
+    progressDashes.forEach((dash, i) => {
+      if (i === currentIndex) {
+        dash.classList.add('active');
+      } else {
+        dash.classList.remove('active');
+      }
+    });
+  }
+
+  // Set up automatic sliding
+  function startSlideshow() {
+    showSlide(currentIndex);
+    return setInterval(() => {
+      showSlide(currentIndex + 1);
+    }, intervalDuration);
+  }
+
+  let slideInterval = startSlideshow();
+
+  // Handle visibility change
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearInterval(slideInterval);
+    } else {
+      slideInterval = startSlideshow();
+    }
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "New Drops Banner",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "New Drops"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Fresh collections every 15 days"
+    },
+    {
+      "type": "range",
+      "id": "slide_interval",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "sec",
+      "label": "Slide Change Interval",
+      "default": 3
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "limit": 15,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "slide_image",
+          "label": "Slide Image"
+        },
+        {
+          "type": "url",
+          "id": "slide_link",
+          "label": "Slide Link"
+        },
+        {
+          "type": "header",
+          "content": "Slide Content"
+        },
+        {
+          "type": "text",
+          "id": "slide_heading",
+          "label": "Heading",
+          "default": "New Collection"
+        },
+        {
+          "type": "text",
+          "id": "slide_subheading",
+          "label": "Subheading",
+          "default": "Discover our latest styles"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button Text",
+          "default": "Shop Now"
+        },
+        {
+          "type": "header",
+          "content": "Logo 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "logo_1",
+          "label": "Logo Image 1"
+        },
+        {
+          "type": "select",
+          "id": "logo_1_position",
+          "label": "Logo 1 Position",
+          "options": [
+            {
+              "value": "top-left",
+              "label": "Top Left"
+            },
+            {
+              "value": "top-center",
+              "label": "Top Center"
+            },
+            {
+              "value": "top-right",
+              "label": "Top Right"
+            }
+          ],
+          "default": "top-left"
+        },
+        {
+          "type": "range",
+          "id": "logo_1_size",
+          "min": 30,
+          "max": 100,
+          "step": 5,
+          "unit": "px",
+          "label": "Logo 1 Size",
+          "default": 50
+        },
+        {
+          "type": "header",
+          "content": "Logo 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "logo_2",
+          "label": "Logo Image 2"
+        },
+        {
+          "type": "select",
+          "id": "logo_2_position",
+          "label": "Logo 2 Position",
+          "options": [
+            {
+              "value": "top-left",
+              "label": "Top Left"
+            },
+            {
+              "value": "top-center",
+              "label": "Top Center"
+            },
+            {
+              "value": "top-right",
+              "label": "Top Right"
+            }
+          ],
+          "default": "top-center"
+        },
+        {
+          "type": "range",
+          "id": "logo_2_size",
+          "min": 30,
+          "max": 100,
+          "step": 5,
+          "unit": "px",
+          "label": "Logo 2 Size",
+          "default": 50
+        },
+        {
+          "type": "header",
+          "content": "Logo 3"
+        },
+        {
+          "type": "image_picker",
+          "id": "logo_3",
+          "label": "Logo Image 3"
+        },
+        {
+          "type": "select",
+          "id": "logo_3_position",
+          "label": "Logo 3 Position",
+          "options": [
+            {
+              "value": "top-left",
+              "label": "Top Left"
+            },
+            {
+              "value": "top-center",
+              "label": "Top Center"
+            },
+            {
+              "value": "top-right",
+              "label": "Top Right"
+            }
+          ],
+          "default": "top-right"
+        },
+        {
+          "type": "range",
+          "id": "logo_3_size",
+          "min": 30,
+          "max": 100,
+          "step": 5,
+          "unit": "px",
+          "label": "Logo 3 Size",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "New Drops Banner",
+      "settings": {
+        "title": "New Drops",
+        "subtitle": "Fresh collections every 15 days"
+      }
+    }
+  ]
+}
+{% endschema %}

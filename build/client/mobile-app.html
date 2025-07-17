@@ -1063,6 +1063,220 @@
             fill: currentColor;
         }
 
+        /* New Drops Section Styles */
+        .new-drops-section {
+            padding: 0 16px;
+            margin-bottom: 16px;
+            margin-top: -8px;
+            background: #FFFFFF;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .new-drops-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            margin-top: 15px;
+        }
+
+        .new-drops-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #141C57;
+            margin: 0;
+            padding: 0;
+        }
+
+        .new-drops-subtitle {
+            font-size: 13px;
+            color: #666666;
+            margin: 4px 0 12px;
+            line-height: 1.4;
+            opacity: 0.85;
+        }
+
+        .banner-card {
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            text-decoration: none;
+            display: block;
+            background: #000000;
+        }
+
+        .banner-slideshow {
+            position: relative;
+            width: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .banner-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            text-decoration: none;
+            display: block;
+        }
+
+        .banner-slide.active {
+            opacity: 1;
+            visibility: visible;
+            position: relative;
+        }
+
+        .banner-image {
+            width: 100%;
+            aspect-ratio: 358/480;
+            object-fit: cover;
+            display: block;
+        }
+
+        .banner-progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 24px 16px;
+            z-index: 2;
+        }
+
+        .progress-dash {
+            width: 24px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.5);
+            transition: background-color 0.3s ease;
+            box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-dash.active {
+            background: #FFFFFF;
+            box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.5);
+        }
+
+        .banner-image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .banner-logo {
+            position: absolute;
+            z-index: 2;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .banner-logo.position-top-left {
+            top: 12px;
+            left: 12px;
+        }
+
+        .banner-logo.position-top-center {
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .banner-logo.position-top-right {
+            top: 12px;
+            right: 12px;
+        }
+
+        .banner-logo.position-bottom-left {
+            bottom: 12px;
+            left: 12px;
+        }
+
+        .banner-logo.position-bottom-right {
+            bottom: 12px;
+            right: 12px;
+        }
+
+        .banner-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-divider {
+            margin: 0 8px;
+            color: #FFFFFF;
+            font-size: 20px;
+            font-weight: 300;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+        }
+
+        .banner-content-overlay {
+            position: absolute;
+            bottom: 36px;
+            left: 24px;
+            right: 24px;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .banner-slide-heading {
+            font-size: 22px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin: 0 0 8px;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .banner-slide-subheading {
+            font-size: 12px;
+            color: #FFFFFF;
+            line-height: 1.4;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .shop-now-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            background: #FFFFFF;
+            color: #000000;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .shop-now-button:hover {
+            transform: translateY(-2px);
+            background: #F5F5F5;
+        }
+
         /* Looks Section Styles */
         .looks-section {
             padding: 16px 0;
@@ -2510,6 +2724,20 @@
             <!-- Dots indicator -->
             <div class="slider-dots" id="slider-dots" style="display: none;">
                 <!-- Dots will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- New Drops Section -->
+    <div class="new-drops-section" id="new-drops-section">
+        <div class="new-drops-header">
+            <h2 class="new-drops-title" id="new-drops-title">New Drops</h2>
+            <p class="new-drops-subtitle" id="new-drops-subtitle">Fresh collections every 15 days</p>
+        </div>
+        
+        <div class="banner-card" id="banner-card">
+            <div class="banner-slideshow" id="banner-slideshow">
+                <!-- Slides will be populated by JavaScript -->
             </div>
         </div>
     </div>
@@ -4347,6 +4575,7 @@
             // Initialize sections
             initializeSharkTankSection();
             initializeLooksSection();
+            initializeNewDropsSection();
             
             // Initialize collections carousel auto-scroll
             initializeCollectionsCarousel();
@@ -4561,6 +4790,7 @@
                     loadProducts(0); // Refresh products
                     loadSharkTankData(true); // Refresh Shark Tank section (silent)
                     loadLooksData(true); // Refresh Looks section (silent)
+                loadNewDropsData(true); // Refresh New Drops section (silent)
                     isHidden = false;
                 }
             });
@@ -4573,6 +4803,7 @@
             loadHeaderSettings(); // Also refresh navigation and announcement bar
             loadSharkTankData(true); // Refresh Shark Tank section (silent)
             loadLooksData(true); // Refresh Looks section (silent)
+            loadNewDropsData(true); // Refresh New Drops section (silent)
             loadCollections(0); // Refresh collections
             loadProducts(0); // Refresh products
         }
@@ -5083,6 +5314,170 @@
             }
             
             console.log('✅ Sale banner system initialized successfully');
+        }
+
+        // New Drops Functions
+        async function loadNewDropsData(silent = false) {
+            try {
+                const response = await fetch(`${API_BASE}/api/live-new-drops`);
+                const data = await response.json();
+                
+                if (data.enabled) {
+                    renderNewDropsSection(data);
+                    
+                    if (!silent) {
+                        console.log('New Drops data loaded successfully');
+                    }
+                } else {
+                    hideNewDropsSection();
+                }
+            } catch (error) {
+                console.error('Error loading new drops data:', error);
+                if (!silent) {
+                    hideNewDropsSection();
+                }
+            }
+        }
+
+        function renderNewDropsSection(data) {
+            const section = document.getElementById('new-drops-section');
+            const title = document.getElementById('new-drops-title');
+            const subtitle = document.getElementById('new-drops-subtitle');
+            const slideshow = document.getElementById('banner-slideshow');
+            
+            if (!section || !title || !subtitle || !slideshow) return;
+            
+            // Update header
+            title.textContent = data.title || 'New Drops';
+            subtitle.textContent = data.subtitle || 'Fresh collections every 15 days';
+            
+            // Show section
+            section.style.display = 'block';
+            
+            // Render slides
+            if (data.slides && data.slides.length > 0) {
+                let slidesHTML = '';
+                let progressHTML = '';
+                
+                data.slides.forEach((slide, index) => {
+                    const isActive = index === 0 ? ' active' : '';
+                    const logos = [];
+                    
+                    // Add logos
+                    if (slide.logo_1) {
+                        logos.push(`<div class="banner-logo position-${slide.logo_1_position}" style="max-width: ${slide.logo_1_size}px; max-height: ${slide.logo_1_size}px;">
+                            <img src="${slide.logo_1}" alt="Logo 1" loading="lazy">
+                        </div>`);
+                    }
+                    if (slide.logo_2) {
+                        logos.push(`<div class="banner-logo position-${slide.logo_2_position}" style="max-width: ${slide.logo_2_size}px; max-height: ${slide.logo_2_size}px;">
+                            <img src="${slide.logo_2}" alt="Logo 2" loading="lazy">
+                        </div>`);
+                    }
+                    if (slide.logo_3) {
+                        logos.push(`<div class="banner-logo position-${slide.logo_3_position}" style="max-width: ${slide.logo_3_size}px; max-height: ${slide.logo_3_size}px;">
+                            <img src="${slide.logo_3}" alt="Logo 3" loading="lazy">
+                        </div>`);
+                    }
+                    
+                    const logoHTML = logos.length > 0 ? `<div class="logo-container">${logos.join('<div class="logo-divider">|</div>')}</div>` : '';
+                    
+                    const contentOverlay = (slide.slide_heading || slide.slide_subheading || slide.button_text) ? `
+                        <div class="banner-content-overlay">
+                            ${slide.slide_heading ? `<h3 class="banner-slide-heading">${slide.slide_heading}</h3>` : ''}
+                            ${slide.slide_subheading ? `<p class="banner-slide-subheading">${slide.slide_subheading}</p>` : ''}
+                            ${slide.button_text ? `<div class="shop-now-button">${slide.button_text}</div>` : ''}
+                        </div>
+                    ` : '';
+                    
+                    slidesHTML += `
+                        <a href="${slide.slide_link || '#'}" class="banner-slide${isActive}">
+                            <div class="banner-image-container">
+                                ${logoHTML}
+                                ${contentOverlay}
+                                <img src="${slide.slide_image}" 
+                                     alt="${slide.slide_heading || 'New Drop'}" 
+                                     loading="${index === 0 ? 'eager' : 'lazy'}" 
+                                     class="banner-image">
+                            </div>
+                        </a>
+                    `;
+                    
+                    progressHTML += `<div class="progress-dash${isActive}" data-index="${index}"></div>`;
+                });
+                
+                slideshow.innerHTML = `
+                    ${slidesHTML}
+                    <div class="banner-progress-container">
+                        ${progressHTML}
+                    </div>
+                `;
+                
+                // Initialize slideshow
+                initializeNewDropsSlideshow(data.slide_interval || 3);
+            }
+        }
+
+        function hideNewDropsSection() {
+            const section = document.getElementById('new-drops-section');
+            if (section) {
+                section.style.display = 'none';
+            }
+        }
+
+        function initializeNewDropsSlideshow(intervalSeconds) {
+            const slideshow = document.getElementById('banner-slideshow');
+            if (!slideshow) return;
+
+            const slides = slideshow.querySelectorAll('.banner-slide');
+            const progressDashes = slideshow.querySelectorAll('.progress-dash');
+            
+            if (slides.length <= 1) return;
+
+            let currentIndex = 0;
+            const intervalDuration = intervalSeconds * 1000;
+
+            function showSlide(index) {
+                currentIndex = (index + slides.length) % slides.length;
+
+                slides.forEach((slide, i) => {
+                    if (i === currentIndex) {
+                        slide.classList.add('active');
+                    } else {
+                        slide.classList.remove('active');
+                    }
+                });
+
+                progressDashes.forEach((dash, i) => {
+                    if (i === currentIndex) {
+                        dash.classList.add('active');
+                    } else {
+                        dash.classList.remove('active');
+                    }
+                });
+            }
+
+            function startSlideshow() {
+                showSlide(currentIndex);
+                return setInterval(() => {
+                    showSlide(currentIndex + 1);
+                }, intervalDuration);
+            }
+
+            let slideInterval = startSlideshow();
+
+            // Handle visibility change
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(slideInterval);
+                } else {
+                    slideInterval = startSlideshow();
+                }
+            });
+        }
+
+        async function initializeNewDropsSection() {
+            await loadNewDropsData();
         }
 
     </script>

@@ -30,6 +30,7 @@ export default function App() {
         <Link to="/app/sunglasses">Sunglasses</Link>
         <Link to="/app/shark-tank">Shark Tank</Link>
         <Link to="/app/looks">Looks</Link>
+        <Link to="/app/new-drops">New Drops</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>
