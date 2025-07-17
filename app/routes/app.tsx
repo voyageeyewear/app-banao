@@ -29,6 +29,7 @@ export default function App() {
         <Link to="/app/categories">Eyeglasses</Link>
         <Link to="/app/sunglasses">Sunglasses</Link>
         <Link to="/app/shark-tank">Shark Tank</Link>
+        <Link to="/app/looks">Looks</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

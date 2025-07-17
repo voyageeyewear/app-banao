@@ -13,13 +13,14 @@ function addCorsHeaders(response: Response) {
   return response;
 }
 
-// Handle preflight requests
+// Handle preflight OPTIONS requests
+export async function OPTIONS() {
+  const response = new Response(null, { status: 200 });
+  return addCorsHeaders(response);
+}
+
+// Handle GET requests
 export async function loader({ request }: LoaderFunctionArgs) {
-  // Handle preflight CORS request
-  if (request.method === "OPTIONS") {
-    const response = new Response(null, { status: 200 });
-    return addCorsHeaders(response);
-  }
 
   try {
     // Get Shark Tank configuration

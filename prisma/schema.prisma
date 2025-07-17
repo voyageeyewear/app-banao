@@ -113,3 +113,42 @@ model HeaderConfig {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
+
+// Looks Section Models
+model LooksConfig {
+  id                    Int      @id @default(1)
+  title_cursive         String   @default("Style")
+  title_bold            String   @default("FINDER")
+  subtitle              String   @default("Discover every look, for every you")
+  men_tab_text          String   @default("Men")
+  women_tab_text        String   @default("Women")
+  men_explore_title     String   @default("Men")
+  men_explore_subtitle  String   @default("Explore All")
+  men_explore_link      String   @default("")
+  women_explore_title   String   @default("Women")
+  women_explore_subtitle String  @default("Explore All")
+  women_explore_link    String   @default("")
+  enabled               Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("looks_config")
+}
+
+model LooksCard {
+  id            Int      @id @default(autoincrement())
+  type          String   // "men_style" or "women_style"
+  title         String   @default("")
+  image         String   @default("")
+  link          String   @default("")
+  productId     String   @default("") // Shopify product ID
+  collectionId  String   @default("") // Shopify collection ID
+  productTitle  String   @default("") // Cached product title for dropdown
+  collectionTitle String @default("") // Cached collection title for dropdown
+  order         Int      @default(0)
+  enabled       Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("looks_cards")
+}
