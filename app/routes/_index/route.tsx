@@ -4,6 +4,8 @@ import { Form, useLoaderData } from "@remix-run/react";
 
 import { login } from "../../shopify.server";
 
+// 🧪 Testing dynamic URL detection system - v1.1
+
 import styles from "./styles.module.css";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
