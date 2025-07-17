@@ -5395,7 +5395,7 @@
                             <div class="banner-image-container">
                                 ${logoHTML}
                                 ${contentOverlay}
-                                <img src="${slide.slide_image}" 
+                                <img src="${slide.slide_image || slide.slide_link}" 
                                      alt="${slide.slide_heading || 'New Drop'}" 
                                      loading="${index === 0 ? 'eager' : 'lazy'}" 
                                      class="banner-image">
