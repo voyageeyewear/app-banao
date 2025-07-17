@@ -1,7 +1,7 @@
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useActionData, Form, useNavigation } from "@remix-run/react";
-import { authenticate } from "~/shopify.server";
-import db from "~/db.server";
+import { authenticate } from "../shopify.server";
+import db from "../db.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
@@ -27,42 +27,42 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const enabled = formData.get("enabled") === "true";
       const slideInterval = parseInt(formData.get("slideInterval") as string) || 3;
 
-      await db.newDropsConfig.upsert({
-        where: { id: 1 },
-        update: { title, subtitle, enabled, slideInterval },
-        create: { id: 1, title, subtitle, enabled, slideInterval }
-      });
+             await db.newDropsConfig.upsert({
+         where: { id: 1 },
+         update: { title, subtitle, enabled, slide_interval: slideInterval },
+         create: { id: 1, title, subtitle, enabled, slide_interval: slideInterval }
+       });
 
       return json({ success: true, message: "Configuration saved successfully!" });
     }
 
-    if (action === "saveSlide") {
-      const id = formData.get("id") as string;
-      const title = formData.get("title") as string;
-      const subtitle = formData.get("subtitle") as string;
-      const buttonText = formData.get("buttonText") as string;
-      const link = formData.get("link") as string;
-      const imageUrl = formData.get("imageUrl") as string;
-      const order = parseInt(formData.get("order") as string) || 0;
-      
-      const logo1Url = formData.get("logo1Url") as string;
-      const logo1Position = formData.get("logo1Position") as string;
-      const logo1Size = parseInt(formData.get("logo1Size") as string) || 50;
-      
-      const logo2Url = formData.get("logo2Url") as string;
-      const logo2Position = formData.get("logo2Position") as string;
-      const logo2Size = parseInt(formData.get("logo2Size") as string) || 50;
-      
-      const logo3Url = formData.get("logo3Url") as string;
-      const logo3Position = formData.get("logo3Position") as string;
-      const logo3Size = parseInt(formData.get("logo3Size") as string) || 50;
+         if (action === "saveSlide") {
+       const id = formData.get("id") as string;
+       const slide_heading = formData.get("title") as string;
+       const slide_subheading = formData.get("subtitle") as string;
+       const button_text = formData.get("buttonText") as string;
+       const slide_link = formData.get("link") as string;
+       const slide_image = formData.get("imageUrl") as string;
+       const order = parseInt(formData.get("order") as string) || 0;
+       
+       const logo_1 = formData.get("logo1Url") as string;
+       const logo_1_position = formData.get("logo1Position") as string;
+       const logo_1_size = parseInt(formData.get("logo1Size") as string) || 50;
+       
+       const logo_2 = formData.get("logo2Url") as string;
+       const logo_2_position = formData.get("logo2Position") as string;
+       const logo_2_size = parseInt(formData.get("logo2Size") as string) || 50;
+       
+       const logo_3 = formData.get("logo3Url") as string;
+       const logo_3_position = formData.get("logo3Position") as string;
+       const logo_3_size = parseInt(formData.get("logo3Size") as string) || 50;
 
-      const slideData = {
-        title, subtitle, buttonText, link, imageUrl, order,
-        logo1Url, logo1Position, logo1Size,
-        logo2Url, logo2Position, logo2Size,
-        logo3Url, logo3Position, logo3Size
-      };
+       const slideData = {
+         slide_heading, slide_subheading, button_text, slide_link, slide_image, order,
+         logo_1, logo_1_position, logo_1_size,
+         logo_2, logo_2_position, logo_2_size,
+         logo_3, logo_3_position, logo_3_size
+       };
 
       if (id && id !== "new") {
         await db.newDropsSlide.update({
@@ -255,7 +255,7 @@ export default function NewDropsAdmin() {
                 </label>
                 <select
                   name="slideInterval"
-                  defaultValue={config?.slideInterval || 3}
+                                     defaultValue={config?.slide_interval || 3}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -381,29 +381,29 @@ export default function NewDropsAdmin() {
                     SLIDE #{index + 1}
                   </div>
                   
-                  {slide.imageUrl && (
-                    <img 
-                      src={slide.imageUrl} 
-                      alt={slide.title}
-                      style={{
-                        width: '100%',
-                        height: '150px',
-                        objectFit: 'cover',
-                        borderRadius: '8px',
-                        marginBottom: '12px'
-                      }}
-                    />
-                  )}
-                  
-                  <h4 style={{ margin: '0 0 8px', color: '#2d3748', fontSize: '16px', fontWeight: '600' }}>
-                    {slide.title || 'Untitled Slide'}
-                  </h4>
-                  
-                  {slide.subtitle && (
-                    <p style={{ margin: '0 0 12px', color: '#718096', fontSize: '14px', lineHeight: '1.4' }}>
-                      {slide.subtitle}
-                    </p>
-                  )}
+                                     {slide.slide_image && (
+                     <img 
+                       src={slide.slide_image} 
+                       alt={slide.slide_heading}
+                       style={{
+                         width: '100%',
+                         height: '150px',
+                         objectFit: 'cover',
+                         borderRadius: '8px',
+                         marginBottom: '12px'
+                       }}
+                     />
+                   )}
+                   
+                   <h4 style={{ margin: '0 0 8px', color: '#2d3748', fontSize: '16px', fontWeight: '600' }}>
+                     {slide.slide_heading || 'Untitled Slide'}
+                   </h4>
+                   
+                   {slide.slide_subheading && (
+                     <p style={{ margin: '0 0 12px', color: '#718096', fontSize: '14px', lineHeight: '1.4' }}>
+                       {slide.slide_subheading}
+                     </p>
+                   )}
                   
                   <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
                     <button
