@@ -4622,15 +4622,17 @@
                        buyButton.textContent = 'Creating Order...';
                    }
                    
-                   // Create draft order payload
+                   // Create draft order payload - FIXED VERSION
                    const draftOrderData = {
                        draft_order: {
                            line_items: [
                                {
-                                   variant_id: extractVariantId(productId),
-                                   quantity: 1,
                                    title: title,
-                                   price: extractPrice(price),
+                                   price: extractPrice(price).toFixed(2),
+                                   quantity: 1,
+                                   requires_shipping: true,
+                                   taxable: true,
+                                   fulfillment_service: "manual",
                                    custom_attributes: [
                                        {
                                            key: "product_handle",
@@ -4639,6 +4641,10 @@
                                        {
                                            key: "product_image",
                                            value: image
+                                       },
+                                       {
+                                           key: "product_id",
+                                           value: productId
                                        }
                                    ]
                                }
