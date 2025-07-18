@@ -2,7 +2,11 @@ import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-r
 
 // Shopify Admin API Configuration (using environment variables for security)
 const SHOPIFY_STORE = 'tryongoeye.myshopify.com';
-const ADMIN_ACCESS_TOKEN = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN || '';
+// Clean the admin token by removing any non-printable characters and whitespace
+const ADMIN_ACCESS_TOKEN = (process.env.SHOPIFY_ADMIN_ACCESS_TOKEN || '')
+  .replace(/\s/g, '') // Remove all whitespace including newlines, tabs, etc.
+  .replace(/[^\x20-\x7E]/g, '') // Remove non-printable ASCII characters
+  .trim();
 const ADMIN_API_URL = `https://${SHOPIFY_STORE}/admin/api/2023-07`;
 
 // Helper function to add CORS headers
@@ -66,6 +70,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 async function createDraftOrder(draftOrderData: any) {
   try {
     console.log('📝 Creating draft order...');
+    console.log('🔑 Admin token length:', ADMIN_ACCESS_TOKEN.length);
+    console.log('🔑 Admin token prefix:', ADMIN_ACCESS_TOKEN.substring(0, 8) + '...');
+    
+    // Validate token format
+    if (!ADMIN_ACCESS_TOKEN.startsWith('shpat_')) {
+      throw new Error('Invalid admin access token format');
+    }
     
     const response = await fetch(`${ADMIN_API_URL}/draft_orders.json`, {
       method: 'POST',

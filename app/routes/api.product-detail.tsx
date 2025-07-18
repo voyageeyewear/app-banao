@@ -237,6 +237,48 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
             available: true
           }
         ]
+      },
+      {
+        id: "6",
+        handle: "eyejack-black-square-polarized-sunglasses-for-men-women-1905pcl2075",
+        title: "Eyejack Black Square Polarized Sunglasses",
+        subtitle: "Premium Polarized Protection for Men & Women",
+        price: "₹3,299",
+        originalPrice: "₹4,599",
+        discount: 28,
+        image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&h=800&fit=crop",
+        images: [
+          "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&h=800&fit=crop",
+          "https://images.unsplash.com/photo-1556306535-38febf6782e7?w=800&h=800&fit=crop",
+          "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&h=800&fit=crop"
+        ],
+        rating: 4.7,
+        ratingCount: 189,
+        description: "Professional grade polarized sunglasses with sleek black square frames. Perfect for both men and women, featuring UV400 protection and anti-glare technology.",
+        features: [
+          "Polarized Lenses",
+          "UV400 Protection", 
+          "Anti-Glare Coating",
+          "Impact Resistant",
+          "Lightweight Frame",
+          "Unisex Design"
+        ],
+        isNew: true,
+        inStock: true,
+        variants: [
+          {
+            id: "variant_11",
+            title: "Black Frame / Dark Lens",
+            price: "₹3,299",
+            available: true
+          },
+          {
+            id: "variant_12",
+            title: "Black Frame / Gradient Lens", 
+            price: "₹3,499",
+            available: true
+          }
+        ]
       }
     ];
     
