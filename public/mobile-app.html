@@ -4738,9 +4738,12 @@
            
            // Helper function to extract variant ID
            function extractVariantId(productId) {
-               // Create a proper Shopify variant ID
+               // For REST Admin API, return numeric variant ID as string
                // In production, this should be the actual variant ID from your product data
-               return `gid://shopify/ProductVariant/${productId}_001`;
+               // For now, using a base number + productId to create unique variant IDs
+               const baseVariantId = 40000000000; // Base Shopify variant ID
+               const numericId = parseInt(productId) || 1;
+               return String(baseVariantId + numericId);
            }
            
            // Helper function to extract price value
@@ -4965,19 +4968,22 @@
                    // Clean price string
                    const cleanPrice = parseFloat(price.replace(/[^\d.]/g, ''));
                    
+                   // Ensure variantId is a string
+                   const variantIdString = String(variantId);
+                   
                    // Check if item already exists
-                   const existingItem = cart.find(item => item.variant_id === variantId);
+                   const existingItem = cart.find(item => item.variant_id === variantIdString);
                    
                    if (existingItem) {
                        existingItem.quantity += quantity;
                    } else {
                        cart.push({
-                           id: variantId,
+                           id: variantIdString,
                            title: title,
                            price: cleanPrice.toFixed(2),
                            quantity: quantity,
                            image: image,
-                           variant_id: variantId
+                           variant_id: variantIdString
                        });
                    }
                    
