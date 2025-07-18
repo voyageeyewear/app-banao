@@ -2795,6 +2795,12 @@
 
         // API Configuration - Updated Vercel URL for APK
         const API_BASE = 'https://app-banao-fboiv57y7-voyageeyewears-projects.vercel.app';
+        
+        // Fallback URLs to try if main API fails
+        const FALLBACK_APIS = [
+            'https://app-banao.vercel.app',
+            'https://app-banao-voyageeyewears-projects.vercel.app'
+        ];
         const STOREFRONT_ACCESS_TOKEN = 'your-storefront-access-token';
         const SHOP_DOMAIN = 'your-shop.myshopify.com';
         
