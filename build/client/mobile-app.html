@@ -2154,6 +2154,92 @@
         .add-to-cart-btn:active {
             transform: translateY(1px);
         }
+
+        /* External Page Overlay Styles */
+        .external-page-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .external-page-container {
+            width: 95%;
+            height: 95%;
+            max-width: 500px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .external-page-header {
+            background: linear-gradient(135deg, #c1ea3d 0%, #ffffff 100%);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .external-page-title {
+            color: #1a1a1a;
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
+            margin-left: 15px;
+            margin-right: auto;
+        }
+
+        .external-page-close {
+            background: rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            color: #1a1a1a;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .external-page-close:hover {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: rgba(0, 0, 0, 0.4);
+            transform: rotate(90deg);
+        }
+
+        .external-page-close svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .external-page-iframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: white;
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .external-page-container {
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2778,6 +2864,21 @@
         </a>
     </nav>
 
+    <!-- External Page Overlay -->
+    <div id="externalPageOverlay" class="external-page-overlay" style="display: none;">
+        <div class="external-page-container">
+            <div class="external-page-header">
+                <div class="external-page-title" id="externalPageTitle">Classic</div>
+                <button class="external-page-close" onclick="closeExternalPage()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <iframe id="externalPageFrame" class="external-page-iframe" frameborder="0"></iframe>
+        </div>
+    </div>
+
     <script>
         // Global variables
         let currentView = 'home';
@@ -2841,6 +2942,144 @@
                     }
                 }, 300);
             }, 3000);
+        }
+
+        // External Page Functions
+        function loadExternalPage(url) {
+            console.log('Loading external page:', url);
+            
+            const overlay = document.getElementById('externalPageOverlay');
+            const iframe = document.getElementById('externalPageFrame');
+            const titleElement = document.getElementById('externalPageTitle');
+            
+            if (!overlay || !iframe) {
+                console.error('External page overlay elements not found');
+                showToast('❌ Error loading page');
+                return;
+            }
+            
+            // Set page title based on URL
+            let pageTitle = 'Page';
+            if (url.includes('classic-collection')) {
+                pageTitle = 'Classic';
+            } else if (url.includes('premium-collection')) {
+                pageTitle = 'Premium';
+            } else if (url.includes('sport-collection')) {
+                pageTitle = 'Sport';
+            } else if (url.includes('trendy-collection')) {
+                pageTitle = 'Trendy';
+            }
+            
+            if (titleElement) {
+                titleElement.textContent = pageTitle;
+            }
+            
+            // Show loading state
+            showToast('📄 Loading page...');
+            
+            // Set iframe source
+            iframe.src = url;
+            
+            // Show overlay with smooth animation
+            overlay.style.display = 'flex';
+            overlay.style.opacity = '0';
+            
+            setTimeout(() => {
+                overlay.style.transition = 'opacity 0.3s ease';
+                overlay.style.opacity = '1';
+            }, 10);
+            
+            // Handle iframe load
+            iframe.onload = function() {
+                console.log('External page loaded successfully');
+                showToast('✅ Page loaded');
+            };
+            
+            iframe.onerror = function() {
+                console.error('Failed to load external page');
+                showToast('❌ Failed to load page');
+                closeExternalPage();
+            };
+        }
+
+        function closeExternalPage() {
+            console.log('Closing external page');
+            
+            const overlay = document.getElementById('externalPageOverlay');
+            const iframe = document.getElementById('externalPageFrame');
+            
+            if (!overlay) {
+                console.error('External page overlay not found');
+                return;
+            }
+            
+            // Hide overlay with smooth animation
+            overlay.style.transition = 'opacity 0.3s ease';
+            overlay.style.opacity = '0';
+            
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                if (iframe) {
+                    iframe.src = ''; // Clear iframe source
+                }
+            }, 300);
+        }
+
+        // Listen for messages from external pages
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.action === 'goBack') {
+                console.log('Received goBack message from external page');
+                closeExternalPage();
+            } else if (event.data && event.data.action === 'navigateToCollection') {
+                console.log('🔗 Navigating to collection:', event.data.collection);
+                closeExternalPage();
+                handleCollectionNavigation(event.data.collection);
+            } else if (event.data && event.data.action === 'showProductDetails') {
+                console.log('🔍 Showing product details:', event.data.product);
+                closeExternalPage();
+                handleProductNavigation(event.data.product);
+            }
+        });
+
+        // Handle collection navigation from slider
+        function handleCollectionNavigation(collectionHandle) {
+            console.log('📋 Opening collection:', collectionHandle);
+            
+            // Filter products by collection (if we have that capability)
+            // For now, show a toast and could implement collection filtering
+            showToast(`Opening ${collectionHandle} collection...`);
+            
+            // Could implement actual collection filtering here
+            // filterProductsByCollection(collectionHandle);
+        }
+
+        // Handle product navigation from slider
+        function handleProductNavigation(productHandle) {
+            console.log('🔍 Opening product:', productHandle);
+            
+            // Try to find and show the product
+            showProductByHandle(productHandle);
+        }
+
+        // Show product by handle
+        async function showProductByHandle(handle) {
+            try {
+                console.log('🔍 Fetching product details for:', handle);
+                
+                const response = await fetch(`${API_BASE}/api/product-detail?handle=${handle}`);
+                const data = await response.json();
+                
+                if (data.success && data.product) {
+                    // Show product in modal (reuse existing product detail modal)
+                    showProductDetailModal(data.product);
+                    showToast(`✅ Opened: ${data.product.title}`);
+                } else {
+                    throw new Error(data.error || 'Product not found');
+                }
+            } catch (error) {
+                console.error('❌ Error fetching product:', error);
+                showToast(`❌ Could not open product: ${handle}`);
+            }
         }
 
 
@@ -6077,21 +6316,27 @@
             // Menu drawer functionality
             const genderTabs = document.querySelectorAll('.gender-tab');
             
-            // Navigation tabs functionality
-            const navTabs = document.querySelectorAll('.nav-tabs a');
-            navTabs.forEach(tab => {
-                tab.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // Remove active class from all tabs
-                    navTabs.forEach(t => t.classList.remove('active'));
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-                    
-                    const tabText = this.textContent.trim();
-                    console.log('Navigation tab clicked:', tabText);
+                    // Navigation tabs functionality
+        const navTabs = document.querySelectorAll('.nav-tabs a');
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Remove active class from all tabs
+                navTabs.forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                const tabText = this.textContent.trim();
+                console.log('Navigation tab clicked:', tabText);
+                
+                // Handle different tab actions
+                if (tabText.toLowerCase() === 'classic') {
+                    loadExternalPage('./pages/classic-collection.html');
+                } else {
                     showToast(`Switched to: ${tabText}`);
-                });
+                }
             });
+        });
 
             // Gender tabs in drawer
             genderTabs.forEach(tab => {
