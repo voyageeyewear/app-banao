@@ -34,7 +34,7 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             position: relative;
-            padding-top: 25px;
+            padding-top: 50px;
         }
         
         /* Top Navigation */
@@ -701,6 +701,8 @@
                 const productHandle = urlParams.get('handle') || 'default';
                 
                 console.log('🔍 Loading product data for:', productHandle);
+                console.log('🌍 Full URL:', window.location.href);
+                console.log('📋 All URL params:', Object.fromEntries(urlParams.entries()));
                 
                 // Always try to load from API first (like original behavior)
                 try {
@@ -734,24 +736,26 @@
                             productData = productApiData.product;
                             console.log('✅ Product data loaded from API:', productData.title);
                             console.log('🖼️ Product images from API:', productData.images);
-                            console.log('🎯 Using REAL product data - not calling tryGetAnyProduct()');
+                            console.log('🎯 Using REAL product data for handle:', productHandle);
                         } else {
                             console.warn('⚠️ API returned success=false or no product:', productApiData);
-                            // Try to get any available product instead of falling back to fake data
+                            // Always try to get real product data instead of demo data
+                            console.log('🔄 API returned no product, getting real fallback data');
                             productData = await tryGetAnyProduct();
                         }
                     } else {
                         console.warn('❌ Product API failed with status:', productResponse.status);
                         const responseText = await productResponse.text();
                         console.log('📄 Response body:', responseText);
-                        // Try to get any available product instead of falling back to fake data
+                        // Always try to get real product data
+                        console.log('🔄 API failed, getting real fallback data');
                         productData = await tryGetAnyProduct();
                     }
                 } catch (apiError) {
                     console.warn('⚠️ API requests failed:', apiError);
                     pdpConfig = getDefaultPDPConfig();
-                    // Try to get any real product instead of fake data
-                    console.log('⚠️ Falling back to tryGetAnyProduct due to API error');
+                    // Always try to get real product data, even on API error
+                    console.log('⚠️ API error, but still trying to get real product data');
                     productData = await tryGetAnyProduct();
                 }
 
@@ -812,14 +816,13 @@
             try {
                 console.log('🔄 Trying to get any available product from store...');
                 
-                // Try to get a known real product directly
-                const knownProduct = 'eyejack-black-square-polarized-sunglasses-for-men-women-1905pcl2075';
-                console.log('🎯 Trying known real product:', knownProduct);
-                const response = await fetch(`${API_BASE}/api/product-detail?handle=${knownProduct}`);
+                // Try to get any product from the API (no specific handle)
+                console.log('🎯 Calling API without specific handle to get first available product');
+                const response = await fetch(`${API_BASE}/api/product-detail`);
                 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('📦 Known product API response:', data);
+                    console.log('📦 Any product API response:', data);
                     if (data.success && data.product) {
                         console.log('✅ Got real product with images:', data.product.title);
                         console.log('🖼️ Real product images:', data.product.images);
@@ -907,9 +910,7 @@
                             </svg>
                         </button>
                         
-                        <div class="product-title-header" id="product-nav-title">
-                            ${product.title}
-                        </div>
+                        <!-- Title removed as requested -->
                         
                         <div class="nav-right">
                             <button class="nav-button share-button" onclick="shareProduct('${product.handle}')">
@@ -1086,20 +1087,9 @@
 
         // Setup scroll behavior for product page
         function setupProductScrollBehavior() {
+            // Title header functionality removed as requested
             const productContainer = document.querySelector('.product-detail-container');
-            const titleHeader = document.getElementById('product-nav-title');
-            
-            if (productContainer && titleHeader) {
-                productContainer.addEventListener('scroll', function() {
-                    if (this.scrollTop > 100) {
-                        titleHeader.style.opacity = '1';
-                        titleHeader.style.visibility = 'visible';
-                    } else {
-                        titleHeader.style.opacity = '0';
-                        titleHeader.style.visibility = 'hidden';
-                    }
-                });
-            }
+            // Additional scroll behaviors can be added here if needed
         }
 
         // Navigation functions
