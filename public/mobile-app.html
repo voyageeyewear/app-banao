@@ -4621,8 +4621,8 @@
                  title: product.title || product.brand || 'Unknown Product',
                  subtitle: product.subtitle || 'Premium Eyewear Collection',
                  price: product.price || '₹1,999',
-                 originalPrice: product.originalPrice,
-                 compareAtPrice: product.compareAtPrice || (product.price ? `₹${Math.floor(parseFloat(product.price.replace(/[^\d.]/g, '')) * 1.35)}` : '₹2,699'), // Add realistic compare-at price
+                 originalPrice: product.originalPrice, // Keep real API data if exists
+                 compareAtPrice: product.compareAtPrice,
                  discount: product.discount || Math.floor(Math.random() * 30) + 15, // Add test discount 15-45%
                  image: product.image || product.image_url || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop',
                  images: product.images || [product.image || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop'],
@@ -4684,20 +4684,23 @@
          function generateProductDetailHTML(product) {
              console.log('🎨 GENERATING PRODUCT DETAIL HTML:', product);
              
-             // Try to get real pricing from API, fallback to calculated pricing
-             if (!product.originalPrice || product.originalPrice === product.price) {
+             // Debug what we received from API
+             console.log('🛒 Product data from API:', {
+                 title: product.title,
+                 price: product.price,
+                 originalPrice: product.originalPrice,
+                 discount: product.discount,
+                 hasOriginalPrice: !!product.originalPrice
+             });
+             
+             // Only add fallback pricing if we truly don't have real pricing from API
+             if (!product.originalPrice) {
                  const priceNum = parseFloat(product.price.replace(/[^\d.]/g, ''));
-                 // Check if we have real compare-at price from API
-                 if (product.compareAtPrice && parseFloat(product.compareAtPrice.replace(/[^\d.]/g, '')) > priceNum) {
-                     product.originalPrice = product.compareAtPrice;
-                     product.discount = Math.round(((parseFloat(product.compareAtPrice.replace(/[^\d.]/g, '')) - priceNum) / parseFloat(product.compareAtPrice.replace(/[^\d.]/g, ''))) * 100);
-                     console.log('✅ REAL PRICING FROM API:', { originalPrice: product.originalPrice, discount: product.discount });
-                 } else {
-                     // Fallback: Create realistic pricing
-                     product.originalPrice = `₹${Math.floor(priceNum * 1.3)}`;
-                     product.discount = 23;
-                     console.log('💡 FALLBACK PRICING (no real compare-at price):', { originalPrice: product.originalPrice, discount: product.discount });
-                 }
+                 product.originalPrice = `₹${Math.floor(priceNum * 1.3)}`;
+                 product.discount = 23;
+                 console.log('💡 FALLBACK PRICING ADDED (API had no originalPrice):', { originalPrice: product.originalPrice, discount: product.discount });
+             } else {
+                 console.log('✅ USING REAL PRICING FROM API:', { originalPrice: product.originalPrice, discount: product.discount });
              }
              
              // Ensure product has description
@@ -4852,6 +4855,19 @@
                                  ${discount ? `<span class="price-discount">${discount}% OFF</span>` : ''}
                              </div>
                              
+                             <!-- Product Description Section -->
+                             <div class="description-section">
+                                 <button class="description-toggle" onclick="toggleDescription()">
+                                     <span>Product Description</span>
+                                     <svg class="description-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                         <path d="M19 9l-7 7-7-7"></path>
+                                     </svg>
+                                 </button>
+                                 <div class="description-content expanded" id="descriptionContent">
+                                     <p>${product.description || 'High-quality eyewear with premium materials and design. Perfect for everyday wear with excellent comfort and style.'}</p>
+                                 </div>
+                             </div>
+                             
                              <!-- Product Actions -->
                              <div class="product-actions">
                                  <button class="action-btn" onclick="viewSizeGuide()">
@@ -4875,19 +4891,6 @@
                                      </svg>
                                      <span>Reviews</span>
                                  </button>
-                             </div>
-                             
-                             <!-- Product Description Section -->
-                             <div class="description-section">
-                                 <button class="description-toggle" onclick="toggleDescription()">
-                                     <span>Product Description</span>
-                                     <svg class="description-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                         <path d="M19 9l-7 7-7-7"></path>
-                                     </svg>
-                                 </button>
-                                 <div class="description-content expanded" id="descriptionContent">
-                                     <p>${product.description || 'High-quality eyewear with premium materials and design. Perfect for everyday wear with excellent comfort and style.'}</p>
-                                 </div>
                              </div>
                          </div>
                      </div>
