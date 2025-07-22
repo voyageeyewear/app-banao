@@ -2991,6 +2991,13 @@
             // CRITICAL: Always reset iframe completely for ALL tabs
             console.log('🧹 Resetting iframe for fresh load...');
             
+            // Force hard refresh to clear cache
+            try {
+                iframe.contentWindow?.location?.reload(true);
+            } catch (e) {
+                console.log('🔄 Could not force reload:', e);
+            }
+            
             // Clear all iframe attributes and content
             iframe.src = '';
             iframe.removeAttribute('data-loaded');
@@ -3019,7 +3026,9 @@
             // Load the new URL after a brief delay to ensure clean state
             setTimeout(() => {
                 console.log('✅ Setting iframe source to:', url);
-                newIframe.src = url;
+                // Add cache-busting parameter
+                const cacheBustUrl = url.includes('?') ? `${url}&t=${Date.now()}` : `${url}?t=${Date.now()}`;
+                newIframe.src = cacheBustUrl;
                 setupIframeHandlers(newIframe, url);
             }, 150);
             
@@ -4566,8 +4575,8 @@
                  title: product.title || product.brand || 'Unknown Product',
                  subtitle: product.subtitle || 'Premium Eyewear Collection',
                  price: product.price || '₹1,999',
-                 originalPrice: product.originalPrice,
-                 discount: product.discount,
+                 originalPrice: product.originalPrice || '₹2,499', // Add test original price
+                 discount: product.discount || 20, // Add test discount
                  image: product.image || product.image_url || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop',
                  images: product.images || [product.image || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop'],
                  rating: product.rating || 4.5,
@@ -4632,9 +4641,21 @@
              const currentPriceNum = parseFloat(product.price.replace(/[^\d.]/g, ''));
              const originalPriceNum = product.originalPrice ? parseFloat(product.originalPrice.replace(/[^\d.]/g, '')) : null;
              
+             // Debug pricing data
+             console.log('💰 Mobile App Pricing Debug:', {
+                 productTitle: product.title,
+                 currentPrice: product.price,
+                 currentPriceNum: currentPriceNum,
+                 originalPrice: product.originalPrice,
+                 originalPriceNum: originalPriceNum,
+                 discount: product.discount
+             });
+             
              // Only show original price if it's actually higher than current price
              const originalPrice = (originalPriceNum && originalPriceNum > currentPriceNum) ? product.originalPrice : null;
              const discount = (originalPrice && product.discount > 0) ? product.discount : 0;
+             
+             console.log('💰 Mobile App Final Display:', { originalPrice, discount, hasDescription: !!product.description });
              
              return `
                  <!-- Product Detail Page Container -->
@@ -5192,25 +5213,30 @@
               showToast('Reviews - Coming soon!');
           }
           
-          // Toggle product description
-          function toggleDescription() {
-              const content = document.getElementById('descriptionContent');
-              const arrow = document.querySelector('.description-arrow');
-              
-              if (content && arrow) {
-                  const isExpanded = content.classList.contains('expanded');
-                  
-                  if (isExpanded) {
-                      content.classList.remove('expanded');
-                      arrow.classList.remove('rotated');
-                  } else {
-                      content.classList.add('expanded');
-                      arrow.classList.add('rotated');
-                  }
-                  
-                  console.log('📋 Description toggled:', isExpanded ? 'collapsed' : 'expanded');
-              }
-          }
+                     // Toggle product description
+           function toggleDescription() {
+               console.log('🔍 Toggle description clicked!');
+               const content = document.getElementById('descriptionContent');
+               const arrow = document.querySelector('.description-arrow');
+               
+               console.log('📋 Elements found:', { content: !!content, arrow: !!arrow });
+               
+               if (content && arrow) {
+                   const isExpanded = content.classList.contains('expanded');
+                   
+                   if (isExpanded) {
+                       content.classList.remove('expanded');
+                       arrow.classList.remove('rotated');
+                   } else {
+                       content.classList.add('expanded');
+                       arrow.classList.add('rotated');
+                   }
+                   
+                   console.log('📋 Description toggled:', isExpanded ? 'collapsed' : 'expanded');
+               } else {
+                   console.error('❌ Description elements not found!');
+               }
+           }
           
           function openWhatsAppChat() {
               const message = encodeURIComponent('Hi! I need help with a product from GoEye Store.');
