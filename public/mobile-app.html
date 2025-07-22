@@ -3126,8 +3126,16 @@
         function handleProductNavigation(productHandle) {
             console.log('🔍 Opening product:', productHandle);
             
-            // Try to find and show the product
-            showProductByHandle(productHandle);
+            // Load external product detail page
+            loadProductDetailPage(productHandle);
+        }
+
+        // Load product detail page
+        function loadProductDetailPage(productHandle) {
+            console.log('📱 Loading product detail page for:', productHandle);
+            
+            const productUrl = `./pages/product-detail-page.html?handle=${productHandle}`;
+            loadExternalPage(productUrl);
         }
 
         // Show product by handle
@@ -4495,25 +4503,8 @@
          async function showProduct(handle) {
              console.log('🔍 Opening product detail page for:', handle);
              
-             // Show loading state
-             showToast('Loading product details...');
-             
-             try {
-                 // Find product data by handle (now async)
-                 const product = await findProductByHandle(handle);
-                 if (!product) {
-                     console.error('Product not found:', handle);
-                     showToast('Product not found');
-                     return;
-                 }
-                 
-                 // Show product detail page
-                 openProductDetailPage(product);
-                 
-             } catch (error) {
-                 console.error('Error loading product:', error);
-                 showToast('Failed to load product details');
-             }
+             // Use external product detail page
+             loadProductDetailPage(handle);
          }
         
                  // Find product by handle in all product sources
@@ -6655,10 +6646,15 @@
                 // Add click handler
                 slideElement.addEventListener('click', function() {
                     console.log('Trending item clicked:', slide.title);
-                    showToast(`Viewing: ${slide.title}`);
-                    if (slide.link_url && slide.link_url !== '#') {
-                        window.location.href = slide.link_url;
-                    }
+                    
+                    // Generate a product handle from the title for demo purposes
+                    const productHandle = slide.title.toLowerCase()
+                        .replace(/[^a-z0-9\s]/g, '')
+                        .replace(/\s+/g, '-')
+                        + '-demo-product';
+                    
+                    console.log('📱 Opening product detail page for:', productHandle);
+                    loadProductDetailPage(productHandle);
                 });
 
                 trendingContainer.appendChild(slideElement);
