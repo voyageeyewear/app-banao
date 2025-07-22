@@ -9,7 +9,7 @@ const defaultPDPConfig = {
   whatsappNumber: "+919999999999",
   taxText: "incl. of taxes",
   showNewBadge: true,
-  showWhatsAppChat: true,
+  showWhatsAppChat: false,
   actionButtons: {
     sizeGuide: "Size Guide",
     tryOn: "Try On",
