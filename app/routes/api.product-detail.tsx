@@ -128,6 +128,19 @@ function formatProductForMobile(shopifyProduct: any, adminProduct: any = null) {
   const price = firstVariant?.price?.amount || shopifyProduct.priceRange?.minVariantPrice?.amount || '0';
   const formattedPrice = `₹${parseFloat(price).toFixed(0)}`;
 
+  // Get real product images from Shopify
+  const realImages = shopifyProduct.images?.nodes?.map((img: any) => img.url) || [];
+  
+  // Use real images if available, otherwise fallback to demo images
+  const productImages = realImages.length > 0 ? realImages : [
+    "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&h=800&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&h=800&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1556306535-38febf6782e7?w=800&h=800&fit=crop&q=80"
+  ];
+
+  console.log('🖼️ Product images from Shopify:', realImages);
+  console.log('🎯 Using images:', productImages);
+
   return {
     id: shopifyProduct.id.replace('gid://shopify/Product/', ''),
     handle: shopifyProduct.handle,
@@ -136,8 +149,8 @@ function formatProductForMobile(shopifyProduct: any, adminProduct: any = null) {
     price: formattedPrice,
     originalPrice: formattedPrice,
     discount: 0,
-    image: shopifyProduct.images?.nodes?.[0]?.url || "",
-    images: shopifyProduct.images?.nodes?.map((img: any) => img.url) || [],
+    image: productImages[0],
+    images: productImages,
     rating: 4.5,
     ratingCount: 123,
     description: shopifyProduct.description || "High-quality eyewear with premium materials and design.",

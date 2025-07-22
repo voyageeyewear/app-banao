@@ -809,34 +809,64 @@
             try {
                 console.log('🔄 Trying to get any available product from store...');
                 
-                // Try to get any product by calling the API without a specific handle
-                const response = await fetch(`${API_BASE}/api/product-detail?handle=any-product`);
+                // Try to get any product by using a known real product handle
+                console.log('📞 Calling API for real product:', `${API_BASE}/api/product-detail?handle=eyejack-black-square-polarized-sunglasses-for-men-women-1905pcl2075`);
+                const response = await fetch(`${API_BASE}/api/product-detail?handle=eyejack-black-square-polarized-sunglasses-for-men-women-1905pcl2075`);
+                console.log('📡 Real product response status:', response.status);
                 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('📦 Any-product response data:', data);
                     if (data.success && data.product) {
                         console.log('✅ Got real product:', data.product.title);
+                        console.log('🖼️ Real product images:', data.product.images);
                         return data.product;
                     }
+                } else {
+                    console.warn('❌ Any-product API failed with status:', response.status);
+                    const responseText = await response.text();
+                    console.log('📄 Response text:', responseText);
                 }
                 
                 // If that fails, try getting available products list
+                console.log('📞 Calling available products API:', `${API_BASE}/api/product-detail`);
                 const listResponse = await fetch(`${API_BASE}/api/product-detail`);
+                console.log('📡 Available products response status:', listResponse.status);
+                
                 if (listResponse.ok) {
                     const listData = await listResponse.json();
+                    console.log('📦 Available products response data:', listData);
+                    
                     if (listData.availableProducts && listData.availableProducts.length > 0) {
                         const firstProduct = listData.availableProducts[0];
                         console.log('✅ Using first available product:', firstProduct.handle);
                         
                         // Try to load that specific product
+                        console.log('📞 Loading specific product:', `${API_BASE}/api/product-detail?handle=${firstProduct.handle}`);
                         const specificResponse = await fetch(`${API_BASE}/api/product-detail?handle=${firstProduct.handle}`);
+                        console.log('📡 Specific product response status:', specificResponse.status);
+                        
                         if (specificResponse.ok) {
                             const specificData = await specificResponse.json();
+                            console.log('📦 Specific product response data:', specificData);
+                            
                             if (specificData.success && specificData.product) {
+                                console.log('✅ Got specific real product:', specificData.product.title);
+                                console.log('🖼️ Specific product images:', specificData.product.images);
                                 return specificData.product;
                             }
+                        } else {
+                            console.warn('❌ Specific product API failed with status:', specificResponse.status);
+                            const specificResponseText = await specificResponse.text();
+                            console.log('📄 Specific response text:', specificResponseText);
                         }
+                    } else {
+                        console.warn('⚠️ No available products found in response');
                     }
+                } else {
+                    console.warn('❌ Available products API failed with status:', listResponse.status);
+                    const listResponseText = await listResponse.text();
+                    console.log('📄 List response text:', listResponseText);
                 }
                 
                 console.warn('⚠️ Could not get any real product, using fallback');
