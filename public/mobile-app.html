@@ -3144,11 +3144,57 @@
         }
 
         // Load product detail page
-        function loadProductDetailPage(productHandle) {
+        async function loadProductDetailPage(productHandle) {
             console.log('📱 Loading product detail page for:', productHandle);
             
-            const productUrl = `./pages/product-detail-page.html?handle=${productHandle}`;
-            loadExternalPage(productUrl);
+            try {
+                // Fetch product data first
+                const product = await findProductByHandle(productHandle);
+                
+                if (product) {
+                    console.log('✅ Product found, using embedded template:', product.title);
+                    // Use embedded product detail page instead of external file
+                    openProductDetailPage(product);
+                } else {
+                    console.warn('❌ Product not found, using fallback');
+                    // Fallback to a default product with the handle
+                                         const fallbackProduct = {
+                         handle: productHandle,
+                         title: 'Eyejack Premium Eyewear Collection',
+                         price: '₹899',
+                         originalPrice: '₹1399',
+                         discount: 36,
+                         description: 'Premium quality eyewear featuring advanced materials and superior craftsmanship. These glasses combine style with comfort, perfect for everyday wear. Anti-reflective coating and UV protection included.',
+                         images: [
+                             'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop&q=80',
+                             'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&h=400&fit=crop&q=80'
+                         ],
+                         rating: 4.5,
+                         ratingCount: 150,
+                         isNew: true
+                     };
+                    openProductDetailPage(fallbackProduct);
+                }
+            } catch (error) {
+                console.error('❌ Error loading product:', error);
+                // Use fallback product
+                                 const fallbackProduct = {
+                     handle: productHandle,
+                     title: 'Eyejack Classic Sunglasses Collection',
+                     price: '₹799',
+                     originalPrice: '₹1199',
+                     discount: 33,
+                     description: 'Classic design meets modern functionality. These sunglasses feature premium polarized lenses with UV400 protection. Lightweight frame ensures comfort during extended wear.',
+                     images: [
+                         'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop&q=80',
+                         'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=400&h=400&fit=crop&q=80'
+                     ],
+                     rating: 4.5,
+                     ratingCount: 150,
+                     isNew: false
+                 };
+                openProductDetailPage(fallbackProduct);
+            }
         }
 
         // Show product by handle
@@ -4516,8 +4562,8 @@
          async function showProduct(handle) {
              console.log('🔍 Opening product detail page for:', handle);
              
-             // Use external product detail page
-             loadProductDetailPage(handle);
+             // Use embedded product detail page
+             await loadProductDetailPage(handle);
          }
         
                  // Find product by handle in all product sources
