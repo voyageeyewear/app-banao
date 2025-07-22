@@ -143,7 +143,8 @@
             width: 100%;
             height: 400px;
             overflow: hidden;
-            background: #f8f8f8;
+            background: #ffffff;
+            border-radius: 0;
         }
         
         .product-image-slider {
@@ -158,7 +159,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             display: block;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
@@ -702,10 +703,17 @@
                 
                 // Always try to load from API first (like original behavior)
                 try {
+                    console.log('🌐 Making API calls to:', API_BASE);
+                    
                     const [pdpResponse, productResponse] = await Promise.all([
                         fetch(`${API_BASE}/api/pdp-config`),
                         fetch(`${API_BASE}/api/product-detail?handle=${productHandle}`)
                     ]);
+
+                    console.log('📡 API responses:', {
+                        pdpStatus: pdpResponse.status,
+                        productStatus: productResponse.status
+                    });
 
                     // Load PDP configuration
                     if (pdpResponse.ok) {
@@ -713,30 +721,35 @@
                         console.log('✅ PDP config loaded from API');
                     } else {
                         pdpConfig = getDefaultPDPConfig();
-                        console.log('📋 Using default PDP config');
+                        console.log('📋 Using default PDP config, response status:', pdpResponse.status);
                     }
 
                     // Load product data
                     if (productResponse.ok) {
                         const productApiData = await productResponse.json();
-                        productData = productApiData.product || productApiData;
-                        console.log('✅ Product data loaded from API');
-                    } else {
-                        productData = getDefaultProductData();
-                        if (productHandle && productHandle !== 'default') {
-                            productData.title = formatProductTitle(productHandle);
-                            productData.handle = productHandle;
+                        console.log('📦 Raw API response:', productApiData);
+                        
+                        if (productApiData.success && productApiData.product) {
+                            productData = productApiData.product;
+                            console.log('✅ Product data loaded from API:', productData.title);
+                            console.log('🖼️ Product images:', productData.images);
+                        } else {
+                            console.warn('⚠️ API returned success=false or no product:', productApiData);
+                            // Try to get any available product instead of falling back to fake data
+                            productData = await tryGetAnyProduct();
                         }
-                        console.log('📋 Using default product data');
+                    } else {
+                        console.warn('❌ Product API failed with status:', productResponse.status);
+                        const responseText = await productResponse.text();
+                        console.log('📄 Response body:', responseText);
+                        // Try to get any available product instead of falling back to fake data
+                        productData = await tryGetAnyProduct();
                     }
                 } catch (apiError) {
-                    console.warn('⚠️ API requests failed, using fallback data:', apiError);
+                    console.warn('⚠️ API requests failed:', apiError);
                     pdpConfig = getDefaultPDPConfig();
-                    productData = getDefaultProductData();
-                    if (productHandle && productHandle !== 'default') {
-                        productData.title = formatProductTitle(productHandle);
-                        productData.handle = productHandle;
-                    }
+                    // Try to get any real product instead of fake data
+                    productData = await tryGetAnyProduct();
                 }
 
                 console.log('✅ Data loaded:', { productData: productData.title, pdpConfig });
@@ -746,7 +759,7 @@
                 console.error('❌ Error loading data:', error);
                 // Use fallback data
                 pdpConfig = getDefaultPDPConfig();
-                productData = getDefaultProductData();
+                productData = await tryGetAnyProduct();
                 createProductDetailPage(productData);
             }
         }
@@ -789,6 +802,50 @@
                 id: "gid://shopify/Product/123456789",
                 isNew: true
             };
+        }
+
+        // Try to get any available product from Shopify instead of using fake data
+        async function tryGetAnyProduct() {
+            try {
+                console.log('🔄 Trying to get any available product from store...');
+                
+                // Try to get any product by calling the API without a specific handle
+                const response = await fetch(`${API_BASE}/api/product-detail?handle=any-product`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.product) {
+                        console.log('✅ Got real product:', data.product.title);
+                        return data.product;
+                    }
+                }
+                
+                // If that fails, try getting available products list
+                const listResponse = await fetch(`${API_BASE}/api/product-detail`);
+                if (listResponse.ok) {
+                    const listData = await listResponse.json();
+                    if (listData.availableProducts && listData.availableProducts.length > 0) {
+                        const firstProduct = listData.availableProducts[0];
+                        console.log('✅ Using first available product:', firstProduct.handle);
+                        
+                        // Try to load that specific product
+                        const specificResponse = await fetch(`${API_BASE}/api/product-detail?handle=${firstProduct.handle}`);
+                        if (specificResponse.ok) {
+                            const specificData = await specificResponse.json();
+                            if (specificData.success && specificData.product) {
+                                return specificData.product;
+                            }
+                        }
+                    }
+                }
+                
+                console.warn('⚠️ Could not get any real product, using fallback');
+                return getDefaultProductData();
+                
+            } catch (error) {
+                console.error('❌ Error trying to get real product:', error);
+                return getDefaultProductData();
+            }
         }
 
         // Format product handle into readable title

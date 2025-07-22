@@ -174,11 +174,75 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     console.log('🔍 Product detail request:', { handle, id });
     
     if (!handle && !id) {
-      const errorResponse = json({ 
-        success: false, 
-        error: "Product handle or ID is required" 
-      }, { status: 400 });
-      return addCorsHeaders(errorResponse);
+      // If no handle/id provided, try to return any available product
+      try {
+        const availableResponse = await fetch(`https://${SHOPIFY_STORE}/api/2023-07/graphql.json`, {
+          method: 'POST',
+          headers: {
+            'X-Shopify-Storefront-Access-Token': STOREFRONT_ACCESS_TOKEN,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            query: `
+              query {
+                products(first: 10) {
+                  nodes {
+                    id
+                    handle
+                    title
+                  }
+                }
+              }
+            `
+          })
+        });
+
+        const availableData = await availableResponse.json();
+        const availableProducts = availableData.data?.products?.nodes || [];
+        
+        if (availableProducts.length > 0) {
+          // Use the first available product
+          const firstProduct = availableProducts[0];
+          console.log('🎯 No handle provided, using first available product:', firstProduct.handle);
+          
+          // Fetch full product data for the first available product
+          const [storefrontProduct, adminProduct] = await Promise.all([
+            fetchProductFromStorefront(firstProduct.handle),
+            fetchProductFromAdmin(firstProduct.handle)
+          ]);
+          
+          if (storefrontProduct) {
+            const product = formatProductForMobile(storefrontProduct, adminProduct);
+            if (product) {
+              const successResponse = json({
+                success: true,
+                product
+              });
+              return addCorsHeaders(successResponse);
+            }
+          }
+        }
+        
+        // Fallback error response
+        const errorResponse = json({ 
+          success: false, 
+          error: "No products available",
+          availableProducts: availableProducts.map((p: any) => ({
+            id: p.id.replace('gid://shopify/Product/', ''),
+            handle: p.handle,
+            title: p.title
+          }))
+        }, { status: 404 });
+        return addCorsHeaders(errorResponse);
+        
+      } catch (error) {
+        console.error('❌ Error fetching any product:', error);
+        const errorResponse = json({ 
+          success: false, 
+          error: "Product handle or ID is required" 
+        }, { status: 400 });
+        return addCorsHeaders(errorResponse);
+      }
     }
 
     // Fetch from both APIs for complete data
