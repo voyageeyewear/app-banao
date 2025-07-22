@@ -51,6 +51,10 @@ async function fetchRealShopifyProducts() {
                     amount
                     currencyCode
                   }
+                  compareAtPrice {
+                    amount
+                    currencyCode
+                  }
                   availableForSale
                 }
               }
@@ -86,6 +90,12 @@ async function fetchRealShopifyProducts() {
       const variant = product.variants.edges[0]?.node;
       const images = product.images.edges.map((img: any) => img.node.url);
       
+      const currentPrice = variant ? parseFloat(variant.price.amount) : 799;
+      const comparePrice = variant?.compareAtPrice ? parseFloat(variant.compareAtPrice.amount) : null;
+      const discount = comparePrice && comparePrice > currentPrice 
+        ? Math.floor(((comparePrice - currentPrice) / comparePrice) * 100)
+        : 0;
+
       return {
         id: product.id.replace('gid://shopify/Product/', ''),
         handle: product.handle,
@@ -93,9 +103,9 @@ async function fetchRealShopifyProducts() {
         description: product.description || "High-quality eyewear with premium materials and design.",
         images: images,
         image: images[0] || "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&h=800&fit=crop&q=80",
-        price: variant ? `₹${parseFloat(variant.price.amount).toFixed(0)}` : "₹799",
-        originalPrice: variant ? `₹${(parseFloat(variant.price.amount) * 1.3).toFixed(0)}` : "₹1039",
-        discount: 23,
+        price: `₹${currentPrice.toFixed(0)}`,
+        originalPrice: comparePrice ? `₹${comparePrice.toFixed(0)}` : null,
+        discount: discount,
         rating: 4.5,
         ratingCount: 195,
         isNew: true,
