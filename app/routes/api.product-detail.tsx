@@ -22,147 +22,111 @@ export const options = async () => {
   return addCorsHeaders(response);
 };
 
-// Fetch product from Shopify Admin API
-async function fetchProductFromAdmin(handle: string) {
+// Fetch real products from Shopify using the SAME method as real-shopify API
+async function fetchRealShopifyProducts() {
   try {
-    const response = await fetch(`https://${SHOPIFY_STORE}/admin/api/2023-07/products.json?handle=${handle}`, {
-      headers: {
-        'X-Shopify-Access-Token': ADMIN_ACCESS_TOKEN,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Admin API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.products?.[0] || null;
-  } catch (error) {
-    console.error('❌ Admin API error:', error);
-    return null;
-  }
-}
-
-// Fetch product from Storefront API
-async function fetchProductFromStorefront(handle: string) {
-  try {
-    const query = `
-      query getProduct($handle: String!) {
-        product(handle: $handle) {
-          id
-          title
-          handle
-          description
-          images(first: 10) {
-            nodes {
-              url
-              altText
-            }
-          }
-          variants(first: 10) {
-            nodes {
-              id
-              title
-              price {
-                amount
-                currencyCode
-              }
-              availableForSale
-              selectedOptions {
-                name
-                value
+    console.log('🛍️ Fetching real products from Shopify...');
+    
+    const query = `{
+      products(first: 10) {
+        edges {
+          node {
+            id
+            title
+            handle
+            description
+            images(first: 5) {
+              edges {
+                node {
+                  url
+                }
               }
             }
-          }
-          priceRange {
-            minVariantPrice {
-              amount
-              currencyCode
-            }
-            maxVariantPrice {
-              amount
-              currencyCode
+            variants(first: 1) {
+              edges {
+                node {
+                  id
+                  title
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  availableForSale
+                }
+              }
             }
           }
         }
       }
-    `;
+    }`;
 
-    const response = await fetch(`https://${SHOPIFY_STORE}/api/2023-07/graphql.json`, {
+    const response = await fetch(`https://${SHOPIFY_STORE}/api/2023-10/graphql.json`, {
       method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         'X-Shopify-Storefront-Access-Token': STOREFRONT_ACCESS_TOKEN,
-        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        query,
-        variables: { handle }
-      })
+      body: JSON.stringify({ query }),
     });
 
     if (!response.ok) {
-      throw new Error(`Storefront API error: ${response.status}`);
+      throw new Error(`Shopify API failed: ${response.status}`);
     }
 
     const data = await response.json();
-    return data.data?.product || null;
+    console.log('📦 Real Shopify data received');
+    
+    if (data.errors) {
+      console.error('❌ GraphQL errors:', data.errors);
+      return [];
+    }
+
+    const products = data.data.products.edges.map((edge: any) => {
+      const product = edge.node;
+      const variant = product.variants.edges[0]?.node;
+      const images = product.images.edges.map((img: any) => img.node.url);
+      
+      return {
+        id: product.id.replace('gid://shopify/Product/', ''),
+        handle: product.handle,
+        title: product.title,
+        description: product.description || "High-quality eyewear with premium materials and design.",
+        images: images,
+        image: images[0] || "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&h=800&fit=crop&q=80",
+        price: variant ? `₹${parseFloat(variant.price.amount).toFixed(0)}` : "₹799",
+        originalPrice: variant ? `₹${(parseFloat(variant.price.amount) * 1.3).toFixed(0)}` : "₹1039",
+        discount: 23,
+        rating: 4.5,
+        ratingCount: 195,
+        isNew: true,
+        inStock: variant?.availableForSale || true,
+        variants: product.variants.edges.map((v: any) => ({
+          id: v.node.id.replace('gid://shopify/ProductVariant/', ''),
+          title: v.node.title || "Default",
+          price: `₹${parseFloat(v.node.price.amount).toFixed(0)}`,
+          available: v.node.availableForSale
+        })),
+        features: [
+          "UV Protection",
+          "Premium Materials", 
+          "Lightweight Design",
+          "Scratch Resistant",
+          "1 Year Warranty"
+        ],
+        deliveryTime: "2-3 business days",
+        freeShipping: true,
+        returnPolicy: "30-day free returns",
+        warranty: "1-year manufacturer warranty"
+      };
+    });
+
+    console.log(`✅ Processed ${products.length} real products`);
+    return products;
+
   } catch (error) {
-    console.error('❌ Storefront API error:', error);
-    return null;
+    console.error('❌ Error fetching real Shopify products:', error);
+    return [];
   }
-}
-
-// Convert Shopify product to mobile app format
-function formatProductForMobile(shopifyProduct: any, adminProduct: any = null) {
-  if (!shopifyProduct) return null;
-
-  // Extract variant ID (remove GraphQL prefix)
-  const firstVariant = shopifyProduct.variants?.nodes?.[0];
-  let variantId = firstVariant?.id;
-  if (variantId && variantId.startsWith('gid://shopify/ProductVariant/')) {
-    variantId = variantId.replace('gid://shopify/ProductVariant/', '');
-  }
-
-  // Format price
-  const price = firstVariant?.price?.amount || shopifyProduct.priceRange?.minVariantPrice?.amount || '0';
-  const formattedPrice = `₹${parseFloat(price).toFixed(0)}`;
-
-  return {
-    id: shopifyProduct.id.replace('gid://shopify/Product/', ''),
-    handle: shopifyProduct.handle,
-    title: shopifyProduct.title,
-    subtitle: "Premium Quality Eyewear",
-    price: formattedPrice,
-    originalPrice: formattedPrice,
-    discount: 0,
-    image: shopifyProduct.images?.nodes?.[0]?.url || "",
-    images: shopifyProduct.images?.nodes?.map((img: any) => img.url) || [],
-    rating: 4.5,
-    ratingCount: 123,
-    description: shopifyProduct.description || "High-quality eyewear with premium materials and design.",
-    features: [
-      "UV Protection",
-      "Premium Materials", 
-      "Lightweight Design",
-      "Scratch Resistant",
-      "1 Year Warranty"
-    ],
-    isNew: true,
-    inStock: firstVariant?.availableForSale || true,
-    variants: shopifyProduct.variants?.nodes?.map((variant: any) => ({
-      id: variant.id.replace('gid://shopify/ProductVariant/', ''),
-      title: variant.title || "Default",
-      price: `₹${parseFloat(variant.price?.amount || '0').toFixed(0)}`,
-      available: variant.availableForSale
-    })) || [],
-    deliveryTime: "2-3 business days",
-    freeShipping: true,
-    returnPolicy: "30-day free returns",
-    warranty: "1-year manufacturer warranty",
-    // Include admin product data for additional details
-    adminData: adminProduct
-  };
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -173,113 +137,38 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     
     console.log('🔍 Product detail request:', { handle, id });
     
+    // Get real products from Shopify
+    const realProducts = await fetchRealShopifyProducts();
+    
     if (!handle && !id) {
-      // If no handle/id provided, try to return any available product
-      try {
-        const availableResponse = await fetch(`https://${SHOPIFY_STORE}/api/2023-07/graphql.json`, {
-          method: 'POST',
-          headers: {
-            'X-Shopify-Storefront-Access-Token': STOREFRONT_ACCESS_TOKEN,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            query: `
-              query {
-                products(first: 10) {
-                  nodes {
-                    id
-                    handle
-                    title
-                  }
-                }
-              }
-            `
-          })
+      // Return any available product
+      if (realProducts.length > 0) {
+        console.log('✅ Returning first real product:', realProducts[0].title);
+        const successResponse = json({
+          success: true,
+          product: realProducts[0]
         });
-
-        const availableData = await availableResponse.json();
-        const availableProducts = availableData.data?.products?.nodes || [];
-        
-        if (availableProducts.length > 0) {
-          // Use the first available product
-          const firstProduct = availableProducts[0];
-          console.log('🎯 No handle provided, using first available product:', firstProduct.handle);
-          
-          // Fetch full product data for the first available product
-          const [storefrontProduct, adminProduct] = await Promise.all([
-            fetchProductFromStorefront(firstProduct.handle),
-            fetchProductFromAdmin(firstProduct.handle)
-          ]);
-          
-          if (storefrontProduct) {
-            const product = formatProductForMobile(storefrontProduct, adminProduct);
-            if (product) {
-              const successResponse = json({
-                success: true,
-                product
-              });
-              return addCorsHeaders(successResponse);
-            }
-          }
-        }
-        
-        // Fallback error response
+        return addCorsHeaders(successResponse);
+      } else {
         const errorResponse = json({ 
           success: false, 
           error: "No products available",
-          availableProducts: availableProducts.map((p: any) => ({
-            id: p.id.replace('gid://shopify/Product/', ''),
-            handle: p.handle,
-            title: p.title
-          }))
+          availableProducts: []
         }, { status: 404 });
-        return addCorsHeaders(errorResponse);
-        
-      } catch (error) {
-        console.error('❌ Error fetching any product:', error);
-        const errorResponse = json({ 
-          success: false, 
-          error: "Product handle or ID is required" 
-        }, { status: 400 });
         return addCorsHeaders(errorResponse);
       }
     }
 
-    // Fetch from both APIs for complete data
-    const [storefrontProduct, adminProduct] = await Promise.all([
-      handle ? fetchProductFromStorefront(handle) : null,
-      handle ? fetchProductFromAdmin(handle) : null
-    ]);
-
-    if (!storefrontProduct) {
-      // Get available products for error message
-      const availableResponse = await fetch(`https://${SHOPIFY_STORE}/api/2023-07/graphql.json`, {
-        method: 'POST',
-        headers: {
-          'X-Shopify-Storefront-Access-Token': STOREFRONT_ACCESS_TOKEN,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          query: `
-            query {
-              products(first: 10) {
-                nodes {
-                  id
-                  handle
-                  title
-                }
-              }
-            }
-          `
-        })
-      });
-
-      const availableData = await availableResponse.json();
-      const availableProducts = availableData.data?.products?.nodes?.map((p: any) => ({
-        id: p.id.replace('gid://shopify/Product/', ''),
+    // Find specific product by handle
+    const product = realProducts.find((p: any) => p.handle === handle);
+    
+    if (!product) {
+      // Return available products for error message
+      const availableProducts = realProducts.map((p: any) => ({
+        id: p.id,
         handle: p.handle,
         title: p.title
-      })) || [];
+      }));
 
       const errorResponse = json({
         success: false,
@@ -289,24 +178,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       return addCorsHeaders(errorResponse);
     }
 
-         // Format product for mobile app
-     const product = formatProductForMobile(storefrontProduct, adminProduct);
+    console.log('✅ Real product found:', product.title);
+    console.log('🖼️ Real product images:', product.images);
 
-     if (!product) {
-       const errorResponse = json({
-         success: false,
-         error: "Failed to format product data"
-       }, { status: 500 });
-       return addCorsHeaders(errorResponse);
-     }
-
-     console.log('✅ Product found:', product.title);
-
-     const successResponse = json({
-       success: true,
-       product
-     });
-     return addCorsHeaders(successResponse);
+    const successResponse = json({
+      success: true,
+      product
+    });
+    return addCorsHeaders(successResponse);
 
   } catch (error) {
     console.error('❌ Product detail error:', error);
