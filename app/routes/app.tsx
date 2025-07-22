@@ -31,6 +31,7 @@ export default function App() {
         <Link to="/app/shark-tank">Shark Tank</Link>
         <Link to="/app/looks">Looks</Link>
         <Link to="/app/new-drops">New Drops</Link>
+        <Link to="/app/pdp-admin">Product Detail Page</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>
