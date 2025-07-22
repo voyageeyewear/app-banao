@@ -2961,7 +2961,7 @@
             }
             
             // Set page title based on URL
-            let pageTitle = 'Page';
+            let pageTitle = '';
             let hideHeader = false;
             
             if (url.includes('classic-collection')) {
@@ -2973,9 +2973,13 @@
                 pageTitle = 'Sport';
             } else if (url.includes('trendy-collection')) {
                 pageTitle = 'Trendy';
+            } else if (url.includes('product-detail-page')) {
+                // Hide header completely for product detail pages
+                hideHeader = true;
+                pageTitle = '';
             }
             
-            if (titleElement) {
+            if (titleElement && pageTitle) {
                 titleElement.textContent = pageTitle;
             }
             
