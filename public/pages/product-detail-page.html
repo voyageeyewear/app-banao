@@ -588,6 +588,61 @@
         
         /* WhatsApp Chat Button - Removed */
         
+        /* Product Description Section */
+        .description-section {
+            margin: 20px 0;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .description-toggle {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .description-toggle:hover {
+            color: #007bff;
+        }
+        
+        .description-arrow {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .description-arrow.rotated {
+            transform: rotate(180deg);
+        }
+        
+        .description-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            padding: 0;
+        }
+        
+        .description-content.expanded {
+            max-height: 300px;
+            padding: 15px 0;
+        }
+        
+        .description-content p {
+            margin: 0;
+            line-height: 1.6;
+            color: #666;
+            font-size: 14px;
+        }
+        
         /* Loading State */
         .loading {
             display: flex;
@@ -816,7 +871,8 @@
                 ],
                 handle: "eyejack-black-square-polarized-sunglasses",
                 id: "gid://shopify/Product/123456789",
-                isNew: true
+                isNew: true,
+                description: "Premium quality eyewear featuring polarized lenses with UV400 protection. These stylish sunglasses combine modern design with superior comfort, making them perfect for both casual and professional settings. The lightweight frame ensures all-day comfort while the scratch-resistant coating provides long-lasting durability."
             };
         }
 
@@ -931,9 +987,25 @@
         function generateProductDetailHTML(product) {
             const rating = product.rating || 4.5;
             const ratingCount = product.ratingCount || Math.floor(Math.random() * 500) + 100;
-            // Use real Shopify compare-at prices
-            const originalPrice = product.originalPrice; // Real compare-at price from Shopify (null if no compare price)
-            const discount = product.discount || 0; // Real discount calculated from Shopify data
+            // Use real Shopify compare-at prices - only show if different from current price
+            const currentPriceNum = parseFloat(product.price.replace(/[^\d.]/g, ''));
+            const originalPriceNum = product.originalPrice ? parseFloat(product.originalPrice.replace(/[^\d.]/g, '')) : null;
+            
+            // Debug pricing data
+            console.log('💰 Pricing Debug:', {
+                productTitle: product.title,
+                currentPrice: product.price,
+                currentPriceNum: currentPriceNum,
+                originalPrice: product.originalPrice,
+                originalPriceNum: originalPriceNum,
+                discount: product.discount
+            });
+            
+            // Only show original price if it's actually higher than current price
+            const originalPrice = (originalPriceNum && originalPriceNum > currentPriceNum) ? product.originalPrice : null;
+            const discount = (originalPrice && product.discount > 0) ? product.discount : 0;
+            
+            console.log('💰 Final Display:', { originalPrice, discount });
             
             return `
                 <!-- Product Detail Page Container -->
@@ -1058,6 +1130,19 @@
                                     </svg>
                                     <span>${pdpConfig.actionButtons?.reviews || 'Reviews'}</span>
                                 </button>
+                            </div>
+                            
+                            <!-- Product Description Section -->
+                            <div class="description-section">
+                                <button class="description-toggle" onclick="toggleDescription()">
+                                    <span>Product Description</span>
+                                    <svg class="description-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="description-content" id="descriptionContent">
+                                    <p>${product.description || 'High-quality eyewear with premium materials and design. Perfect for everyday wear with excellent comfort and style.'}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1372,6 +1457,26 @@
         function viewReviews() {
             console.log('💬 Viewing reviews');
             showToast('💬 Reviews feature ready');
+        }
+
+        // Toggle product description
+        function toggleDescription() {
+            const content = document.getElementById('descriptionContent');
+            const arrow = document.querySelector('.description-arrow');
+            
+            if (content && arrow) {
+                const isExpanded = content.classList.contains('expanded');
+                
+                if (isExpanded) {
+                    content.classList.remove('expanded');
+                    arrow.classList.remove('rotated');
+                } else {
+                    content.classList.add('expanded');
+                    arrow.classList.add('rotated');
+                }
+                
+                console.log('📋 Description toggled:', isExpanded ? 'collapsed' : 'expanded');
+            }
         }
 
         // Wishlist functions
