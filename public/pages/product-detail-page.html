@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Details - GoEye Store</title>
+    <title>GoEye Store</title>
     <style>
         * {
             margin: 0;
@@ -34,6 +34,7 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             position: relative;
+            padding-top: 25px;
         }
         
         /* Top Navigation */
@@ -732,7 +733,8 @@
                         if (productApiData.success && productApiData.product) {
                             productData = productApiData.product;
                             console.log('✅ Product data loaded from API:', productData.title);
-                            console.log('🖼️ Product images:', productData.images);
+                            console.log('🖼️ Product images from API:', productData.images);
+                            console.log('🎯 Using REAL product data - not calling tryGetAnyProduct()');
                         } else {
                             console.warn('⚠️ API returned success=false or no product:', productApiData);
                             // Try to get any available product instead of falling back to fake data
@@ -749,6 +751,7 @@
                     console.warn('⚠️ API requests failed:', apiError);
                     pdpConfig = getDefaultPDPConfig();
                     // Try to get any real product instead of fake data
+                    console.log('⚠️ Falling back to tryGetAnyProduct due to API error');
                     productData = await tryGetAnyProduct();
                 }
 
@@ -809,21 +812,27 @@
             try {
                 console.log('🔄 Trying to get any available product from store...');
                 
-                // Try to get any product by calling the API without a specific handle
-                const response = await fetch(`${API_BASE}/api/product-detail?handle=any-product`);
+                // Try to get a known real product directly
+                const knownProduct = 'eyejack-black-square-polarized-sunglasses-for-men-women-1905pcl2075';
+                console.log('🎯 Trying known real product:', knownProduct);
+                const response = await fetch(`${API_BASE}/api/product-detail?handle=${knownProduct}`);
                 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('📦 Known product API response:', data);
                     if (data.success && data.product) {
-                        console.log('✅ Got real product:', data.product.title);
+                        console.log('✅ Got real product with images:', data.product.title);
+                        console.log('🖼️ Real product images:', data.product.images);
                         return data.product;
                     }
                 }
                 
                 // If that fails, try getting available products list
+                console.log('🔍 Trying to get available products list...');
                 const listResponse = await fetch(`${API_BASE}/api/product-detail`);
                 if (listResponse.ok) {
                     const listData = await listResponse.json();
+                    console.log('📋 Available products response:', listData);
                     if (listData.availableProducts && listData.availableProducts.length > 0) {
                         const firstProduct = listData.availableProducts[0];
                         console.log('✅ Using first available product:', firstProduct.handle);
@@ -833,6 +842,7 @@
                         if (specificResponse.ok) {
                             const specificData = await specificResponse.json();
                             if (specificData.success && specificData.product) {
+                                console.log('✅ Got specific product with images:', specificData.product.images);
                                 return specificData.product;
                             }
                         }
