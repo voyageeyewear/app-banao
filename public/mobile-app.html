@@ -4690,22 +4690,30 @@
                  price: product.price,
                  originalPrice: product.originalPrice,
                  discount: product.discount,
-                 hasOriginalPrice: !!product.originalPrice
+                 hasOriginalPrice: !!product.originalPrice,
+                 isRealApiData: !!product.id // Products from API will have IDs
              });
              
-             // Ensure we always show compared pricing
-             if (!product.originalPrice || product.originalPrice === product.price) {
+             // ONLY add fallback pricing if this is NOT real API data and has no original price
+             if (!product.id && (!product.originalPrice || product.originalPrice === product.price)) {
+                 // This is local fallback data, add compare-at pricing
                  const priceNum = parseFloat(product.price.replace(/[^\d.]/g, ''));
                  product.originalPrice = `₹${Math.floor(priceNum * 1.4)}`;
                  const originalPriceNum = Math.floor(priceNum * 1.4);
                  product.discount = Math.floor(((originalPriceNum - priceNum) / originalPriceNum) * 100);
-                 console.log('💡 FALLBACK PRICING ADDED (no real compare-at price):', { 
+                 console.log('💡 FALLBACK PRICING ADDED (local data, no real compare-at price):', { 
                      currentPrice: product.price, 
                      addedOriginalPrice: product.originalPrice, 
                      calculatedDiscount: product.discount 
                  });
+             } else if (product.id) {
+                 console.log('✅ PRESERVING REAL API DATA (from Shopify):', { 
+                     originalPrice: product.originalPrice, 
+                     discount: product.discount,
+                     hasCompareAtPrice: !!product.originalPrice
+                 });
              } else {
-                 console.log('✅ USING REAL PRICING FROM API:', { originalPrice: product.originalPrice, discount: product.discount });
+                 console.log('⚠️ Local data with existing originalPrice preserved');
              }
              
              // Ensure product has description
@@ -4809,27 +4817,33 @@
                      
                      <!-- Product Media -->
                      <div class="product-media">
-                         <div class="product-image-container">
-                             <img src="${product.image}" alt="${product.title}" class="product-main-image" id="product-main-image">
-                             
-                             <!-- Rating Overlay -->
-                             <div class="rating-overlay-widget">
-                                 <div class="rating-overlay-content">
-                                     <span class="rating-value">${rating}</span>
-                                     <span class="rating-star">★</span>
-                                     <span class="rating-count">(${ratingCount})</span>
+                         <div class="product-image-slider" id="imageSlider">
+                             ${(product.images || [product.image]).map((img, index) => `
+                                 <div class="product-image-slide ${index === 0 ? 'active' : ''}">
+                                     <img src="${img}" alt="${product.title}" class="product-main-image">
+                                     
+                                     <!-- Rating Overlay (only on first image) -->
+                                     ${index === 0 ? `
+                                     <div class="rating-overlay-widget">
+                                         <div class="rating-overlay-content">
+                                             <span class="rating-value">${rating}</span>
+                                             <span class="rating-star">★</span>
+                                             <span class="rating-count">(${ratingCount})</span>
+                                         </div>
+                                     </div>
+                                     ` : ''}
+                                     
+                                     <!-- New Launch Badge (only on first image) -->
+                                     ${index === 0 && product.isNew ? '<div class="new-launch-badge">NEW LAUNCH</div>' : ''}
                                  </div>
-                             </div>
-                             
-                             <!-- New Launch Badge (conditional) -->
-                             ${product.isNew ? '<div class="new-launch-badge">NEW LAUNCH</div>' : ''}
+                             `).join('')}
                          </div>
                          
                          <!-- Image Pagination Dots -->
                          <div class="image-pagination">
-                             <span class="pagination-dot active"></span>
-                             <span class="pagination-dot"></span>
-                             <span class="pagination-dot"></span>
+                             ${(product.images || [product.image]).map((_, index) => `
+                                 <span class="pagination-dot ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})"></span>
+                             `).join('')}
                          </div>
                      </div>
                      
@@ -4954,6 +4968,13 @@
               
               // Initialize wishlist state
               updateWishlistState(product.handle);
+              
+              // Initialize image slider with auto-scroll
+              setTimeout(() => {
+                  startAutoSlide();
+              }, 1000); // Start auto-slide after 1 second
+              
+              console.log('📱 Product detail page initialized with auto-slide');
           }
           
           // Setup scroll behavior for product page
@@ -5345,6 +5366,55 @@
                }
            }
           
+          // Image Slider Functions
+          let currentSlideIndex = 0;
+          let autoSlideInterval = null;
+          
+          function goToSlide(index) {
+              const slides = document.querySelectorAll('.product-image-slide');
+              const dots = document.querySelectorAll('.pagination-dot');
+              
+              if (slides.length === 0) return;
+              
+              // Remove active class from current slide and dot
+              slides[currentSlideIndex]?.classList.remove('active');
+              dots[currentSlideIndex]?.classList.remove('active');
+              
+              // Set new slide index
+              currentSlideIndex = index;
+              if (currentSlideIndex >= slides.length) currentSlideIndex = 0;
+              if (currentSlideIndex < 0) currentSlideIndex = slides.length - 1;
+              
+              // Add active class to new slide and dot
+              slides[currentSlideIndex]?.classList.add('active');
+              dots[currentSlideIndex]?.classList.add('active');
+              
+              console.log('📸 Slide changed to:', currentSlideIndex);
+          }
+          
+          function nextSlide() {
+              goToSlide(currentSlideIndex + 1);
+          }
+          
+          function startAutoSlide() {
+              const slides = document.querySelectorAll('.product-image-slide');
+              if (slides.length <= 1) return; // Don't auto-slide for single images
+              
+              autoSlideInterval = setInterval(() => {
+                  nextSlide();
+              }, 3000); // Change slide every 3 seconds
+              
+              console.log('🔄 Auto-slide started');
+          }
+          
+          function stopAutoSlide() {
+              if (autoSlideInterval) {
+                  clearInterval(autoSlideInterval);
+                  autoSlideInterval = null;
+                  console.log('⏹️ Auto-slide stopped');
+              }
+          }
+          
           function openWhatsAppChat() {
               const message = encodeURIComponent('Hi! I need help with a product from GoEye Store.');
               const whatsappUrl = `https://wa.me/1234567890?text=${message}`;
@@ -5604,24 +5674,38 @@
                    /* Product Media */
                    .product-media {
                        width: 100%;
-                       padding-top: 52px;
+                       padding-top: 80px;
                        position: relative;
                        flex: 0 0 auto;
                        margin-top: 0;
                    }
                    
-                   .product-image-container {
+                   .product-image-slider {
                        position: relative;
                        width: 100%;
-                       height: 400px;
+                       height: 450px;
                        overflow: hidden;
-                       background: #f8f8f8;
+                       background: #fff;
+                   }
+                   
+                   .product-image-slide {
+                       position: absolute;
+                       top: 0;
+                       left: 0;
+                       width: 100%;
+                       height: 100%;
+                       opacity: 0;
+                       transition: opacity 0.5s ease-in-out;
+                   }
+                   
+                   .product-image-slide.active {
+                       opacity: 1;
                    }
                    
                    .product-main-image {
                        width: 100%;
                        height: 100%;
-                       object-fit: contain;
+                       object-fit: cover;
                        display: block;
                    }
                    
