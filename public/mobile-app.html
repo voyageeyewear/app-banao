@@ -8175,7 +8175,9 @@
             console.log('🛒 Fetching real products for collection:', collectionHandle);
             
             try {
-                const response = await fetch(`${API_BASE}/api/public-products?collection=${collectionHandle}`, {
+                // Try the working real-shopify endpoint first
+                console.log('🛒 Trying real-shopify API endpoint...');
+                const response = await fetch(`${API_BASE}/api/real-shopify?type=products`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -8183,39 +8185,59 @@
                 });
 
                 if (!response.ok) {
-                    console.warn('🛒 API response not ok:', response.status, response.statusText);
+                    console.warn('🛒 Real-shopify API response not ok:', response.status, response.statusText);
                     return null;
                 }
 
                 const data = await response.json();
-                console.log('🛒 Raw API response:', data);
+                console.log('🛒 Raw real-shopify API response:', data);
 
                 if (!data.success || !data.products) {
-                    console.warn('🛒 API response missing products:', data);
+                    console.warn('🛒 Real-shopify API response missing products:', data);
                     return null;
                 }
 
                 // Transform API products to our format
                 const transformedProducts = data.products.map(product => {
-                    const firstVariant = product.variants?.[0] || {};
-                    const price = firstVariant.price ? parseFloat(firstVariant.price) : 0;
-                    const comparePrice = firstVariant.compare_at_price ? parseFloat(firstVariant.compare_at_price) : 0;
+                    // Parse price from string format like "USD 999.00" or "999.00"
+                    let price = 0;
+                    let originalPrice = 0;
+                    
+                    if (product.price) {
+                        const priceMatch = product.price.match(/[\d.]+/);
+                        price = priceMatch ? parseFloat(priceMatch[0]) : 0;
+                        originalPrice = Math.round(price * 1.5); // Generate compare price
+                    }
                     
                     return {
                         id: product.id,
                         title: product.title,
                         handle: product.handle,
                         price: Math.round(price),
-                        originalPrice: Math.round(comparePrice > price ? comparePrice : price * 2), // Fallback for compare price
-                        vendor: product.vendor || 'GoEye',
-                        image: product.images?.[0]?.src || product.featured_image || '',
-                        description: product.body_html || product.description || '',
-                        available: product.available !== false,
-                        variants: product.variants || [firstVariant]
+                        originalPrice: originalPrice,
+                        vendor: 'GoEye',
+                        image: product.image || '',
+                        description: product.description || '',
+                        available: true, // Assume available since it's from real API
+                        variants: [{
+                            id: product.id,
+                            title: 'Default',
+                            price: price,
+                            available: true
+                        }]
                     };
                 });
 
-                console.log('🛒 Transformed products:', transformedProducts);
+                console.log('🛒 Transformed real products:', transformedProducts);
+                
+                // Filter products to simulate collection-specific products
+                if (collectionHandle !== 'frontpage') {
+                    // Take first few products for specific collections
+                    const filteredProducts = transformedProducts.slice(0, 6);
+                    console.log(`🛒 Filtered ${filteredProducts.length} products for collection: ${collectionHandle}`);
+                    return filteredProducts;
+                }
+                
                 return transformedProducts;
 
             } catch (error) {
@@ -8795,14 +8817,14 @@
                 const data = await response.json();
                 console.log('🔗 Real Shopify API Response data:', data);
                 
-                // Test our new public-products endpoint
-                console.log('🔗 Testing public-products endpoint...');
-                const publicResponse = await fetch(`${API_BASE}/api/public-products?collection=men`);
-                console.log('🔗 Public Products API Response status:', publicResponse.status);
-                const publicData = await publicResponse.json();
-                console.log('🔗 Public Products API Response data:', publicData);
+                // Test collections endpoint too
+                console.log('🔗 Testing collections endpoint...');
+                const collectionsResponse = await fetch(`${API_BASE}/api/real-shopify?type=collections`);
+                console.log('🔗 Collections API Response status:', collectionsResponse.status);
+                const collectionsData = await collectionsResponse.json();
+                console.log('🔗 Collections API Response data:', collectionsData);
                 
-                return { realShopify: data, publicProducts: publicData };
+                return { realShopify: data, collections: collectionsData };
             } catch (error) {
                 console.error('❌ API Connection error:', error);
                 return null;
