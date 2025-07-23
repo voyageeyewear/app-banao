@@ -2795,11 +2795,40 @@
              overflow: hidden;
              box-shadow: 0 2px 8px rgba(0,0,0,0.08);
              transition: all 0.3s ease;
+             cursor: pointer;
+             position: relative;
          }
 
          .collection-mobile-card:hover {
              transform: translateY(-2px);
              box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+         }
+
+         .collection-mobile-card:active {
+             transform: translateY(0);
+             transition: transform 0.1s ease;
+         }
+
+         /* Add ripple effect for better touch feedback */
+         .collection-mobile-card::before {
+             content: '';
+             position: absolute;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background: radial-gradient(circle, rgba(27, 34, 75, 0.1) 1%, transparent 1%);
+             background-size: 15000% 15000%;
+             background-position: 50% 50%;
+             opacity: 0;
+             transition: background-size 0.3s, opacity 0.3s;
+             pointer-events: none;
+         }
+
+         .collection-mobile-card:active::before {
+             background-size: 100% 100%;
+             opacity: 1;
+             transition: 0s;
          }
 
          .product-mobile-image {
@@ -2841,6 +2870,8 @@
              cursor: pointer;
              transition: all 0.2s ease;
              backdrop-filter: blur(10px);
+             position: relative;
+             z-index: 10;
          }
 
          .mobile-action-btn:hover {
@@ -2946,6 +2977,8 @@
              gap: 6px;
              cursor: pointer;
              transition: all 0.2s ease;
+             position: relative;
+             z-index: 10;
          }
 
          .mobile-add-to-cart:hover {
@@ -8054,11 +8087,11 @@
                 contentDiv.innerHTML = `
                     <div class="collection-mobile-grid">
                         ${collectionProducts.map(product => `
-                            <div class="collection-mobile-card">
+                            <div class="collection-mobile-card" onclick="openProductFromCollection('${product.handle || product.id}', event)">
                                 <div class="product-mobile-image">
                                     <img src="${product.image}" alt="${product.title}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik05NiA5NkgxNDRWMTQ0SDk2Vjk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K'">
                                     <div class="product-mobile-actions">
-                                        <button class="mobile-action-btn wishlist-btn" onclick="toggleWishlist(this, '${product.id}')">
+                                        <button class="mobile-action-btn wishlist-btn" onclick="toggleWishlist(this, '${product.id}', event)">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
                                             </svg>
@@ -8077,7 +8110,7 @@
                                         <span class="mobile-feature">${product.available ? '✓ In Stock' : '❌ Out of Stock'}</span>
                                         <span class="mobile-feature">🚚 2-3 days</span>
                                     </div>
-                                    <button class="mobile-add-to-cart ${!product.available ? 'disabled' : ''}" onclick="addToCart('${product.id}', '${product.title}', ${product.price})" ${!product.available ? 'disabled' : ''}>
+                                    <button class="mobile-add-to-cart ${!product.available ? 'disabled' : ''}" onclick="addToCartFromCollection('${product.id}', '${product.title}', ${product.price}, event)" ${!product.available ? 'disabled' : ''}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
                                             <line x1="3" y1="6" x2="21" y2="6"/>
@@ -8104,6 +8137,70 @@
                     document.body.classList.remove('collection-page-mode');
                     console.log('📱 Collection page removed');
                 }, 300);
+            }
+        }
+
+        // Open product detail page from collection
+        window.openProductFromCollection = function(productHandle, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            console.log('🔍 Opening product from collection:', productHandle);
+            
+            // Close the collection page first
+            closeCollectionPage();
+            
+            // Small delay to allow collection page to close
+            setTimeout(async () => {
+                try {
+                    // Use the existing product detail page system
+                    await showProduct(productHandle);
+                    console.log('✅ Product detail page opened for:', productHandle);
+                } catch (error) {
+                    console.error('❌ Error opening product:', error);
+                    showToast('Error opening product details');
+                }
+            }, 350);
+        }
+
+        // Add to cart from collection with event handling
+        window.addToCartFromCollection = function(productId, title, price, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            console.log('🛒 Adding to cart from collection:', { productId, title, price });
+            
+            // Use existing add to cart functionality
+            addToCart(productId, title, price);
+        }
+
+        // Update wishlist function to handle event parameter
+        window.toggleWishlist = function(button, productId, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            console.log('❤️ Toggling wishlist for product:', productId);
+            
+            const isActive = button.classList.contains('active');
+            
+            if (isActive) {
+                // Remove from wishlist
+                button.classList.remove('active');
+                button.title = 'Add to Wishlist';
+                console.log('❤️ Removed from wishlist:', productId);
+                showToast('Removed from wishlist');
+            } else {
+                // Add to wishlist
+                button.classList.add('active');
+                button.title = 'Remove from Wishlist';
+                console.log('❤️ Added to wishlist:', productId);
+                showToast('Added to wishlist');
             }
         }
 
