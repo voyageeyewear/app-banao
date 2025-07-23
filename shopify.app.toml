@@ -3,7 +3,7 @@
 client_id = "fb11a89d0b583a9ba76a70be71a1d7b6"
 name = "App-Banao"
 handle = "app-banao"
-application_url = "https://todd-readily-jd-seconds.trycloudflare.com"
+application_url = "https://repeat-florist-comm-indie.trycloudflare.com"
 embedded = true
 
 [build]
@@ -26,7 +26,7 @@ api_version = "2025-07"
 scopes = "read_products,write_products,read_draft_orders,write_draft_orders,read_orders,write_orders,read_customers,write_customers"
 
 [auth]
-redirect_urls = ["https://todd-readily-jd-seconds.trycloudflare.com/auth/callback", "https://todd-readily-jd-seconds.trycloudflare.com/auth/shopify/callback", "https://todd-readily-jd-seconds.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://repeat-florist-comm-indie.trycloudflare.com/auth/callback", "https://repeat-florist-comm-indie.trycloudflare.com/auth/shopify/callback", "https://repeat-florist-comm-indie.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false

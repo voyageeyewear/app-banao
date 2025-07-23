@@ -2369,6 +2369,655 @@
                 border-radius: 0;
             }
         }
+        /* NEW COLLECTION PAGE STYLES - Based on main-collection.liquid */
+        .collection-page-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 12px;
+            z-index: 1000;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            height: 52px;
+        }
+
+        .collection-back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .collection-back-btn svg {
+            width: 20px;
+            height: 20px;
+            color: #1B224B;
+        }
+
+        .collection-title-info {
+            flex: 1;
+            text-align: center;
+            min-width: 0;
+        }
+
+        .collection-page-title {
+            color: #1B224B;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+            text-transform: capitalize;
+        }
+
+        .collection-product-count {
+            font-size: 12px;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .collection-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .collection-action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .collection-action-btn svg {
+            width: 20px;
+            height: 20px;
+            color: #1B224B;
+        }
+
+        .collection-product-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 72px 12px 12px 12px; /* Top padding for fixed header */
+            background: #ffffff;
+            max-width: 800px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        .collection-product-card {
+            display: flex;
+            background: white;
+            border-radius: 8px;
+            padding: 0;
+            margin: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #E5E7EB;
+        }
+
+        .collection-product-card:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .product-image-area {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            flex-shrink: 0;
+            padding: 8px;
+            overflow: hidden;
+            border-radius: 8px 0 0 8px;
+        }
+
+        .product-image-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+            transition: transform 0.3s ease;
+        }
+
+        .collection-product-card:hover .product-image-area img {
+            transform: scale(1.05);
+        }
+
+        .product-quick-actions {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .collection-product-card:hover .product-quick-actions {
+            opacity: 1;
+        }
+
+        .quick-action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .quick-action-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .quick-action-btn svg {
+            width: 14px;
+            height: 14px;
+            color: #1B224B;
+        }
+
+        .wishlist-btn.active {
+            background: #FEF2F2;
+        }
+
+        .wishlist-btn.active svg {
+            color: #E73C17;
+            fill: #E73C17;
+        }
+
+        .product-details-area {
+            flex: 1;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 0;
+        }
+
+        .product-details-top {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .product-brand-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1B224B;
+            margin: 0;
+        }
+
+        .product-item-title {
+            font-size: 13px;
+            color: #6B7280;
+            margin: 0;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .product-current-price {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1B224B;
+        }
+
+        .product-original-price {
+            font-size: 12px;
+            color: #9CA3AF;
+            text-decoration: line-through;
+        }
+
+        .product-discount {
+            font-size: 10px;
+            color: #059669;
+            font-weight: 600;
+            background: #ECFDF5;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .product-feature-list {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .product-feature-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .product-feature {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #6B7280;
+            padding: 4px 8px;
+            background: #F9FAFB;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .product-feature svg {
+            width: 12px;
+            height: 12px;
+            color: #059669;
+            flex-shrink: 0;
+        }
+
+        .product-action-section {
+            margin-top: 8px;
+        }
+
+        .collection-add-to-cart {
+            width: 100%;
+            background: #1B224B;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .collection-add-to-cart:hover {
+            background: #2A3362;
+        }
+
+        .collection-add-to-cart svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+                 /* MOBILE COLLECTION PAGE - Full Screen Experience */
+         .collection-page-mode {
+             overflow: hidden;
+         }
+
+         .collection-page-mode > *:not(#collection-full-page) {
+             display: none !important;
+         }
+
+         .collection-full-page {
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background: #ffffff;
+             z-index: 10000;
+             transform: translateX(100%);
+             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+             display: flex;
+             flex-direction: column;
+         }
+
+         .collection-full-page.active {
+             transform: translateX(0);
+         }
+
+         .collection-mobile-header {
+             position: sticky;
+             top: 0;
+             background: #ffffff;
+             padding: 12px 16px;
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+             border-bottom: 1px solid #e5e7eb;
+             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+             z-index: 100;
+         }
+
+         .collection-mobile-back {
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             background: none;
+             border: none;
+             font-size: 16px;
+             font-weight: 500;
+             color: #1B224B;
+             cursor: pointer;
+             padding: 8px;
+             border-radius: 8px;
+             transition: background 0.2s ease;
+         }
+
+         .collection-mobile-back:hover {
+             background: #f3f4f6;
+         }
+
+         .collection-mobile-back svg {
+             width: 20px;
+             height: 20px;
+         }
+
+         .collection-mobile-title {
+             flex: 1;
+             text-align: center;
+             font-size: 18px;
+             font-weight: 700;
+             color: #1B224B;
+             margin: 0;
+             padding: 0 16px;
+         }
+
+         .collection-mobile-actions {
+             display: flex;
+             gap: 8px;
+         }
+
+         .collection-mobile-btn {
+             width: 40px;
+             height: 40px;
+             border-radius: 50%;
+             background: #f8f9fa;
+             border: none;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             cursor: pointer;
+             transition: all 0.2s ease;
+             position: relative;
+         }
+
+         .collection-mobile-btn:hover {
+             background: #e9ecef;
+             transform: scale(1.05);
+         }
+
+         .collection-mobile-btn svg {
+             width: 20px;
+             height: 20px;
+             color: #1B224B;
+         }
+
+         .collection-mobile-content {
+             flex: 1;
+             overflow-y: auto;
+             padding: 16px;
+             background: #f8f9fa;
+         }
+
+         .collection-mobile-grid {
+             display: grid;
+             grid-template-columns: repeat(2, 1fr);
+             gap: 12px;
+         }
+
+         .collection-mobile-card {
+             background: white;
+             border-radius: 12px;
+             overflow: hidden;
+             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+             transition: all 0.3s ease;
+         }
+
+         .collection-mobile-card:hover {
+             transform: translateY(-2px);
+             box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+         }
+
+         .product-mobile-image {
+             position: relative;
+             width: 100%;
+             height: 160px;
+             overflow: hidden;
+         }
+
+         .product-mobile-image img {
+             width: 100%;
+             height: 100%;
+             object-fit: cover;
+             transition: transform 0.3s ease;
+         }
+
+         .collection-mobile-card:hover .product-mobile-image img {
+             transform: scale(1.05);
+         }
+
+         .product-mobile-actions {
+             position: absolute;
+             top: 8px;
+             right: 8px;
+             display: flex;
+             flex-direction: column;
+             gap: 6px;
+         }
+
+         .mobile-action-btn {
+             width: 32px;
+             height: 32px;
+             border-radius: 50%;
+             background: rgba(255,255,255,0.9);
+             border: none;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             cursor: pointer;
+             transition: all 0.2s ease;
+             backdrop-filter: blur(10px);
+         }
+
+         .mobile-action-btn:hover {
+             background: white;
+             transform: scale(1.1);
+         }
+
+         .mobile-action-btn svg {
+             width: 16px;
+             height: 16px;
+             color: #1B224B;
+         }
+
+         .mobile-action-btn.active {
+             background: #FEF2F2;
+         }
+
+         .mobile-action-btn.active svg {
+             color: #E73C17;
+             fill: #E73C17;
+         }
+
+         .product-mobile-info {
+             padding: 12px;
+         }
+
+         .product-mobile-brand {
+             font-size: 12px;
+             font-weight: 600;
+             color: #1B224B;
+             margin: 0 0 4px 0;
+         }
+
+         .product-mobile-title {
+             font-size: 14px;
+             font-weight: 500;
+             color: #374151;
+             margin: 0 0 8px 0;
+             line-height: 1.3;
+             display: -webkit-box;
+             -webkit-line-clamp: 2;
+             -webkit-box-orient: vertical;
+             overflow: hidden;
+         }
+
+         .product-mobile-price {
+             display: flex;
+             align-items: center;
+             gap: 6px;
+             margin-bottom: 8px;
+             flex-wrap: wrap;
+         }
+
+         .mobile-current-price {
+             font-size: 16px;
+             font-weight: 700;
+             color: #1B224B;
+         }
+
+         .mobile-original-price {
+             font-size: 12px;
+             color: #9CA3AF;
+             text-decoration: line-through;
+         }
+
+         .mobile-discount {
+             font-size: 10px;
+             color: #059669;
+             font-weight: 600;
+             background: #ECFDF5;
+             padding: 2px 4px;
+             border-radius: 3px;
+         }
+
+         .product-mobile-features {
+             display: flex;
+             gap: 8px;
+             margin-bottom: 12px;
+             flex-wrap: wrap;
+         }
+
+         .mobile-feature {
+             font-size: 10px;
+             color: #6B7280;
+             background: #F9FAFB;
+             padding: 3px 6px;
+             border-radius: 4px;
+             white-space: nowrap;
+         }
+
+         .mobile-add-to-cart {
+             width: 100%;
+             background: #1B224B;
+             color: white;
+             border: none;
+             border-radius: 8px;
+             padding: 10px;
+             font-size: 12px;
+             font-weight: 600;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             gap: 6px;
+             cursor: pointer;
+             transition: all 0.2s ease;
+         }
+
+         .mobile-add-to-cart:hover {
+             background: #2A3362;
+             transform: translateY(-1px);
+         }
+
+         .mobile-add-to-cart svg {
+             width: 16px;
+             height: 16px;
+         }
+
+         /* Mobile responsive adjustments */
+         @media screen and (max-width: 480px) {
+             .collection-mobile-grid {
+                 grid-template-columns: 1fr;
+             }
+
+             .product-mobile-image {
+                 height: 200px;
+             }
+
+             .collection-mobile-title {
+                 font-size: 16px;
+             }
+         }
+
+         /* Legacy mobile responsiveness for old collection cards */
+         @media screen and (max-width: 749px) {
+             .collection-product-card {
+                 flex-direction: column;
+             }
+
+             .product-image-area {
+                 width: 100%;
+                 height: 200px;
+                 border-radius: 8px 8px 0 0;
+                 padding: 12px;
+             }
+
+             .product-details-area {
+                 padding: 12px;
+                 gap: 10px;
+             }
+
+             .product-details-top {
+                 gap: 8px;
+             }
+
+             .product-feature-list {
+                 gap: 8px;
+             }
+
+             .product-feature {
+                 font-size: 10px;
+                 padding: 3px 6px;
+             }
+
+             .product-feature svg {
+                 width: 10px;
+                 height: 10px;
+             }
+
+             .collection-add-to-cart {
+                 padding: 10px 14px;
+                 font-size: 13px;
+             }
+
+             .product-quick-actions {
+                 opacity: 1; /* Always visible on mobile */
+             }
+         }
     </style>
 </head>
 <body>
@@ -2899,10 +3548,32 @@
     </div>
 
     <!-- Products Section -->
-    <div class="products-section">
+    <div class="products-section" id="home-content">
         <h2 class="products-title">Featured Products</h2>
         <div class="products-grid" id="products-grid">
             <div class="loading">Loading products...</div>
+        </div>
+    </div>
+
+    <!-- Collection Content -->
+    <div class="collection-content" id="collection-content" style="display: none;">
+        <div class="products-grid" id="collection-products-grid">
+            <div class="loading">Loading collection...</div>
+        </div>
+    </div>
+
+    <!-- Collections Content -->
+    <div class="collections-content" id="collections-content" style="display: none;">
+        <div class="collections-grid" id="collections-grid-page">
+            <div class="loading">Loading collections...</div>
+        </div>
+    </div>
+
+    <!-- Account Content -->
+    <div class="account-content" id="account-content" style="display: none;">
+        <div class="account-info">
+            <h2>Account</h2>
+            <p>Coming soon!</p>
         </div>
     </div>
 
@@ -4116,7 +4787,11 @@
 
         // Navigation Functions
         function showPage(page) {
+            console.log('🔍 DEBUG: showPage called with page:', page);
+            console.log('🔍 DEBUG: Previous currentView:', currentView);
+            
             currentView = page;
+            console.log('🔍 DEBUG: Set currentView to:', currentView);
             
             // Update active nav item
             document.querySelectorAll('.nav-item').forEach(item => {
@@ -4125,22 +4800,75 @@
                     item.classList.add('active');
                 }
             });
+            console.log('🔍 DEBUG: Updated nav items');
+            
+            // Hide all content sections first
+            const contentSections = ['home-content', 'collections-content', 'account-content', 'collection-content'];
+            console.log('🔍 DEBUG: Hiding all content sections:', contentSections);
+            
+            contentSections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                console.log(`🔍 DEBUG: Section ${sectionId} exists:`, !!section);
+                if (section) {
+                    section.style.display = 'none';
+                    console.log(`🔍 DEBUG: Hidden section ${sectionId}`);
+                }
+            });
             
             // Handle page-specific logic
+            console.log('🔍 DEBUG: Handling page-specific logic for:', page);
             switch (page) {
                 case 'home':
+                    console.log('🔍 DEBUG: Showing home page');
                     document.body.classList.remove('hide-header');
+                    const homeContent = document.getElementById('home-content');
+                    if (homeContent) {
+                        homeContent.style.display = 'block';
+                        console.log('🔍 DEBUG: home-content shown');
+                    } else {
+                        console.error('🔍 ERROR: home-content element not found!');
+                    }
                     loadHomePage();
                     break;
                 case 'collections':
+                    console.log('🔍 DEBUG: Showing collections page');
                     document.body.classList.add('hide-header');
+                    const collectionsContent = document.getElementById('collections-content');
+                    if (collectionsContent) {
+                        collectionsContent.style.display = 'block';
+                        console.log('🔍 DEBUG: collections-content shown');
+                    } else {
+                        console.error('🔍 ERROR: collections-content element not found!');
+                    }
                     loadCollectionsPage();
                     break;
-                case 'account':
+                case 'collection':
+                    console.log('🔍 DEBUG: Showing SINGLE collection page');
                     document.body.classList.add('hide-header');
+                    const collectionContent = document.getElementById('collection-content');
+                    if (collectionContent) {
+                        collectionContent.style.display = 'block';
+                        console.log('🔍 DEBUG: collection-content shown successfully');
+                    } else {
+                        console.error('🔍 ERROR: collection-content element not found!');
+                    }
+                    break;
+                case 'account':
+                    console.log('🔍 DEBUG: Showing account page');
+                    document.body.classList.add('hide-header');
+                    const accountContent = document.getElementById('account-content');
+                    if (accountContent) {
+                        accountContent.style.display = 'block';
+                        console.log('🔍 DEBUG: account-content shown');
+                    } else {
+                        console.error('🔍 ERROR: account-content element not found!');
+                    }
                     loadAccountPage();
                     break;
+                default:
+                    console.error('🔍 ERROR: Unknown page type:', page);
             }
+            console.log('🔍 DEBUG: showPage completed for:', page);
         }
 
         function loadHomePage() {
@@ -5007,7 +5735,7 @@
                 console.log(`🖼️ [COLLECTION DEBUG] Final image URL:`, imageUrl);
                 
                 return `
-                    <a href="#" class="collection-card" onclick="showCollection('${collection.handle}')">
+                        <a href="#" class="collection-card" onclick="console.log('🔍 DEBUG: Collection card clicked for handle:', '${collection.handle}'); showCollection('${collection.handle}'); return false;">
                         <div class="collection-image">
                             <img src="${imageUrl}" 
                                  alt="${collection.title}" 
@@ -7223,10 +7951,357 @@
            }
 
         function showCollection(handle) {
-            console.log('Showing collection:', handle);
-            document.body.classList.add('hide-header');
+            console.log('🔍 DEBUG: showCollection called with handle:', handle);
+            
+            // Check if we're on mobile (screen width < 768px or Capacitor app)
+            const isMobile = window.innerWidth < 768 || window.location.protocol === 'capacitor:';
+            
+            if (isMobile) {
+                // For mobile: Create new page-like experience
+                console.log('📱 Mobile detected: Opening collection as new page');
+                openCollectionAsNewPage(handle);
+            } else {
+                // For desktop: Show as overlay (existing behavior)
+                console.log('💻 Desktop detected: Opening collection as overlay');
+                showCollectionOverlay(handle);
+            }
+        }
+
+        function openCollectionAsNewPage(handle) {
+            console.log('📱 Opening collection as new page for handle:', handle);
+            
+            // Hide all main content
+            document.body.classList.add('collection-page-mode');
+            
+            // Create full-screen collection page
+            const collectionPage = document.createElement('div');
+            collectionPage.id = 'collection-full-page';
+            collectionPage.className = 'collection-full-page';
+            
+            // Load collection products
+            const collectionProducts = generateCollectionProducts(handle);
+            const collectionName = handle.charAt(0).toUpperCase() + handle.slice(1);
+            
+            collectionPage.innerHTML = `
+                <div class="collection-mobile-header">
+                    <button class="collection-mobile-back" onclick="closeCollectionPage()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                        Back
+                    </button>
+                    <h1 class="collection-mobile-title">${collectionName}</h1>
+                    <div class="collection-mobile-actions">
+                        <button class="collection-mobile-btn" onclick="openWishlistModal()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                        </button>
+                        <button class="collection-mobile-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                <line x1="3" y1="6" x2="21" y2="6"/>
+                                <path d="M16 10a4 4 0 01-8 0"/>
+                            </svg>
+                            <span class="cart-count">${cart.length}</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="collection-mobile-content">
+                    <div class="collection-mobile-grid">
+                        ${collectionProducts.map(product => `
+                            <div class="collection-mobile-card">
+                                <div class="product-mobile-image">
+                                    <img src="${product.image}" alt="${product.title}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik05NiA5NkgxNDRWMTQ0SDk2Vjk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K'">
+                                    <div class="product-mobile-actions">
+                                        <button class="mobile-action-btn wishlist-btn" onclick="toggleWishlist(this, '${product.id}')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="product-mobile-info">
+                                    <h3 class="product-mobile-brand">${product.vendor}</h3>
+                                    <h4 class="product-mobile-title">${product.title}</h4>
+                                    <div class="product-mobile-price">
+                                        <span class="mobile-current-price">₹${product.price}</span>
+                                        <span class="mobile-original-price">₹${product.originalPrice}</span>
+                                        <span class="mobile-discount">${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF</span>
+                                    </div>
+                                    <div class="product-mobile-features">
+                                        <span class="mobile-feature">✓ In Stock</span>
+                                        <span class="mobile-feature">🚚 2-3 days</span>
+                                    </div>
+                                    <button class="mobile-add-to-cart" onclick="addToCart('${product.id}', '${product.title}', ${product.price})">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                            <line x1="3" y1="6" x2="21" y2="6"/>
+                                            <path d="M16 10a4 4 0 01-8 0"/>
+                                        </svg>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            // Add to body with slide-in animation
+            document.body.appendChild(collectionPage);
+            
+            // Trigger animation
+            setTimeout(() => {
+                collectionPage.classList.add('active');
+            }, 10);
+            
+            console.log('📱 Collection page created and animated in');
+        }
+
+        window.closeCollectionPage = function() {
+            console.log('📱 Closing collection page');
+            
+            const collectionPage = document.getElementById('collection-full-page');
+            if (collectionPage) {
+                collectionPage.classList.remove('active');
+                setTimeout(() => {
+                    document.body.removeChild(collectionPage);
+                    document.body.classList.remove('collection-page-mode');
+                    console.log('📱 Collection page removed');
+                }, 300);
+            }
+        }
+
+        function showCollectionOverlay(handle) {
+            // Original overlay behavior for desktop
             showToast(`Opening ${handle} collection...`);
-            // Implement collection page navigation
+            document.body.classList.add('hide-header');
+            showPage('collection');
+            loadCollectionProducts(handle);
+        }
+
+        // Load products for a specific collection
+        async function loadCollectionProducts(collectionHandle) {
+            console.log('🔍 DEBUG: loadCollectionProducts called with handle:', collectionHandle);
+            
+            // Show loading state
+            const productsGrid = document.getElementById('collection-products-grid');
+            console.log('🔍 DEBUG: collection-products-grid element exists:', !!productsGrid);
+            
+            if (productsGrid) {
+                console.log('🔍 DEBUG: Setting loading state in products grid');
+                productsGrid.innerHTML = `
+                    <div class="loading-products">
+                        <div class="spinner"></div>
+                        <p>Loading ${collectionHandle} products...</p>
+                    </div>
+                `;
+                console.log('🔍 DEBUG: Loading state set successfully');
+            } else {
+                console.error('🔍 ERROR: collection-products-grid element not found!');
+                return;
+            }
+            
+            try {
+                console.log('🔍 DEBUG: Generating products for collection:', collectionHandle);
+                // Generate products for the collection
+                const collectionProducts = generateCollectionProducts(collectionHandle);
+                console.log('🔍 DEBUG: Generated products:', collectionProducts);
+                
+                console.log('🔍 DEBUG: About to render products using renderNewCollectionProducts');
+                // Render the products using new design
+                renderNewCollectionProducts(collectionProducts, collectionHandle);
+                console.log('🔍 DEBUG: Finished rendering products');
+                
+            } catch (error) {
+                console.error('🔍 ERROR: Error in loadCollectionProducts:', error);
+                console.error('🔍 ERROR: Error stack:', error.stack);
+                if (productsGrid) {
+                    productsGrid.innerHTML = `
+                        <div class="error-message">
+                            <p>Failed to load ${collectionHandle} products</p>
+                            <button onclick="loadCollectionProducts('${collectionHandle}')" class="retry-btn">Retry</button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Generate products for any collection
+        function generateCollectionProducts(collectionHandle) {
+            const productImages = [
+                'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&h=400&fit=crop&q=80',
+                'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&h=400&fit=crop&q=80',
+                'https://images.unsplash.com/photo-1556306831-4b3e6dcabf54?w=400&h=400&fit=crop&q=80',
+                'https://images.unsplash.com/photo-1582142306909-195724d33e24?w=400&h=400&fit=crop&q=80',
+                'https://images.unsplash.com/photo-1530039623242-6ce4084e6c9e?w=400&h=400&fit=crop&q=80'
+            ];
+            
+            const collectionName = collectionHandle.charAt(0).toUpperCase() + collectionHandle.slice(1);
+            
+            return [
+                {
+                    id: `${collectionHandle}-1`,
+                    title: `${collectionName} Frame Classic`,
+                    handle: `${collectionHandle}-frame-classic`,
+                    price: 799,
+                    originalPrice: 1999,
+                    vendor: 'GoEye',
+                    image: productImages[0],
+                    description: `Premium ${collectionName.toLowerCase()} collection eyewear`
+                },
+                {
+                    id: `${collectionHandle}-2`,
+                    title: `${collectionName} Pro Series`,
+                    handle: `${collectionHandle}-pro-series`,
+                    price: 999,
+                    originalPrice: 2499,
+                    vendor: 'GoEye',
+                    image: productImages[1],
+                    description: `Professional ${collectionName.toLowerCase()} eyewear design`
+                },
+                {
+                    id: `${collectionHandle}-3`,
+                    title: `${collectionName} Designer`,
+                    handle: `${collectionHandle}-designer`,
+                    price: 1299,
+                    originalPrice: 2999,
+                    vendor: 'GoEye',
+                    image: productImages[2],
+                    description: `Designer ${collectionName.toLowerCase()} collection frames`
+                },
+                {
+                    id: `${collectionHandle}-4`,
+                    title: `${collectionName} Vintage`,
+                    handle: `${collectionHandle}-vintage`,
+                    price: 899,
+                    originalPrice: 2199,
+                    vendor: 'GoEye',
+                    image: productImages[3],
+                    description: `Vintage inspired ${collectionName.toLowerCase()} frames`
+                },
+                {
+                    id: `${collectionHandle}-5`,
+                    title: `${collectionName} Sport`,
+                    handle: `${collectionHandle}-sport`,
+                    price: 1099,
+                    originalPrice: 2799,
+                    vendor: 'GoEye',
+                    image: productImages[4],
+                    description: `Active ${collectionName.toLowerCase()} eyewear`
+                }
+            ];
+        }
+
+        // Render collection products with NEW DESIGN based on main-collection.liquid
+        function renderNewCollectionProducts(products, collectionHandle) {
+            console.log('🔍 DEBUG: renderNewCollectionProducts called');
+            console.log('🔍 DEBUG: Products received:', products);
+            console.log('🔍 DEBUG: Collection handle:', collectionHandle);
+            
+            const productsGrid = document.getElementById('collection-products-grid');
+            console.log('🔍 DEBUG: collection-products-grid element in render:', !!productsGrid);
+            
+            if (!productsGrid) {
+                console.error('🔍 ERROR: collection-products-grid not found in renderNewCollectionProducts!');
+                return;
+            }
+            
+            const collectionName = collectionHandle.charAt(0).toUpperCase() + collectionHandle.slice(1);
+            console.log('🔍 DEBUG: Collection name for display:', collectionName);
+            
+            productsGrid.innerHTML = `
+                <div class="collection-page-header">
+                    <button class="collection-back-btn" onclick="showPage('home')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                    </button>
+                    <div class="collection-title-info">
+                        <h1 class="collection-page-title">${collectionName}</h1>
+                        <span class="collection-product-count">${products.length} Products</span>
+                    </div>
+                    <div class="collection-actions">
+                        <button class="collection-action-btn" onclick="openWishlistModal()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                        </button>
+                        <button class="collection-action-btn cart-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                <line x1="3" y1="6" x2="21" y2="6"/>
+                                <path d="M16 10a4 4 0 01-8 0"/>
+                            </svg>
+                            <span class="cart-count">${cart.length}</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="collection-product-grid">
+                    ${products.map(product => `
+                        <div class="collection-product-card">
+                            <div class="product-image-area">
+                                <img src="${product.image}" alt="${product.title}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik05NiA5NkgxNDRWMTQ0SDk2Vjk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K'">
+                                <div class="product-quick-actions">
+                                    <button class="quick-action-btn wishlist-btn" onclick="toggleWishlist(this, '${product.id}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="quick-action-btn" onclick="shareProduct('${product.handle}', '${product.title}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="18" cy="5" r="3"/>
+                                            <circle cx="6" cy="12" r="3"/>
+                                            <circle cx="18" cy="19" r="3"/>
+                                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-details-area">
+                                <div class="product-details-top">
+                                    <h3 class="product-brand-name">${product.vendor}</h3>
+                                    <h4 class="product-item-title">${product.title}</h4>
+                                    <div class="product-price-section">
+                                        <span class="product-current-price">₹${product.price}</span>
+                                        <span class="product-original-price">₹${product.originalPrice}</span>
+                                        <span class="product-discount">${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF</span>
+                                    </div>
+                                    <div class="product-feature-list">
+                                        <div class="product-feature">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M20 7l-8 8-4-4"/>
+                                            </svg>
+                                            In Stock
+                                        </div>
+                                        <div class="product-feature">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                                <line x1="3" y1="10" x2="21" y2="10"/>
+                                            </svg>
+                                            2-3 days delivery
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="product-action-section">
+                                    <button class="collection-add-to-cart" onclick="addToCart('${product.id}', '${product.title}', ${product.price})">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                            <line x1="3" y1="6" x2="21" y2="6"/>
+                                            <path d="M16 10a4 4 0 01-8 0"/>
+                                        </svg>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
         }
 
         // Cart Functions
@@ -7578,9 +8653,42 @@
             });
         }
 
+        // TEST FUNCTION - Call this from console to test collections
+        window.testCollection = function(handle = 'frontpage') {
+            console.log('🧪 TEST: Testing collection functionality for handle:', handle);
+            console.log('🧪 TEST: showCollection function exists:', typeof showCollection);
+            console.log('🧪 TEST: Current view:', currentView);
+            
+            try {
+                showCollection(handle);
+                console.log('🧪 TEST: showCollection called successfully');
+            } catch (error) {
+                console.error('🧪 TEST ERROR:', error);
+            }
+        };
+
         // Initialize app when DOM is loaded
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 GoEye Store Mobile App Started');
+            
+            // Debug: Check if all required elements exist
+            const requiredElements = [
+                'home-content',
+                'collection-content', 
+                'collections-content',
+                'account-content',
+                'collection-products-grid',
+                'products-grid'
+            ];
+            
+            console.log('🔍 DEBUG: Checking required elements on DOM load:');
+            requiredElements.forEach(elementId => {
+                const element = document.getElementById(elementId);
+                console.log(`🔍 DEBUG: Element ${elementId} exists:`, !!element);
+                if (element) {
+                    console.log(`🔍 DEBUG: Element ${elementId} display style:`, element.style.display);
+                }
+            });
             
             // Ensure we start on home page with header visible
             currentView = 'home';
