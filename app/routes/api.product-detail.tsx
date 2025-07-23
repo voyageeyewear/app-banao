@@ -145,6 +145,16 @@ async function fetchRealShopifyProducts() {
       let currentPrice: number;
       let comparePrice: number | null = null;
       
+      // DEBUG: Log raw Shopify data
+      console.log('🔍 RAW SHOPIFY VARIANT DATA:', {
+        variantExists: !!variant,
+        priceType: typeof variant?.price,
+        rawPrice: variant?.price,
+        rawCompareAtPrice: variant?.compareAtPrice,
+        compareAtPriceExists: !!variant?.compareAtPrice,
+        productTitle: product.title
+      });
+
       if (typeof variant?.price === 'string') {
         // Admin API format
         currentPrice = parseFloat(variant.price);
@@ -153,11 +163,22 @@ async function fetchRealShopifyProducts() {
       } else if (variant?.price?.amount) {
         // Storefront API format
         currentPrice = parseFloat(variant.price.amount);
-        comparePrice = variant?.compareAtPrice ? parseFloat(variant.compareAtPrice.amount) : null;
-        console.log('💰 Using Storefront API pricing:', { price: variant.price.amount, compareAtPrice: variant.compareAtPrice?.amount });
+        comparePrice = variant?.compareAtPrice?.amount ? parseFloat(variant.compareAtPrice.amount) : null;
+        console.log('💰 Using Storefront API pricing:', { 
+          price: variant.price.amount, 
+          compareAtPriceObj: variant.compareAtPrice,
+          compareAtAmount: variant.compareAtPrice?.amount,
+          parsedComparePrice: comparePrice
+        });
       } else {
         currentPrice = 799; // fallback
         console.log('⚠️ No pricing data found, using fallback');
+      }
+      
+      // FORCE a test compare-at price if none exists (for testing)
+      if (!comparePrice && currentPrice === 799) {
+        comparePrice = 3000;
+        console.log('🧪 FORCING TEST COMPARE-AT PRICE for ₹799 product:', { comparePrice });
       }
       
       const discount = comparePrice && comparePrice > currentPrice 
