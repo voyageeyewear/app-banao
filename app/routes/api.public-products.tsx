@@ -9,172 +9,76 @@ function addCorsHeaders(response: Response) {
   return response;
 }
 
+export async function options() {
+  return addCorsHeaders(new Response(null, { status: 200 }));
+}
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
-    console.log("Fetching real Shopify products for mobile app...");
+    const url = new URL(request.url);
+    const collection = url.searchParams.get("collection");
     
-    // Try to get authenticated session (same as builder)
-    let admin;
-    try {
-      const authResult = await authenticate.admin(request);
-      admin = authResult.admin;
-    } catch (error) {
-      // If authentication fails, return mock data for mobile app
-      console.log("Authentication failed, returning mock data for mobile app");
-      const mockCollections = [
-        {
-          id: "1",
-          title: "Men's Eyeglasses",
-          handle: "mens-eyeglasses",
-          image: "https://cdn.shopify.com/s/files/1/0123/4567/products/mens-glasses.jpg"
-        },
-        {
-          id: "2", 
-          title: "Women's Eyeglasses",
-          handle: "womens-eyeglasses",
-          image: "https://cdn.shopify.com/s/files/1/0123/4567/products/womens-glasses.jpg"
-        },
-        {
-          id: "3",
-          title: "Sunglasses",
-          handle: "sunglasses", 
-          image: "https://cdn.shopify.com/s/files/1/0123/4567/products/sunglasses.jpg"
-        },
-        {
-          id: "4",
-          title: "Kids Eyeglasses",
-          handle: "kids-eyeglasses",
-          image: "https://cdn.shopify.com/s/files/1/0123/4567/products/kids-glasses.jpg"
-        }
-      ];
+    // Your Shopify configuration
+    const SHOP_DOMAIN = "tryongoeye.myshopify.com";
+    const STOREFRONT_ACCESS_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || "";
+    
+    console.log("🛒 Fetching products for collection:", collection);
+    console.log("🚀 Shop domain:", SHOP_DOMAIN);
+    console.log("🔑 Token available:", !!STOREFRONT_ACCESS_TOKEN);
 
-      const mockProducts = [
-        {
-          id: "1",
-          title: "Classic Black Frame",
-          handle: "classic-black-frame",
-          price: "$99.99",
-          image: "https://cdn.shopify.com/s/files/1/0123/4567/products/black-frame.jpg",
-          description: "Stylish black frame eyeglasses"
-        },
-        {
-          id: "2",
-          title: "Blue Light Blocking",
-          handle: "blue-light-blocking",
-          price: "$129.99", 
-          image: "https://cdn.shopify.com/s/files/1/0123/4567/products/blue-light.jpg",
-          description: "Protect your eyes from blue light"
-        },
-        {
-          id: "3",
-          title: "Designer Sunglasses",
-          handle: "designer-sunglasses",
-          price: "$199.99",
-          image: "https://cdn.shopify.com/s/files/1/0123/4567/products/designer-sun.jpg", 
-          description: "Premium designer sunglasses"
-        },
-        {
-          id: "4",
-          title: "Reading Glasses",
-          handle: "reading-glasses",
-          price: "$49.99",
-          image: "https://cdn.shopify.com/s/files/1/0123/4567/products/reading.jpg",
-          description: "Comfortable reading glasses"
-        }
-      ];
-
-      const url = new URL(request.url);
-      const type = url.searchParams.get("type");
-      
-      if (type === "collections") {
-        return addCorsHeaders(json({ collections: mockCollections }));
-      } else if (type === "products") {
-        return addCorsHeaders(json({ products: mockProducts }));
-      }
-      
-      return addCorsHeaders(json({
-        collections: mockCollections,
-        products: mockProducts
-      }));
+    if (!STOREFRONT_ACCESS_TOKEN) {
+      throw new Error("Storefront access token not configured");
     }
-    
-    // Fetch products using admin API (same as builder)
-    const productsResponse = await admin.graphql(`
-      query {
-        products(first: 50) {
+
+    if (!collection) {
+      return addCorsHeaders(json({ 
+        error: "Collection handle is required. Use ?collection=handle",
+        success: false 
+      }, { status: 400 }));
+    }
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': STOREFRONT_ACCESS_TOKEN,
+    };
+
+    // GraphQL query to fetch products from a specific collection
+    const query = `{
+      collection(handle: "${collection}") {
+        id
+        title
+        handle
+        description
+        products(first: 20) {
           edges {
             node {
               id
               title
-              description
               handle
-              totalInventory
-              images(first: 5) { edges { node { url } } }
-              variants(first: 5) { 
-                edges { 
-                  node { 
-                    id
-                    title
-                    price 
-                  } 
-                } 
+              description
+              vendor
+              availableForSale
+              images(first: 3) {
+                edges {
+                  node {
+                    url
+                    altText
+                  }
+                }
               }
-            }
-          }
-        }
-      }
-    `);
-    
-    const productsData = await productsResponse.json() as any;
-    
-    // Transform products to match builder format
-    const products = productsData.data.products.edges.map((edge: any) => {
-      const node = edge.node;
-      return {
-        id: node.id,
-        title: node.title,
-        description: node.description || "No description available",
-        handle: node.handle,
-        inventory: node.totalInventory,
-        image: node.images.edges[0]?.node.url || null,
-        images: node.images.edges.map((img: any) => img.node.url),
-        price: node.variants.edges[0]?.node.price || "0.00",
-        variants: node.variants.edges.map((v: any) => ({
-          id: v.node.id,
-          title: v.node.title,
-          price: v.node.price
-        })),
-      };
-    });
-    
-    // Fetch collections (same as builder)
-    const collectionsResponse = await admin.graphql(`
-      query {
-        collections(first: 50) {
-          edges {
-            node {
-              id
-              title
-              description
-              handle
-              image { url }
-              products(first: 10) {
+              variants(first: 5) {
                 edges {
                   node {
                     id
                     title
-                    description
-                    handle
-                    totalInventory
-                    images(first: 5) { edges { node { url } } }
-                    variants(first: 5) { 
-                      edges { 
-                        node { 
-                          id
-                          title
-                          price 
-                        } 
-                      } 
+                    availableForSale
+                    price {
+                      amount
+                      currencyCode
+                    }
+                    compareAtPrice {
+                      amount
+                      currencyCode
                     }
                   }
                 }
@@ -183,63 +87,88 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           }
         }
       }
-    `);
+    }`;
+
+    console.log("📋 GraphQL Query:", query);
+
+    const response = await fetch(`https://${SHOP_DOMAIN}/api/2023-10/graphql.json`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Shopify API failed: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log("📦 Raw Shopify response:", JSON.stringify(data, null, 2));
+
+    if (data.errors) {
+      console.error("🚨 GraphQL errors:", data.errors);
+      throw new Error(`GraphQL errors: ${JSON.stringify(data.errors)}`);
+    }
+
+    if (!data.data || !data.data.collection) {
+      console.warn("⚠️ Collection not found:", collection);
+      return addCorsHeaders(json({ 
+        products: [],
+        collection: null,
+        success: true,
+        message: `Collection '${collection}' not found`
+      }));
+    }
+
+    const collectionData = data.data.collection;
     
-    const collectionsData = await collectionsResponse.json() as any;
-    
-    const collections = collectionsData.data.collections.edges.map((edge: any) => {
-      const node = edge.node;
+    // Transform products to our expected format
+    const products = collectionData.products.edges.map((edge: any) => {
+      const product = edge.node;
+      const firstVariant = product.variants.edges[0]?.node;
+      const firstImage = product.images.edges[0]?.node;
+      
       return {
-        id: node.id,
-        title: node.title,
-        description: node.description,
-        handle: node.handle,
-        image: node.image?.url || null,
-        products: node.products.edges.map((pEdge: any) => {
-          const p = pEdge.node;
-          return {
-            id: p.id,
-            title: p.title,
-            description: p.description || "No description available",
-            handle: p.handle,
-            inventory: p.totalInventory,
-            image: p.images.edges[0]?.node.url || null,
-            images: p.images.edges.map((img: any) => img.node.url),
-            price: p.variants.edges[0]?.node.price || "0.00",
-            variants: p.variants.edges.map((v: any) => ({
-              id: v.node.id,
-              title: v.node.title,
-              price: v.node.price
-            })),
-          };
-        })
+        id: product.id,
+        title: product.title,
+        handle: product.handle,
+        description: product.description || "",
+        vendor: product.vendor || "GoEye",
+        available: product.availableForSale,
+        images: product.images.edges.map((img: any) => ({
+          src: img.node.url,
+          alt: img.node.altText || product.title
+        })),
+        featured_image: firstImage?.url || "",
+        variants: product.variants.edges.map((variant: any) => ({
+          id: variant.node.id,
+          title: variant.node.title,
+          available: variant.node.availableForSale,
+          price: variant.node.price?.amount || "0",
+          compare_at_price: variant.node.compareAtPrice?.amount || null,
+          currency: variant.node.price?.currencyCode || "USD"
+        }))
       };
     });
+
+    console.log(`✅ Returning ${products.length} products from collection '${collection}'`);
     
-    console.log(`✅ Fetched ${products.length} real products and ${collections.length} collections from Shopify`);
-    
-    const response = json({ 
+    return addCorsHeaders(json({ 
       products,
-      collections,
-      success: true,
-      source: "shopify-authenticated",
-      message: `Showing ${products.length} real products from your Shopify store - same as in builder`
-    });
-    
-    return addCorsHeaders(response);
+      collection: {
+        id: collectionData.id,
+        title: collectionData.title,
+        handle: collectionData.handle,
+        description: collectionData.description
+      },
+      success: true 
+    }));
 
   } catch (error) {
-    console.error("Error fetching real Shopify products:", error);
-    
-    const response = json({ 
-      error: error instanceof Error ? error.message : "Authentication required",
+    console.error("❌ Public Products API Error:", error);
+    return addCorsHeaders(json({ 
+      error: error instanceof Error ? error.message : "Failed to fetch products",
       products: [],
-      collections: [],
-      success: false,
-      source: "error",
-      message: "Unable to load real Shopify products. Please ensure you're logged into your Shopify admin."
-    });
-    
-    return addCorsHeaders(response);
+      success: false 
+    }, { status: 500 }));
   }
 }; 
