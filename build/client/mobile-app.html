@@ -8175,9 +8175,9 @@
             console.log('🛒 Fetching real products for collection:', collectionHandle);
             
             try {
-                // Try the working real-shopify endpoint first
-                console.log('🛒 Trying real-shopify API endpoint...');
-                const response = await fetch(`${API_BASE}/api/real-shopify?type=products`, {
+                // Use the mobile-products endpoint that has collection-specific products
+                console.log('🛒 Using mobile-products API endpoint for collection-specific products...');
+                const response = await fetch(`${API_BASE}/api/mobile-products`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -8185,65 +8185,87 @@
                 });
 
                 if (!response.ok) {
-                    console.warn('🛒 Real-shopify API response not ok:', response.status, response.statusText);
+                    console.warn('🛒 Mobile-products API response not ok:', response.status, response.statusText);
                     return null;
                 }
 
                 const data = await response.json();
-                console.log('🛒 Raw real-shopify API response:', data);
+                console.log('🛒 Raw mobile-products API response:', data);
 
-                if (!data.success || !data.products) {
-                    console.warn('🛒 Real-shopify API response missing products:', data);
+                if (!data.success || !data.collections) {
+                    console.warn('🛒 Mobile-products API response missing collections:', data);
                     return null;
                 }
 
-                // Transform API products to our format
-                const transformedProducts = data.products.map(product => {
-                    // Parse price from string format like "USD 999.00" or "999.00"
-                    let price = 0;
-                    let originalPrice = 0;
-                    
-                    if (product.price) {
-                        const priceMatch = product.price.match(/[\d.]+/);
-                        price = priceMatch ? parseFloat(priceMatch[0]) : 0;
-                        originalPrice = Math.round(price * 1.5); // Generate compare price
-                    }
-                    
-                    return {
-                        id: product.id,
-                        title: product.title,
-                        handle: product.handle,
-                        price: Math.round(price),
-                        originalPrice: originalPrice,
-                        vendor: 'GoEye',
-                        image: product.image || '',
-                        description: product.description || '',
-                        available: true, // Assume available since it's from real API
-                        variants: [{
-                            id: product.id,
-                            title: 'Default',
-                            price: price,
-                            available: true
-                        }]
-                    };
-                });
+                // Find the specific collection by handle
+                const targetCollection = data.collections.find(collection => 
+                    collection.handle === collectionHandle
+                );
 
-                console.log('🛒 Transformed real products:', transformedProducts);
+                console.log(`🛒 Looking for collection '${collectionHandle}'`);
+                console.log('🛒 Available collections:', data.collections.map(c => c.handle));
                 
-                // Filter products to simulate collection-specific products
-                if (collectionHandle !== 'frontpage') {
-                    // Take first few products for specific collections
-                    const filteredProducts = transformedProducts.slice(0, 6);
-                    console.log(`🛒 Filtered ${filteredProducts.length} products for collection: ${collectionHandle}`);
-                    return filteredProducts;
+                if (!targetCollection) {
+                    console.warn(`🛒 Collection '${collectionHandle}' not found, using frontpage products`);
+                    // Fallback to all products if collection not found
+                    if (data.products && data.products.length > 0) {
+                        return transformProductsToFormat(data.products.slice(0, 8));
+                    }
+                    return null;
                 }
+
+                console.log(`🛒 Found collection '${targetCollection.title}' with ${targetCollection.products.length} products`);
                 
+                // Use the products from the specific collection
+                const collectionProducts = targetCollection.products;
+                
+                if (!collectionProducts || collectionProducts.length === 0) {
+                    console.warn(`🛒 No products found in collection '${collectionHandle}'`);
+                    return null;
+                }
+
+                // Transform collection products to our format
+                const transformedProducts = transformProductsToFormat(collectionProducts);
+                
+                console.log(`🛒 Transformed ${transformedProducts.length} real products from collection '${collectionHandle}'`);
                 return transformedProducts;
 
             } catch (error) {
-                console.error('🛒 Error fetching real products:', error);
+                console.error('🛒 Error fetching real collection products:', error);
                 return null;
             }
+        }
+
+        // Helper function to transform products to our expected format
+        function transformProductsToFormat(products) {
+            return products.map(product => {
+                // Parse price from string format
+                let price = 0;
+                let originalPrice = 0;
+                
+                if (product.price) {
+                    price = parseFloat(product.price) || 0;
+                    originalPrice = Math.round(price * 1.4); // Generate 40% discount
+                }
+                
+                return {
+                    id: product.id,
+                    title: product.title,
+                    handle: product.handle,
+                    price: Math.round(price),
+                    originalPrice: originalPrice,
+                    vendor: 'GoEye',
+                    image: product.image || product.images?.[0] || '',
+                    description: product.description || '',
+                    available: product.available !== false,
+                    variants: product.variants || [{
+                        id: product.id,
+                        title: 'Default',
+                        price: price,
+                        available: product.available !== false
+                    }]
+                };
+            });
         }
 
         // Generate products for any collection
@@ -8786,21 +8808,21 @@
         };
 
         // Test real products API
-        window.testRealProducts = async function(collection = 'men') {
-            console.log('🛒 Testing real products API for collection:', collection);
+        window.testRealProducts = async function(collection = 'glam') {
+            console.log('🛒 Testing real collection-specific products for:', collection);
             try {
                 const products = await fetchRealCollectionProducts(collection);
-                console.log('🛒 Real products response:', products);
+                console.log('🛒 Collection-specific products response:', products);
                 if (products && products.length > 0) {
-                    console.log('✅ Real products found:', products.length);
+                    console.log(`✅ Found ${products.length} real products in '${collection}' collection`);
                     console.log('🛒 Sample product:', products[0]);
                     return products;
                 } else {
-                    console.log('⚠️ No real products found, will use fallback');
+                    console.log(`⚠️ No products found in '${collection}' collection, will use fallback`);
                     return null;
                 }
             } catch (error) {
-                console.error('❌ Error testing real products:', error);
+                console.error('❌ Error testing collection products:', error);
                 return null;
             }
         };
@@ -8811,20 +8833,20 @@
             console.log('🔗 API_BASE:', API_BASE);
             
             try {
-                // Test the existing real-shopify endpoint first
-                const response = await fetch(`${API_BASE}/api/real-shopify?type=products`);
-                console.log('🔗 Real Shopify API Response status:', response.status);
+                // Test the mobile-products endpoint that we're actually using
+                const response = await fetch(`${API_BASE}/api/mobile-products`);
+                console.log('🔗 Mobile Products API Response status:', response.status);
                 const data = await response.json();
-                console.log('🔗 Real Shopify API Response data:', data);
+                console.log('🔗 Mobile Products API Response data:', data);
                 
-                // Test collections endpoint too
-                console.log('🔗 Testing collections endpoint...');
-                const collectionsResponse = await fetch(`${API_BASE}/api/real-shopify?type=collections`);
-                console.log('🔗 Collections API Response status:', collectionsResponse.status);
-                const collectionsData = await collectionsResponse.json();
-                console.log('🔗 Collections API Response data:', collectionsData);
+                if (data.collections) {
+                    console.log('🔗 Available collections:');
+                    data.collections.forEach(collection => {
+                        console.log(`  - ${collection.handle}: "${collection.title}" (${collection.products.length} products)`);
+                    });
+                }
                 
-                return { realShopify: data, collections: collectionsData };
+                return data;
             } catch (error) {
                 console.error('❌ API Connection error:', error);
                 return null;
