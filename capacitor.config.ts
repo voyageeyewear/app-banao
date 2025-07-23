@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.goeye.store',
-  appName: 'GoEye-Store-20250723_122312',
+  appName: 'GoEye Store',
   webDir: 'build/client',
   server: {
     androidScheme: 'https'
