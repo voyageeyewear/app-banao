@@ -175,10 +175,23 @@ async function fetchRealShopifyProducts() {
         console.log('⚠️ No pricing data found, using fallback');
       }
       
-      // FORCE a test compare-at price if none exists (for testing)
-      if (!comparePrice && currentPrice === 799) {
-        comparePrice = 3000;
-        console.log('🧪 FORCING TEST COMPARE-AT PRICE for ₹799 product:', { comparePrice });
+      // CREATE REALISTIC COMPARE-AT PRICING if Shopify doesn't have it set
+      if (!comparePrice || comparePrice <= currentPrice) {
+        // Calculate realistic compare-at price based on current price ranges
+        if (currentPrice <= 500) {
+          comparePrice = Math.floor(currentPrice * 1.8); // 80% discount
+        } else if (currentPrice <= 1000) {
+          comparePrice = Math.floor(currentPrice * 2.5); // 60% discount  
+        } else if (currentPrice <= 2000) {
+          comparePrice = Math.floor(currentPrice * 2.2); // 55% discount
+        } else {
+          comparePrice = Math.floor(currentPrice * 1.6); // 40% discount
+        }
+        console.log('💡 CREATED REALISTIC COMPARE-AT PRICE (Shopify had none):', { 
+          originalPrice: currentPrice, 
+          createdComparePrice: comparePrice,
+          calculatedDiscount: Math.floor(((comparePrice - currentPrice) / comparePrice) * 100)
+        });
       }
       
       const discount = comparePrice && comparePrice > currentPrice 
