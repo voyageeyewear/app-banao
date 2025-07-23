@@ -6095,6 +6095,12 @@
              // Add to body
              document.body.appendChild(productDetailPage);
              
+             // Trigger smooth slide-in animation
+             setTimeout(() => {
+                 productDetailPage.classList.add('active');
+                 console.log('🎬 Product detail page slide-in animation started');
+             }, 10);
+             
              // Initialize product detail functionality
              initializeProductDetailPage(product);
              
@@ -6529,13 +6535,81 @@
           function closeProductDetailPage() {
               console.log('🔙 Closing product detail page');
               
+              // Check navigation stack for where to return
+              const previousPage = navigationStack.pop();
+              console.log('📍 Returning to previous page:', previousPage);
+              
               // Remove product detail page
               removeProductDetailPage();
               
+              if (previousPage && previousPage.type === 'collection') {
+                  // Return to collection page
+                  console.log('🔙 Returning to collection:', previousPage.handle);
+                  returnToCollectionPage(previousPage);
+              } else {
+                  // Fallback to home page
+                  console.log('🏠 Returning to home page');
+                  returnToHomePage();
+              }
+          }
+          
+          // Return to collection page smoothly
+          function returnToCollectionPage(collectionInfo) {
+              const collectionPage = document.getElementById('collection-full-page');
+              
+              if (collectionPage) {
+                  // Collection page still exists, restore it smoothly
+                  console.log('✅ Collection page found, restoring...');
+                  
+                  // Show main app content but keep collection page mode
+                  const mainContent = document.querySelector('.app-content');
+                  if (mainContent) {
+                      mainContent.style.display = 'block';
+                  }
+                  
+                  // Restore collection page with smooth animation
+                  collectionPage.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease';
+                  collectionPage.style.transform = 'translateX(0)';
+                  collectionPage.style.opacity = '1';
+                  
+                  // Update navigation state
+                  currentView = 'collection';
+                  document.body.classList.remove('hide-header');
+                  
+                  console.log('✅ Smoothly returned to collection page');
+              } else {
+                  // Collection page doesn't exist, recreate it
+                  console.log('🔄 Collection page not found, reopening collection...');
+                  
+                  // Show main app content first
+                  const mainContent = document.querySelector('.app-content');
+                  if (mainContent) {
+                      mainContent.style.display = 'block';
+                  }
+                  
+                  // Update navigation state
+                  document.body.classList.remove('hide-header');
+                  
+                  // Reopen the collection after a brief delay
+                  setTimeout(() => {
+                      showCollection(collectionInfo.handle);
+                  }, 100);
+              }
+          }
+          
+          // Return to home page
+          function returnToHomePage() {
               // Show main app content
               const mainContent = document.querySelector('.app-content');
               if (mainContent) {
                   mainContent.style.display = 'block';
+              }
+              
+              // Close any collection pages
+              const collectionPage = document.getElementById('collection-full-page');
+              if (collectionPage) {
+                  document.body.removeChild(collectionPage);
+                  document.body.classList.remove('collection-page-mode');
               }
               
               // Update navigation state
@@ -6544,13 +6618,25 @@
               
               // Update navigation
               updateNavigationForMainApp();
+              
+              console.log('🏠 Returned to home page');
           }
           
           // Remove Product Detail Page
           function removeProductDetailPage() {
               const existingPage = document.getElementById('product-detail-page');
               if (existingPage) {
-                  existingPage.remove();
+                  // Start slide-out animation
+                  existingPage.classList.remove('active');
+                  console.log('🎬 Product detail page slide-out animation started');
+                  
+                  // Remove element after animation completes
+                  setTimeout(() => {
+                      if (existingPage.parentNode) {
+                          existingPage.remove();
+                          console.log('🗑️ Product detail page element removed');
+                      }
+                  }, 400); // Match the transition duration
               }
           }
           
@@ -7141,8 +7227,14 @@
                        width: 100%;
                        height: 100%;
                        background: #fff;
-                       z-index: 1000;
+                       z-index: 1001;
                        overflow: hidden;
+                       transform: translateX(100%);
+                       transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                   }
+                   
+                   .product-detail-page.active {
+                       transform: translateX(0);
                    }
                    
                    .product-detail-container {
@@ -8003,6 +8095,10 @@
         async function openCollectionAsNewPage(handle) {
             console.log('📱 Opening collection as new page for handle:', handle);
             
+            // Clear navigation stack when opening new collection from home
+            navigationStack = [];
+            console.log('🧹 Cleared navigation stack for new collection');
+            
             // Hide all main content
             document.body.classList.add('collection-page-mode');
             
@@ -8010,6 +8106,9 @@
             const collectionPage = document.createElement('div');
             collectionPage.id = 'collection-full-page';
             collectionPage.className = 'collection-full-page';
+            
+            // Store collection handle as data attribute for easy access
+            collectionPage.setAttribute('data-collection-handle', handle);
             
             const collectionName = handle.charAt(0).toUpperCase() + handle.slice(1);
             
@@ -8140,6 +8239,9 @@
             }
         }
 
+        // Navigation stack to track page history
+        let navigationStack = [];
+        
         // Open product detail page from collection
         window.openProductFromCollection = function(productHandle, event) {
             if (event) {
@@ -8149,10 +8251,28 @@
             
             console.log('🔍 Opening product from collection:', productHandle);
             
-            // Close the collection page first
-            closeCollectionPage();
+            // Get current collection info
+            const collectionPage = document.getElementById('collection-full-page');
+            const collectionTitle = collectionPage?.querySelector('.collection-mobile-title')?.textContent;
+            const collectionHandle = getCurrentCollectionHandle();
             
-            // Small delay to allow collection page to close
+            // Add current collection to navigation stack
+            navigationStack.push({
+                type: 'collection',
+                handle: collectionHandle,
+                title: collectionTitle
+            });
+            
+            console.log('📍 Added to navigation stack:', navigationStack);
+            
+            // Hide collection page with smooth transition (don't remove it)
+            if (collectionPage) {
+                collectionPage.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                collectionPage.style.transform = 'translateX(-30%)';
+                collectionPage.style.opacity = '0.7';
+            }
+            
+            // Open product detail page after smooth transition
             setTimeout(async () => {
                 try {
                     // Use the existing product detail page system
@@ -8161,8 +8281,36 @@
                 } catch (error) {
                     console.error('❌ Error opening product:', error);
                     showToast('Error opening product details');
+                    // Restore collection page if product fails to load
+                    restoreCollectionPage();
                 }
-            }, 350);
+            }, 150);
+        }
+        
+        // Get current collection handle
+        function getCurrentCollectionHandle() {
+            const collectionPage = document.getElementById('collection-full-page');
+            if (collectionPage) {
+                // Use stored data attribute first, then fallback to title
+                const handle = collectionPage.getAttribute('data-collection-handle');
+                if (handle) {
+                    return handle;
+                }
+                
+                // Fallback: extract from title
+                const title = collectionPage.querySelector('.collection-mobile-title')?.textContent?.toLowerCase();
+                return title || 'frontpage';
+            }
+            return 'frontpage';
+        }
+        
+        // Restore collection page smoothly
+        function restoreCollectionPage() {
+            const collectionPage = document.getElementById('collection-full-page');
+            if (collectionPage) {
+                collectionPage.style.transform = 'translateX(0)';
+                collectionPage.style.opacity = '1';
+            }
         }
 
         // Add to cart from collection with event handling
@@ -8947,6 +9095,61 @@
             } catch (error) {
                 console.error('❌ API Connection error:', error);
                 return null;
+            }
+        };
+
+        // Test smooth navigation flow
+        window.testSmoothNavigation = async function(collection = 'glam') {
+            console.log('🎬 Testing smooth navigation flow for collection:', collection);
+            
+            // Step 1: Open collection page
+            console.log('📱 Step 1: Opening collection page...');
+            showCollection(collection);
+            
+            // Wait for collection to load
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Step 2: Open first product
+            console.log('🔍 Step 2: Opening first product...');
+            const collectionPage = document.getElementById('collection-full-page');
+            const firstProduct = collectionPage?.querySelector('.collection-mobile-card');
+            
+            if (firstProduct) {
+                firstProduct.click();
+                console.log('✅ Clicked first product card');
+                
+                // Wait for product page to open
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Step 3: Test back navigation
+                console.log('🔙 Step 3: Testing back navigation...');
+                
+                setTimeout(() => {
+                    const backButton = document.querySelector('.back-button');
+                    if (backButton) {
+                        backButton.click();
+                        console.log('✅ Clicked back button - should return to collection');
+                    } else {
+                        console.log('❌ Back button not found');
+                    }
+                }, 1000);
+                
+            } else {
+                console.log('❌ No products found in collection');
+            }
+        };
+
+        // Test navigation stack
+        window.testNavigationStack = function() {
+            console.log('📍 Current navigation stack:', navigationStack);
+            console.log('📱 Current collection handle:', getCurrentCollectionHandle());
+            
+            const collectionPage = document.getElementById('collection-full-page');
+            console.log('📄 Collection page exists:', !!collectionPage);
+            
+            if (collectionPage) {
+                console.log('📄 Collection data attribute:', collectionPage.getAttribute('data-collection-handle'));
+                console.log('📄 Collection title:', collectionPage.querySelector('.collection-mobile-title')?.textContent);
             }
         };
 
