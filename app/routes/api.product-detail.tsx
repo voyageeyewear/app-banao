@@ -22,12 +22,13 @@ export const options = async () => {
   return addCorsHeaders(response);
 };
 
-// Fetch real products from Shopify using the SAME method as real-shopify API
+// Fetch real products from Shopify using Admin API for comprehensive pricing
 async function fetchRealShopifyProducts() {
   try {
-    console.log('🛍️ Fetching real products from Shopify...');
+    console.log('🛍️ Fetching real products from Shopify Admin API...');
     
-    const query = `{
+    // Use Admin API for more comprehensive pricing data
+    const adminQuery = `{
       products(first: 10) {
         edges {
           node {
@@ -42,20 +43,18 @@ async function fetchRealShopifyProducts() {
                 }
               }
             }
-            variants(first: 1) {
+            variants(first: 3) {
               edges {
                 node {
                   id
                   title
-                  price {
-                    amount
-                    currencyCode
-                  }
-                  compareAtPrice {
-                    amount
-                    currencyCode
-                  }
+                  price
+                  compareAtPrice
                   availableForSale
+                  selectedOptions {
+                    name
+                    value
+                  }
                 }
               }
             }
@@ -64,14 +63,66 @@ async function fetchRealShopifyProducts() {
       }
     }`;
 
-    const response = await fetch(`https://${SHOPIFY_STORE}/api/2023-10/graphql.json`, {
+    // Try Admin API first for better pricing data
+    let response = await fetch(`https://${SHOPIFY_STORE}/admin/api/2023-10/graphql.json`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token': STOREFRONT_ACCESS_TOKEN,
+        'X-Shopify-Access-Token': ADMIN_ACCESS_TOKEN,
       },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query: adminQuery }),
     });
+
+    // If Admin API fails, fallback to Storefront API
+    if (!response.ok) {
+      console.log('⚠️ Admin API failed, falling back to Storefront API...');
+      
+      const storefrontQuery = `{
+        products(first: 10) {
+          edges {
+            node {
+              id
+              title
+              handle
+              description
+              images(first: 5) {
+                edges {
+                  node {
+                    url
+                  }
+                }
+              }
+              variants(first: 1) {
+                edges {
+                  node {
+                    id
+                    title
+                    price {
+                      amount
+                      currencyCode
+                    }
+                    compareAtPrice {
+                      amount
+                      currencyCode
+                    }
+                    availableForSale
+                  }
+                }
+              }
+            }
+          }
+        }
+      }`;
+
+      response = await fetch(`https://${SHOPIFY_STORE}/api/2023-10/graphql.json`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Storefront-Access-Token': STOREFRONT_ACCESS_TOKEN,
+        },
+        body: JSON.stringify({ query: storefrontQuery }),
+      });
+    }
 
     if (!response.ok) {
       throw new Error(`Shopify API failed: ${response.status}`);
@@ -90,11 +141,35 @@ async function fetchRealShopifyProducts() {
       const variant = product.variants.edges[0]?.node;
       const images = product.images.edges.map((img: any) => img.node.url);
       
-      const currentPrice = variant ? parseFloat(variant.price.amount) : 799;
-      const comparePrice = variant?.compareAtPrice ? parseFloat(variant.compareAtPrice.amount) : null;
+      // Handle both Admin API (string prices) and Storefront API (object prices)
+      let currentPrice: number;
+      let comparePrice: number | null = null;
+      
+      if (typeof variant?.price === 'string') {
+        // Admin API format
+        currentPrice = parseFloat(variant.price);
+        comparePrice = variant?.compareAtPrice ? parseFloat(variant.compareAtPrice) : null;
+        console.log('💰 Using Admin API pricing:', { price: variant.price, compareAtPrice: variant.compareAtPrice });
+      } else if (variant?.price?.amount) {
+        // Storefront API format
+        currentPrice = parseFloat(variant.price.amount);
+        comparePrice = variant?.compareAtPrice ? parseFloat(variant.compareAtPrice.amount) : null;
+        console.log('💰 Using Storefront API pricing:', { price: variant.price.amount, compareAtPrice: variant.compareAtPrice?.amount });
+      } else {
+        currentPrice = 799; // fallback
+        console.log('⚠️ No pricing data found, using fallback');
+      }
+      
       const discount = comparePrice && comparePrice > currentPrice 
         ? Math.floor(((comparePrice - currentPrice) / comparePrice) * 100)
         : 0;
+        
+      console.log('🏷️ Final pricing for', product.title, ':', { 
+        currentPrice, 
+        comparePrice, 
+        discount,
+        hasCompareAtPrice: !!comparePrice 
+      });
 
       return {
         id: product.id.replace('gid://shopify/Product/', ''),
@@ -110,12 +185,17 @@ async function fetchRealShopifyProducts() {
         ratingCount: 195,
         isNew: true,
         inStock: variant?.availableForSale || true,
-        variants: product.variants.edges.map((v: any) => ({
-          id: v.node.id.replace('gid://shopify/ProductVariant/', ''),
-          title: v.node.title || "Default",
-          price: `₹${parseFloat(v.node.price.amount).toFixed(0)}`,
-          available: v.node.availableForSale
-        })),
+        variants: product.variants.edges.map((v: any) => {
+          const variantPrice = typeof v.node.price === 'string' 
+            ? parseFloat(v.node.price) 
+            : parseFloat(v.node.price.amount || '799');
+          return {
+            id: v.node.id.replace('gid://shopify/ProductVariant/', ''),
+            title: v.node.title || "Default",
+            price: `₹${variantPrice.toFixed(0)}`,
+            available: v.node.availableForSale
+          };
+        }),
         features: [
           "UV Protection",
           "Premium Materials", 

@@ -4694,26 +4694,39 @@
                  isRealApiData: !!product.id // Products from API will have IDs
              });
              
-             // ONLY add fallback pricing if this is NOT real API data and has no original price
-             if (!product.id && (!product.originalPrice || product.originalPrice === product.price)) {
+             // Check if this is real API data (has product.id) and preserve it
+             if (product.id && product.originalPrice) {
+                 // This is REAL Shopify data with compare-at pricing - DO NOT OVERRIDE!
+                 console.log('✅ PRESERVING REAL SHOPIFY COMPARE-AT PRICING:', { 
+                     productId: product.id,
+                     title: product.title,
+                     currentPrice: product.price,
+                     realCompareAtPrice: product.originalPrice, 
+                     realDiscount: product.discount,
+                     source: 'Shopify API'
+                 });
+             } else if (product.id && !product.originalPrice) {
+                 // Real API data but no compare-at price set in Shopify
+                 console.log('⚠️ Real Shopify product but no compare-at price set:', {
+                     productId: product.id,
+                     title: product.title,
+                     currentPrice: product.price,
+                     shopifyCompareAtPrice: 'Not set'
+                 });
+             } else if (!product.id && (!product.originalPrice || product.originalPrice === product.price)) {
                  // This is local fallback data, add compare-at pricing
                  const priceNum = parseFloat(product.price.replace(/[^\d.]/g, ''));
                  product.originalPrice = `₹${Math.floor(priceNum * 1.4)}`;
                  const originalPriceNum = Math.floor(priceNum * 1.4);
                  product.discount = Math.floor(((originalPriceNum - priceNum) / originalPriceNum) * 100);
-                 console.log('💡 FALLBACK PRICING ADDED (local data, no real compare-at price):', { 
+                 console.log('💡 FALLBACK PRICING ADDED (local data only):', { 
                      currentPrice: product.price, 
                      addedOriginalPrice: product.originalPrice, 
-                     calculatedDiscount: product.discount 
-                 });
-             } else if (product.id) {
-                 console.log('✅ PRESERVING REAL API DATA (from Shopify):', { 
-                     originalPrice: product.originalPrice, 
-                     discount: product.discount,
-                     hasCompareAtPrice: !!product.originalPrice
+                     calculatedDiscount: product.discount,
+                     source: 'Local fallback'
                  });
              } else {
-                 console.log('⚠️ Local data with existing originalPrice preserved');
+                 console.log('⚠️ Other data preserved:', { hasId: !!product.id, hasOriginalPrice: !!product.originalPrice });
              }
              
              // Ensure product has description

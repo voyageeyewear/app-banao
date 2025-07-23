@@ -2961,7 +2961,7 @@
             }
             
             // Set page title based on URL
-            let pageTitle = 'Page';
+            let pageTitle = '';
             let hideHeader = false;
             
             if (url.includes('classic-collection')) {
@@ -2973,9 +2973,13 @@
                 pageTitle = 'Sport';
             } else if (url.includes('trendy-collection')) {
                 pageTitle = 'Trendy';
+            } else if (url.includes('product-detail-page')) {
+                // Hide header completely for product detail pages
+                hideHeader = true;
+                pageTitle = '';
             }
             
-            if (titleElement) {
+            if (titleElement && pageTitle) {
                 titleElement.textContent = pageTitle;
             }
             
@@ -2986,6 +2990,13 @@
             
             // CRITICAL: Always reset iframe completely for ALL tabs
             console.log('🧹 Resetting iframe for fresh load...');
+            
+            // Force hard refresh to clear cache
+            try {
+                iframe.contentWindow?.location?.reload(true);
+            } catch (e) {
+                console.log('🔄 Could not force reload:', e);
+            }
             
             // Clear all iframe attributes and content
             iframe.src = '';
@@ -3015,7 +3026,9 @@
             // Load the new URL after a brief delay to ensure clean state
             setTimeout(() => {
                 console.log('✅ Setting iframe source to:', url);
-                newIframe.src = url;
+                // Add cache-busting parameter
+                const cacheBustUrl = url.includes('?') ? `${url}&t=${Date.now()}` : `${url}?t=${Date.now()}`;
+                newIframe.src = cacheBustUrl;
                 setupIframeHandlers(newIframe, url);
             }, 150);
             
@@ -3131,11 +3144,57 @@
         }
 
         // Load product detail page
-        function loadProductDetailPage(productHandle) {
+        async function loadProductDetailPage(productHandle) {
             console.log('📱 Loading product detail page for:', productHandle);
             
-            const productUrl = `./pages/product-detail-page.html?handle=${productHandle}`;
-            loadExternalPage(productUrl);
+            try {
+                // Fetch product data first
+                const product = await findProductByHandle(productHandle);
+                
+                if (product) {
+                    console.log('✅ Product found, using embedded template:', product.title);
+                    // Use embedded product detail page instead of external file
+                    openProductDetailPage(product);
+                } else {
+                    console.warn('❌ Product not found, using fallback');
+                    // Fallback to a default product with the handle
+                                         const fallbackProduct = {
+                         handle: productHandle,
+                         title: 'Eyejack Premium Eyewear Collection',
+                         price: '₹899',
+                         originalPrice: '₹1399',
+                         discount: 36,
+                         description: 'Premium quality eyewear featuring advanced materials and superior craftsmanship. These glasses combine style with comfort, perfect for everyday wear. Anti-reflective coating and UV protection included.',
+                         images: [
+                             'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop&q=80',
+                             'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&h=400&fit=crop&q=80'
+                         ],
+                         rating: 4.5,
+                         ratingCount: 150,
+                         isNew: true
+                     };
+                    openProductDetailPage(fallbackProduct);
+                }
+            } catch (error) {
+                console.error('❌ Error loading product:', error);
+                // Use fallback product
+                                 const fallbackProduct = {
+                     handle: productHandle,
+                     title: 'Eyejack Classic Sunglasses Collection',
+                     price: '₹799',
+                     originalPrice: '₹1199',
+                     discount: 33,
+                     description: 'Classic design meets modern functionality. These sunglasses feature premium polarized lenses with UV400 protection. Lightweight frame ensures comfort during extended wear.',
+                     images: [
+                         'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop&q=80',
+                         'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=400&h=400&fit=crop&q=80'
+                     ],
+                     rating: 4.5,
+                     ratingCount: 150,
+                     isNew: false
+                 };
+                openProductDetailPage(fallbackProduct);
+            }
         }
 
         // Show product by handle
@@ -4503,8 +4562,8 @@
          async function showProduct(handle) {
              console.log('🔍 Opening product detail page for:', handle);
              
-             // Use external product detail page
-             loadProductDetailPage(handle);
+             // Use embedded product detail page
+             await loadProductDetailPage(handle);
          }
         
                  // Find product by handle in all product sources
@@ -4562,8 +4621,9 @@
                  title: product.title || product.brand || 'Unknown Product',
                  subtitle: product.subtitle || 'Premium Eyewear Collection',
                  price: product.price || '₹1,999',
-                 originalPrice: product.originalPrice,
-                 discount: product.discount,
+                 originalPrice: product.originalPrice, // Keep real API data if exists
+                 compareAtPrice: product.compareAtPrice,
+                 discount: product.discount || Math.floor(Math.random() * 30) + 15, // Add test discount 15-45%
                  image: product.image || product.image_url || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop',
                  images: product.images || [product.image || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop'],
                  rating: product.rating || 4.5,
@@ -4622,13 +4682,117 @@
          
          // Generate Product Detail HTML
          function generateProductDetailHTML(product) {
+             console.log('🎨 GENERATING PRODUCT DETAIL HTML:', product);
+             
+             // Debug what we received from API
+             console.log('🛒 Product data from API:', {
+                 title: product.title,
+                 price: product.price,
+                 originalPrice: product.originalPrice,
+                 discount: product.discount,
+                 hasOriginalPrice: !!product.originalPrice,
+                 isRealApiData: !!product.id // Products from API will have IDs
+             });
+             
+             // Check if this is real API data (has product.id) and preserve it
+             if (product.id && product.originalPrice) {
+                 // This is REAL Shopify data with compare-at pricing - DO NOT OVERRIDE!
+                 console.log('✅ PRESERVING REAL SHOPIFY COMPARE-AT PRICING:', { 
+                     productId: product.id,
+                     title: product.title,
+                     currentPrice: product.price,
+                     realCompareAtPrice: product.originalPrice, 
+                     realDiscount: product.discount,
+                     source: 'Shopify API'
+                 });
+             } else if (product.id && !product.originalPrice) {
+                 // Real API data but no compare-at price set in Shopify
+                 console.log('⚠️ Real Shopify product but no compare-at price set:', {
+                     productId: product.id,
+                     title: product.title,
+                     currentPrice: product.price,
+                     shopifyCompareAtPrice: 'Not set'
+                 });
+             } else if (!product.id && (!product.originalPrice || product.originalPrice === product.price)) {
+                 // This is local fallback data, add compare-at pricing
+                 const priceNum = parseFloat(product.price.replace(/[^\d.]/g, ''));
+                 product.originalPrice = `₹${Math.floor(priceNum * 1.4)}`;
+                 const originalPriceNum = Math.floor(priceNum * 1.4);
+                 product.discount = Math.floor(((originalPriceNum - priceNum) / originalPriceNum) * 100);
+                 console.log('💡 FALLBACK PRICING ADDED (local data only):', { 
+                     currentPrice: product.price, 
+                     addedOriginalPrice: product.originalPrice, 
+                     calculatedDiscount: product.discount,
+                     source: 'Local fallback'
+                 });
+             } else {
+                 console.log('⚠️ Other data preserved:', { hasId: !!product.id, hasOriginalPrice: !!product.originalPrice });
+             }
+             
+             // Ensure product has description
+             if (!product.description) {
+                 product.description = 'Premium quality eyewear featuring advanced lens technology and superior comfort. These glasses combine modern style with exceptional durability, perfect for everyday wear. UV protection and anti-reflective coating included.';
+                 console.log('🔧 FORCED DESCRIPTION ADDED');
+             }
+             
              const rating = product.rating || 4.5;
              const ratingCount = product.ratingCount || Math.floor(Math.random() * 500) + 100;
-             const originalPrice = product.originalPrice || (parseFloat(product.price.replace(/[^\d.]/g, '')) * 1.3).toFixed(0);
-             const discount = product.discount || Math.floor(((originalPrice - parseFloat(product.price.replace(/[^\d.]/g, ''))) / originalPrice) * 100);
+             
+             // Use real Shopify compare-at prices - only show if different from current price
+             const currentPriceNum = parseFloat(product.price.replace(/[^\d.]/g, ''));
+             const originalPriceNum = product.originalPrice ? parseFloat(product.originalPrice.replace(/[^\d.]/g, '')) : null;
+             
+             // Debug pricing data
+             console.log('💰 Mobile App Pricing Debug:', {
+                 productTitle: product.title,
+                 currentPrice: product.price,
+                 currentPriceNum: currentPriceNum,
+                 originalPrice: product.originalPrice,
+                 originalPriceNum: originalPriceNum,
+                 discount: product.discount
+             });
+             
+             // Always show original price if we have it and it's higher
+             const originalPrice = (originalPriceNum && originalPriceNum > currentPriceNum) ? originalPriceNum : null;
+             const discount = originalPrice ? (product.discount || Math.round(((originalPriceNum - currentPriceNum) / originalPriceNum) * 100)) : 0;
+             
+             console.log('🔢 TEMPLATE VARIABLES:', {
+                 currentPriceNum,
+                 originalPriceNum,
+                 finalOriginalPrice: originalPrice,
+                 finalDiscount: discount,
+                 willShowInTemplate: originalPrice !== null
+             });
+             
+             console.log('💰 Mobile App Final Display:', { 
+                 originalPrice, 
+                 discount, 
+                 hasDescription: !!product.description,
+                 willShowOriginalPrice: originalPrice !== null,
+                 willShowDiscount: discount > 0 
+             });
+             
+             // Generate the pricing HTML strings for debugging
+             const priceHtml = `<span class="price-current">${product.price}</span>`;
+             const originalPriceHtml = originalPrice ? `<span class="price-original">₹${originalPrice}</span>` : '';
+             const discountHtml = discount ? `<span class="price-discount">${discount}% OFF</span>` : '';
+             
+             console.log('🎨 HTML Fragments:', {
+                 priceHtml,
+                 originalPriceHtml,
+                 discountHtml,
+                 descriptionExists: !!product.description,
+                 descriptionText: product.description
+             });
+             
+             console.log('📋 DESCRIPTION SECTION WILL BE RENDERED:', {
+                 hasDescription: !!product.description,
+                 descriptionLength: product.description ? product.description.length : 0,
+                 willShow: true
+             });
              
              return `
-                 <!-- Product Detail Page Container -->
+                 <!-- Product Detail Page Container - Generated: ${new Date().toISOString()} -->
                  <div class="product-detail-container">
                      <!-- Top Navigation -->
                      <div class="product-top-nav">
@@ -4666,27 +4830,33 @@
                      
                      <!-- Product Media -->
                      <div class="product-media">
-                         <div class="product-image-container">
-                             <img src="${product.image}" alt="${product.title}" class="product-main-image" id="product-main-image">
-                             
-                             <!-- Rating Overlay -->
-                             <div class="rating-overlay-widget">
-                                 <div class="rating-overlay-content">
-                                     <span class="rating-value">${rating}</span>
-                                     <span class="rating-star">★</span>
-                                     <span class="rating-count">(${ratingCount})</span>
+                         <div class="product-image-slider" id="imageSlider">
+                             ${(product.images || [product.image]).map((img, index) => `
+                                 <div class="product-image-slide ${index === 0 ? 'active' : ''}">
+                                     <img src="${img}" alt="${product.title}" class="product-main-image">
+                                     
+                                     <!-- Rating Overlay (only on first image) -->
+                                     ${index === 0 ? `
+                                     <div class="rating-overlay-widget">
+                                         <div class="rating-overlay-content">
+                                             <span class="rating-value">${rating}</span>
+                                             <span class="rating-star">★</span>
+                                             <span class="rating-count">(${ratingCount})</span>
+                                         </div>
+                                     </div>
+                                     ` : ''}
+                                     
+                                     <!-- New Launch Badge (only on first image) -->
+                                     ${index === 0 && product.isNew ? '<div class="new-launch-badge">NEW LAUNCH</div>' : ''}
                                  </div>
-                             </div>
-                             
-                             <!-- New Launch Badge (conditional) -->
-                             ${product.isNew ? '<div class="new-launch-badge">NEW LAUNCH</div>' : ''}
+                             `).join('')}
                          </div>
                          
                          <!-- Image Pagination Dots -->
                          <div class="image-pagination">
-                             <span class="pagination-dot active"></span>
-                             <span class="pagination-dot"></span>
-                             <span class="pagination-dot"></span>
+                             ${(product.images || [product.image]).map((_, index) => `
+                                 <span class="pagination-dot ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})"></span>
+                             `).join('')}
                          </div>
                      </div>
                      
@@ -4723,6 +4893,19 @@
                                  <span class="price-current">${product.price}</span>
                                  ${originalPrice ? `<span class="price-original">₹${originalPrice}</span>` : ''}
                                  ${discount ? `<span class="price-discount">${discount}% OFF</span>` : ''}
+                             </div>
+                             
+                             <!-- Product Description Section -->
+                             <div class="description-section">
+                                 <button class="description-toggle" onclick="toggleDescription()">
+                                     <span>Product Description</span>
+                                     <svg class="description-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                         <path d="M19 9l-7 7-7-7"></path>
+                                     </svg>
+                                 </button>
+                                 <div class="description-content expanded" id="descriptionContent">
+                                     <p>${product.description || 'High-quality eyewear with premium materials and design. Perfect for everyday wear with excellent comfort and style.'}</p>
+                                 </div>
                              </div>
                              
                              <!-- Product Actions -->
@@ -4783,13 +4966,7 @@
                          </div>
                      </div>
                      
-                     <!-- WhatsApp Chat Button -->
-                     <div class="whatsapp-chat" onclick="openWhatsAppChat()">
-                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
-                         </svg>
-                         Chat with us
-                     </div>
+                     <!-- WhatsApp Chat Button Removed -->
                  </div>
                            `;
           }
@@ -4804,6 +4981,13 @@
               
               // Initialize wishlist state
               updateWishlistState(product.handle);
+              
+              // Initialize image slider with auto-scroll
+              setTimeout(() => {
+                  startAutoSlide();
+              }, 1000); // Start auto-slide after 1 second
+              
+              console.log('📱 Product detail page initialized with auto-slide');
           }
           
           // Setup scroll behavior for product page
@@ -5170,6 +5354,80 @@
               showToast('Reviews - Coming soon!');
           }
           
+                     // Toggle product description
+           function toggleDescription() {
+               console.log('🔍 Toggle description clicked!');
+               const content = document.getElementById('descriptionContent');
+               const arrow = document.querySelector('.description-arrow');
+               
+               console.log('📋 Elements found:', { content: !!content, arrow: !!arrow });
+               
+               if (content && arrow) {
+                   const isExpanded = content.classList.contains('expanded');
+                   
+                   if (isExpanded) {
+                       content.classList.remove('expanded');
+                       arrow.classList.remove('rotated');
+                   } else {
+                       content.classList.add('expanded');
+                       arrow.classList.add('rotated');
+                   }
+                   
+                   console.log('📋 Description toggled:', isExpanded ? 'collapsed' : 'expanded');
+               } else {
+                   console.error('❌ Description elements not found!');
+               }
+           }
+          
+          // Image Slider Functions
+          let currentSlideIndex = 0;
+          let autoSlideInterval = null;
+          
+          function goToSlide(index) {
+              const slides = document.querySelectorAll('.product-image-slide');
+              const dots = document.querySelectorAll('.pagination-dot');
+              
+              if (slides.length === 0) return;
+              
+              // Remove active class from current slide and dot
+              slides[currentSlideIndex]?.classList.remove('active');
+              dots[currentSlideIndex]?.classList.remove('active');
+              
+              // Set new slide index
+              currentSlideIndex = index;
+              if (currentSlideIndex >= slides.length) currentSlideIndex = 0;
+              if (currentSlideIndex < 0) currentSlideIndex = slides.length - 1;
+              
+              // Add active class to new slide and dot
+              slides[currentSlideIndex]?.classList.add('active');
+              dots[currentSlideIndex]?.classList.add('active');
+              
+              console.log('📸 Slide changed to:', currentSlideIndex);
+          }
+          
+          function nextSlide() {
+              goToSlide(currentSlideIndex + 1);
+          }
+          
+          function startAutoSlide() {
+              const slides = document.querySelectorAll('.product-image-slide');
+              if (slides.length <= 1) return; // Don't auto-slide for single images
+              
+              autoSlideInterval = setInterval(() => {
+                  nextSlide();
+              }, 3000); // Change slide every 3 seconds
+              
+              console.log('🔄 Auto-slide started');
+          }
+          
+          function stopAutoSlide() {
+              if (autoSlideInterval) {
+                  clearInterval(autoSlideInterval);
+                  autoSlideInterval = null;
+                  console.log('⏹️ Auto-slide stopped');
+              }
+          }
+          
           function openWhatsAppChat() {
               const message = encodeURIComponent('Hi! I need help with a product from GoEye Store.');
               const whatsappUrl = `https://wa.me/1234567890?text=${message}`;
@@ -5429,24 +5687,38 @@
                    /* Product Media */
                    .product-media {
                        width: 100%;
-                       padding-top: 52px;
+                       padding-top: 80px;
                        position: relative;
                        flex: 0 0 auto;
                        margin-top: 0;
                    }
                    
-                   .product-image-container {
+                   .product-image-slider {
                        position: relative;
                        width: 100%;
-                       height: 400px;
+                       height: 450px;
                        overflow: hidden;
-                       background: #f8f8f8;
+                       background: #fff;
+                   }
+                   
+                   .product-image-slide {
+                       position: absolute;
+                       top: 0;
+                       left: 0;
+                       width: 100%;
+                       height: 100%;
+                       opacity: 0;
+                       transition: opacity 0.5s ease-in-out;
+                   }
+                   
+                   .product-image-slide.active {
+                       opacity: 1;
                    }
                    
                    .product-main-image {
                        width: 100%;
                        height: 100%;
-                       object-fit: contain;
+                       object-fit: cover;
                        display: block;
                    }
                    
@@ -5677,6 +5949,61 @@
                        color: #1B224B;
                        font-weight: 500;
                        text-align: center;
+                   }
+                   
+                   /* Product Description Section */
+                   .description-section {
+                       margin: 20px 0;
+                       border-top: 1px solid #eee;
+                       padding-top: 20px;
+                   }
+                   
+                   .description-toggle {
+                       width: 100%;
+                       display: flex;
+                       justify-content: space-between;
+                       align-items: center;
+                       padding: 15px 0;
+                       background: none;
+                       border: none;
+                       font-size: 16px;
+                       font-weight: 600;
+                       color: #333;
+                       cursor: pointer;
+                       transition: color 0.2s ease;
+                   }
+                   
+                   .description-toggle:hover {
+                       color: #007bff;
+                   }
+                   
+                   .description-arrow {
+                       width: 20px;
+                       height: 20px;
+                       transition: transform 0.3s ease;
+                   }
+                   
+                   .description-arrow.rotated {
+                       transform: rotate(180deg);
+                   }
+                   
+                   .description-content {
+                       max-height: 0;
+                       overflow: hidden;
+                       transition: max-height 0.3s ease, padding 0.3s ease;
+                       padding: 0;
+                   }
+                   
+                   .description-content.expanded {
+                       max-height: 300px;
+                       padding: 15px 0;
+                   }
+                   
+                   .description-content p {
+                       margin: 0;
+                       line-height: 1.6;
+                       color: #666;
+                       font-size: 14px;
                    }
                    
                    /* Bottom Purchase Section */
