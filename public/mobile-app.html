@@ -4774,9 +4774,23 @@
                  discount: product.discount
              });
              
-             // Always show original price if we have it and it's higher
-             const originalPrice = (originalPriceNum && originalPriceNum > currentPriceNum) ? originalPriceNum : null;
-             const discount = originalPrice ? (product.discount || Math.round(((originalPriceNum - currentPriceNum) / originalPriceNum) * 100)) : 0;
+             // PRESERVE REAL SHOPIFY COMPARE-AT PRICING - Don't override with calculated logic!
+             let originalPrice = null;
+             let discount = 0;
+             
+             if (product.originalPrice && originalPriceNum) {
+                 // Use REAL Shopify compare-at price directly
+                 originalPrice = originalPriceNum;
+                 discount = product.discount || Math.round(((originalPriceNum - currentPriceNum) / originalPriceNum) * 100);
+                 console.log('✅ USING REAL SHOPIFY COMPARE-AT PRICE:', { originalPrice, discount });
+             } else if (originalPriceNum && originalPriceNum > currentPriceNum) {
+                 // Fallback to calculated logic only if no real data
+                 originalPrice = originalPriceNum;
+                 discount = Math.round(((originalPriceNum - currentPriceNum) / originalPriceNum) * 100);
+                 console.log('💡 Using calculated compare-at price:', { originalPrice, discount });
+             } else {
+                 console.log('⚠️ No compare-at price available');
+             }
              
              console.log('🔢 TEMPLATE VARIABLES BEFORE TEMPLATE:', {
                  currentPriceNum,
