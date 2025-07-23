@@ -4668,7 +4668,21 @@
              productDetailPage.className = 'product-detail-page';
              
              // Generate product detail HTML
-             productDetailPage.innerHTML = generateProductDetailHTML(product);
+             const generatedHTML = generateProductDetailHTML(product);
+             
+             // DEBUG: Check if pricing HTML is in the generated template
+             const hasPriceOriginal = generatedHTML.includes('price-original');
+             const hasPriceDiscount = generatedHTML.includes('price-discount');
+             const pricingMatch = generatedHTML.match(/<div class="product-price"[^>]*>(.*?)<\/div>/s);
+             
+             console.log('🎨 GENERATED HTML DEBUGGING:', {
+                 hasOriginalPrice: hasPriceOriginal,
+                 hasDiscount: hasPriceDiscount,
+                 pricingHTML: pricingMatch ? pricingMatch[1] : 'PRICING SECTION NOT FOUND',
+                 totalHTMLLength: generatedHTML.length
+             });
+             
+             productDetailPage.innerHTML = generatedHTML;
              
              // Add to body
              document.body.appendChild(productDetailPage);
@@ -4682,6 +4696,14 @@
          
          // Generate Product Detail HTML
          function generateProductDetailHTML(product) {
+             console.log('🎯 STARTING generateProductDetailHTML with product:', {
+                 title: product.title,
+                 price: product.price,
+                 originalPrice: product.originalPrice,
+                 discount: product.discount,
+                 id: product.id,
+                 hasRealData: !!product.id
+             });
              console.log('🎨 GENERATING PRODUCT DETAIL HTML:', product);
              
              // Debug what we received from API
@@ -4756,13 +4778,21 @@
              const originalPrice = (originalPriceNum && originalPriceNum > currentPriceNum) ? originalPriceNum : null;
              const discount = originalPrice ? (product.discount || Math.round(((originalPriceNum - currentPriceNum) / originalPriceNum) * 100)) : 0;
              
-             console.log('🔢 TEMPLATE VARIABLES:', {
+             console.log('🔢 TEMPLATE VARIABLES BEFORE TEMPLATE:', {
                  currentPriceNum,
                  originalPriceNum,
                  finalOriginalPrice: originalPrice,
                  finalDiscount: discount,
-                 willShowInTemplate: originalPrice !== null
+                 willShowInTemplate: originalPrice !== null,
+                 templateWillRender: originalPrice ? `₹${originalPrice}` : 'NO COMPARE PRICE'
              });
+             
+             // FORCE originalPrice for debugging if we have product.originalPrice
+             if (product.originalPrice && !originalPrice) {
+                 console.log('🚨 FORCING originalPrice because product.originalPrice exists but originalPrice is null');
+                 const forceOriginalPrice = parseFloat(product.originalPrice.replace(/[^\d.]/g, ''));
+                 console.log('🚨 Forced values:', { forceOriginalPrice, currentPriceNum, condition: forceOriginalPrice > currentPriceNum });
+             }
              
              console.log('💰 Mobile App Final Display:', { 
                  originalPrice, 
