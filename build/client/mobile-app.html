@@ -7967,7 +7967,7 @@
             }
         }
 
-        function openCollectionAsNewPage(handle) {
+        async function openCollectionAsNewPage(handle) {
             console.log('📱 Opening collection as new page for handle:', handle);
             
             // Hide all main content
@@ -7978,10 +7978,9 @@
             collectionPage.id = 'collection-full-page';
             collectionPage.className = 'collection-full-page';
             
-            // Load collection products
-            const collectionProducts = generateCollectionProducts(handle);
             const collectionName = handle.charAt(0).toUpperCase() + handle.slice(1);
             
+            // Show loading state first
             collectionPage.innerHTML = `
                 <div class="collection-mobile-header">
                     <button class="collection-mobile-back" onclick="closeCollectionPage()">
@@ -8008,6 +8007,51 @@
                     </div>
                 </div>
                 <div class="collection-mobile-content">
+                    <div class="loading-products">
+                        <div class="spinner"></div>
+                        <p>Loading ${collectionName} products...</p>
+                    </div>
+                </div>
+            `;
+            
+            // Add to body with slide-in animation
+            document.body.appendChild(collectionPage);
+            
+            // Trigger animation
+            setTimeout(() => {
+                collectionPage.classList.add('active');
+            }, 10);
+            
+            // Load real collection products
+            try {
+                console.log('📱 Fetching real products for mobile collection:', handle);
+                let collectionProducts = await fetchRealCollectionProducts(handle);
+                
+                if (!collectionProducts || collectionProducts.length === 0) {
+                    console.log('📱 No real products found, using generated products as fallback');
+                    collectionProducts = generateCollectionProducts(handle);
+                }
+                
+                // Update content with real products
+                renderMobileCollectionProducts(collectionProducts, handle, collectionPage);
+                
+            } catch (error) {
+                console.error('📱 Error loading mobile collection products:', error);
+                // Fallback to generated products
+                const collectionProducts = generateCollectionProducts(handle);
+                renderMobileCollectionProducts(collectionProducts, handle, collectionPage);
+            }
+            
+            console.log('📱 Collection page created and animated in');
+        }
+
+        // Render products in mobile collection page
+        function renderMobileCollectionProducts(collectionProducts, handle, collectionPage) {
+            const collectionName = handle.charAt(0).toUpperCase() + handle.slice(1);
+            const contentDiv = collectionPage.querySelector('.collection-mobile-content');
+            
+            if (contentDiv) {
+                contentDiv.innerHTML = `
                     <div class="collection-mobile-grid">
                         ${collectionProducts.map(product => `
                             <div class="collection-mobile-card">
@@ -8026,37 +8070,27 @@
                                     <h4 class="product-mobile-title">${product.title}</h4>
                                     <div class="product-mobile-price">
                                         <span class="mobile-current-price">₹${product.price}</span>
-                                        <span class="mobile-original-price">₹${product.originalPrice}</span>
-                                        <span class="mobile-discount">${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF</span>
+                                        ${product.originalPrice > product.price ? `<span class="mobile-original-price">₹${product.originalPrice}</span>` : ''}
+                                        ${product.originalPrice > product.price ? `<span class="mobile-discount">${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF</span>` : ''}
                                     </div>
                                     <div class="product-mobile-features">
-                                        <span class="mobile-feature">✓ In Stock</span>
+                                        <span class="mobile-feature">${product.available ? '✓ In Stock' : '❌ Out of Stock'}</span>
                                         <span class="mobile-feature">🚚 2-3 days</span>
                                     </div>
-                                    <button class="mobile-add-to-cart" onclick="addToCart('${product.id}', '${product.title}', ${product.price})">
+                                    <button class="mobile-add-to-cart ${!product.available ? 'disabled' : ''}" onclick="addToCart('${product.id}', '${product.title}', ${product.price})" ${!product.available ? 'disabled' : ''}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
                                             <line x1="3" y1="6" x2="21" y2="6"/>
                                             <path d="M16 10a4 4 0 01-8 0"/>
                                         </svg>
-                                        Add to Cart
+                                        ${product.available ? 'Add to Cart' : 'Out of Stock'}
                                     </button>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
-                </div>
-            `;
-            
-            // Add to body with slide-in animation
-            document.body.appendChild(collectionPage);
-            
-            // Trigger animation
-            setTimeout(() => {
-                collectionPage.classList.add('active');
-            }, 10);
-            
-            console.log('📱 Collection page created and animated in');
+                `;
+            }
         }
 
         window.closeCollectionPage = function() {
@@ -8104,10 +8138,18 @@
             }
             
             try {
-                console.log('🔍 DEBUG: Generating products for collection:', collectionHandle);
-                // Generate products for the collection
-                const collectionProducts = generateCollectionProducts(collectionHandle);
-                console.log('🔍 DEBUG: Generated products:', collectionProducts);
+                console.log('🔍 DEBUG: Fetching REAL products for collection:', collectionHandle);
+                
+                // Try to fetch real products from API first
+                let collectionProducts = await fetchRealCollectionProducts(collectionHandle);
+                
+                // If no real products found, fallback to generated products
+                if (!collectionProducts || collectionProducts.length === 0) {
+                    console.log('🔍 DEBUG: No real products found, using generated products as fallback');
+                    collectionProducts = generateCollectionProducts(collectionHandle);
+                }
+                
+                console.log('🔍 DEBUG: Final products to render:', collectionProducts);
                 
                 console.log('🔍 DEBUG: About to render products using renderNewCollectionProducts');
                 // Render the products using new design
@@ -8125,6 +8167,60 @@
                         </div>
                     `;
                 }
+            }
+        }
+
+        // Fetch real products from Shopify API
+        async function fetchRealCollectionProducts(collectionHandle) {
+            console.log('🛒 Fetching real products for collection:', collectionHandle);
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/public-products?collection=${collectionHandle}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    console.warn('🛒 API response not ok:', response.status, response.statusText);
+                    return null;
+                }
+
+                const data = await response.json();
+                console.log('🛒 Raw API response:', data);
+
+                if (!data.success || !data.products) {
+                    console.warn('🛒 API response missing products:', data);
+                    return null;
+                }
+
+                // Transform API products to our format
+                const transformedProducts = data.products.map(product => {
+                    const firstVariant = product.variants?.[0] || {};
+                    const price = firstVariant.price ? parseFloat(firstVariant.price) : 0;
+                    const comparePrice = firstVariant.compare_at_price ? parseFloat(firstVariant.compare_at_price) : 0;
+                    
+                    return {
+                        id: product.id,
+                        title: product.title,
+                        handle: product.handle,
+                        price: Math.round(price),
+                        originalPrice: Math.round(comparePrice > price ? comparePrice : price * 2), // Fallback for compare price
+                        vendor: product.vendor || 'GoEye',
+                        image: product.images?.[0]?.src || product.featured_image || '',
+                        description: product.body_html || product.description || '',
+                        available: product.available !== false,
+                        variants: product.variants || [firstVariant]
+                    };
+                });
+
+                console.log('🛒 Transformed products:', transformedProducts);
+                return transformedProducts;
+
+            } catch (error) {
+                console.error('🛒 Error fetching real products:', error);
+                return null;
             }
         }
 

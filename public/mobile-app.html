@@ -8763,6 +8763,52 @@
             }
         };
 
+        // Test real products API
+        window.testRealProducts = async function(collection = 'men') {
+            console.log('🛒 Testing real products API for collection:', collection);
+            try {
+                const products = await fetchRealCollectionProducts(collection);
+                console.log('🛒 Real products response:', products);
+                if (products && products.length > 0) {
+                    console.log('✅ Real products found:', products.length);
+                    console.log('🛒 Sample product:', products[0]);
+                    return products;
+                } else {
+                    console.log('⚠️ No real products found, will use fallback');
+                    return null;
+                }
+            } catch (error) {
+                console.error('❌ Error testing real products:', error);
+                return null;
+            }
+        };
+
+        // Debug API connection
+        window.testAPIConnection = async function() {
+            console.log('🔗 Testing API connection...');
+            console.log('🔗 API_BASE:', API_BASE);
+            
+            try {
+                // Test the existing real-shopify endpoint first
+                const response = await fetch(`${API_BASE}/api/real-shopify?type=products`);
+                console.log('🔗 Real Shopify API Response status:', response.status);
+                const data = await response.json();
+                console.log('🔗 Real Shopify API Response data:', data);
+                
+                // Test our new public-products endpoint
+                console.log('🔗 Testing public-products endpoint...');
+                const publicResponse = await fetch(`${API_BASE}/api/public-products?collection=men`);
+                console.log('🔗 Public Products API Response status:', publicResponse.status);
+                const publicData = await publicResponse.json();
+                console.log('🔗 Public Products API Response data:', publicData);
+                
+                return { realShopify: data, publicProducts: publicData };
+            } catch (error) {
+                console.error('❌ API Connection error:', error);
+                return null;
+            }
+        };
+
         // Initialize app when DOM is loaded
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 GoEye Store Mobile App Started');
