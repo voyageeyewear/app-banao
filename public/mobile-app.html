@@ -4637,11 +4637,23 @@
          }
         
         // Open Product Detail Page
-        function openProductDetailPage(product) {
-            console.log('📱 Opening product detail page for:', product.title);
-            
-            // Hide main app content
-            document.body.classList.add('hide-header');
+                 function openProductDetailPage(product) {
+             console.log('📱 Opening product detail page for:', product.title);
+             
+             // DEBUG: Log the actual product data received from API
+             console.log('🔍 ACTUAL PRODUCT DATA FROM API:', {
+                 title: product.title,
+                 price: product.price,
+                 originalPrice: product.originalPrice,
+                 discount: product.discount,
+                 id: product.id,
+                 hasApiId: !!product.id,
+                 hasOriginalPrice: !!product.originalPrice,
+                 apiSource: product.id ? 'Shopify API' : 'Local fallback'
+             });
+             
+             // Hide main app content
+             document.body.classList.add('hide-header');
             const mainContent = document.querySelector('.app-content');
             if (mainContent) {
                 mainContent.style.display = 'none';
@@ -4689,6 +4701,21 @@
              
              // Initialize product detail functionality
              initializeProductDetailPage(product);
+             
+             // DEBUG: Check actual DOM after rendering
+             setTimeout(() => {
+                 const priceSection = document.querySelector('.product-price');
+                 if (priceSection) {
+                     console.log('🎯 FINAL DOM PRICING CHECK:', {
+                         innerHTML: priceSection.innerHTML,
+                         hasPriceOriginal: priceSection.querySelector('.price-original') !== null,
+                         priceOriginalText: priceSection.querySelector('.price-original')?.textContent || 'NOT FOUND',
+                         priceCurrentText: priceSection.querySelector('.price-current')?.textContent || 'NOT FOUND'
+                     });
+                 } else {
+                     console.error('❌ .product-price section not found in DOM!');
+                 }
+             }, 100);
              
              // Add styles
              addProductDetailStyles();
@@ -4825,8 +4852,18 @@
                  priceHtml,
                  originalPriceHtml,
                  discountHtml,
+                 originalPriceHtmlLength: originalPriceHtml.length,
+                 originalPriceIsEmpty: originalPriceHtml === '',
                  descriptionExists: !!product.description,
                  descriptionText: product.description
+             });
+             
+             // CRITICAL DEBUG: Show exact template substitution
+             console.log('🔥 TEMPLATE SUBSTITUTION CHECK:', {
+                 templateCondition: `originalPrice = ${originalPrice}`,
+                 willRenderOriginalPrice: originalPrice ? `YES: ₹${originalPrice}` : 'NO: originalPrice is null/undefined',
+                 discountCondition: `discount = ${discount}`,
+                 willRenderDiscount: discount ? `YES: ${discount}% OFF` : 'NO: discount is 0'
              });
              
              console.log('📋 DESCRIPTION SECTION WILL BE RENDERED:', {
