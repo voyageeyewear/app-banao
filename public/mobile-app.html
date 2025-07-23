@@ -4693,12 +4693,17 @@
                  hasOriginalPrice: !!product.originalPrice
              });
              
-             // Only add fallback pricing if we truly don't have real pricing from API
-             if (!product.originalPrice) {
+             // Ensure we always show compared pricing
+             if (!product.originalPrice || product.originalPrice === product.price) {
                  const priceNum = parseFloat(product.price.replace(/[^\d.]/g, ''));
-                 product.originalPrice = `₹${Math.floor(priceNum * 1.3)}`;
-                 product.discount = 23;
-                 console.log('💡 FALLBACK PRICING ADDED (API had no originalPrice):', { originalPrice: product.originalPrice, discount: product.discount });
+                 product.originalPrice = `₹${Math.floor(priceNum * 1.4)}`;
+                 const originalPriceNum = Math.floor(priceNum * 1.4);
+                 product.discount = Math.floor(((originalPriceNum - priceNum) / originalPriceNum) * 100);
+                 console.log('💡 FALLBACK PRICING ADDED (no real compare-at price):', { 
+                     currentPrice: product.price, 
+                     addedOriginalPrice: product.originalPrice, 
+                     calculatedDiscount: product.discount 
+                 });
              } else {
                  console.log('✅ USING REAL PRICING FROM API:', { originalPrice: product.originalPrice, discount: product.discount });
              }
@@ -4729,6 +4734,14 @@
              // Always show original price if we have it and it's higher
              const originalPrice = (originalPriceNum && originalPriceNum > currentPriceNum) ? originalPriceNum : null;
              const discount = originalPrice ? (product.discount || Math.round(((originalPriceNum - currentPriceNum) / originalPriceNum) * 100)) : 0;
+             
+             console.log('🔢 TEMPLATE VARIABLES:', {
+                 currentPriceNum,
+                 originalPriceNum,
+                 finalOriginalPrice: originalPrice,
+                 finalDiscount: discount,
+                 willShowInTemplate: originalPrice !== null
+             });
              
              console.log('💰 Mobile App Final Display:', { 
                  originalPrice, 
