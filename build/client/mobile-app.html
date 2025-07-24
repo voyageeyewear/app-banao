@@ -5054,14 +5054,56 @@
                         homeContent.style.display = 'block';
                         console.log('🔍 DEBUG: home-content shown');
                         
-                        // Fix featured product title styling after returning to home
+                        // Fix featured product styling after returning to home
                         setTimeout(() => {
+                            console.log('🎨 STYLE RESET: Fixing featured product styling...');
+                            
+                            // Fix product titles
                             const productTitles = homeContent.querySelectorAll('.product-title');
                             productTitles.forEach(title => {
                                 title.style.fontWeight = 'normal';
                                 title.style.fontSize = '1rem';
                             });
-                            console.log('🎨 Fixed product title styling:', productTitles.length, 'titles');
+                            
+                            // Fix discount badges - ensure they use red styling
+                            const discountBadges = homeContent.querySelectorAll('.discount-badge');
+                            discountBadges.forEach(badge => {
+                                badge.style.background = '#fef2f2';
+                                badge.style.color = '#dc2626';
+                                badge.style.fontWeight = '600';
+                                badge.style.fontSize = '0.8rem';
+                                badge.style.padding = '2px 6px';
+                                badge.style.borderRadius = '4px';
+                                // Remove any conflicting styles
+                                badge.style.backgroundImage = 'none';
+                                badge.style.boxShadow = 'none';
+                                badge.style.textTransform = 'none';
+                                badge.style.letterSpacing = 'normal';
+                            });
+                            
+                            // Fix current prices - ensure they're blue
+                            const currentPrices = homeContent.querySelectorAll('.current-price');
+                            currentPrices.forEach(price => {
+                                price.style.color = '#2563eb';
+                                price.style.fontWeight = '600';
+                                price.style.fontSize = '1.1rem';
+                            });
+                            
+                            // Fix original prices - ensure they're gray and crossed out
+                            const originalPrices = homeContent.querySelectorAll('.original-price');
+                            originalPrices.forEach(price => {
+                                price.style.color = '#6b7280';
+                                price.style.textDecoration = 'line-through';
+                                price.style.opacity = '0.7';
+                                price.style.fontSize = '0.9rem';
+                            });
+                            
+                            console.log('🎨 STYLE RESET: Fixed', {
+                                titles: productTitles.length,
+                                discountBadges: discountBadges.length,
+                                currentPrices: currentPrices.length,
+                                originalPrices: originalPrices.length
+                            });
                         }, 100);
                     } else {
                         console.error('🔍 ERROR: home-content element not found!');
@@ -5070,13 +5112,19 @@
                     break;
                 case 'collections':
                     console.log('🔍 DEBUG: Showing collections page');
-                    document.body.classList.add('hide-header');
+                    document.body.classList.remove('hide-header'); // Keep header visible
                     const collectionsContent = document.getElementById('collections-content');
                     if (collectionsContent) {
                         collectionsContent.style.display = 'block';
                         console.log('🔍 DEBUG: collections-content shown');
                     } else {
                         console.error('🔍 ERROR: collections-content element not found!');
+                    }
+                    // Also show home content alongside collections for a richer experience
+                    const homeContentForCollections = document.getElementById('home-content');
+                    if (homeContentForCollections) {
+                        homeContentForCollections.style.display = 'block';
+                        console.log('🔍 DEBUG: home-content also shown for richer collections experience');
                     }
                     loadCollectionsPage();
                     break;
@@ -6879,7 +6927,7 @@
                                      <div class="current-price">${product.price}</div>
                                      ${originalPrice && originalPrice !== parseFloat(product.price.replace(/[^\d]/g, '')) ? `
                                          <div class="compare-price">₹${originalPrice}</div>
-                                         <div class="discount-badge">${discount}% OFF</div>
+                                         <div class="collection-discount-badge">${discount}% OFF</div>
                                      ` : ''}
                                  </div>
                                  <div class="tax-info">incl. of taxes</div>
@@ -8199,7 +8247,7 @@
                        font-weight: 500;
                    }
                    
-                   .discount-badge {
+                   .collection-discount-badge {
                        background: linear-gradient(135deg, #4CAF50, #45a049);
                        color: white;
                        font-size: 12px;
