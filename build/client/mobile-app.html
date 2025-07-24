@@ -8258,15 +8258,15 @@
                 contentDiv.innerHTML = `
                     <div class="collection-mobile-grid">
                         ${collectionProducts.map(product => `
-                            <div class="collection-mobile-card" onclick="openProductFromCollection('${product.handle || product.id}', event)">
+                            <div class="collection-mobile-card" onclick="event.preventDefault(); event.stopPropagation(); console.log('🔍 MOBILE CARD CLICKED:', '${product.handle || product.id}'); window.openProductFromCollection ? window.openProductFromCollection('${product.handle || product.id}', event) : console.error('openProductFromCollection not found');" data-product-handle="${product.handle || product.id}">
                                 <div class="product-mobile-image">
                                     <img src="${product.image}" alt="${product.title}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik05NiA5NkgxNDRWMTQ0SDk2Vjk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K'">
                                     <div class="product-mobile-actions">
-                                        <button class="mobile-action-btn wishlist-btn" onclick="toggleWishlist(this, '${product.id}', event)">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                                            </svg>
-                                        </button>
+                                                                            <button class="mobile-action-btn wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, '${product.id}', event)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                                        </svg>
+                                    </button>
                                     </div>
                                 </div>
                                 <div class="product-mobile-info">
@@ -8281,7 +8281,7 @@
                                         <span class="mobile-feature">${product.available ? '✓ In Stock' : '❌ Out of Stock'}</span>
                                         <span class="mobile-feature">🚚 2-3 days</span>
                                     </div>
-                                    <button class="mobile-add-to-cart ${!product.available ? 'disabled' : ''}" onclick="addToCartFromCollection('${product.id}', '${product.title}', ${product.price}, event)" ${!product.available ? 'disabled' : ''}>
+                                    <button class="mobile-add-to-cart ${!product.available ? 'disabled' : ''}" onclick="event.stopPropagation(); addToCartFromCollection('${product.id}', '${product.title}', ${product.price}, event)" ${!product.available ? 'disabled' : ''}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
                                             <line x1="3" y1="6" x2="21" y2="6"/>
@@ -9234,6 +9234,43 @@
                 console.log('📄 Collection data attribute:', collectionPage.getAttribute('data-collection-handle'));
                 console.log('📄 Collection title:', collectionPage.querySelector('.collection-mobile-title')?.textContent);
             }
+        };
+
+        // Failsafe function to force open product detail page
+        window.forceOpenProductDetailPage = async function(productHandle) {
+            console.log('🚨 FORCE OPENING product detail page for:', productHandle);
+            
+            try {
+                // Force close any existing modals
+                closeProductModal();
+                
+                // Hide collection page
+                const collectionPage = document.getElementById('collection-full-page');
+                if (collectionPage) {
+                    collectionPage.style.transform = 'translateX(-30%)';
+                    collectionPage.style.opacity = '0.7';
+                }
+                
+                // Force open product detail page
+                await showProduct(productHandle);
+                console.log('✅ FORCE OPEN: Product detail page opened successfully');
+                
+            } catch (error) {
+                console.error('❌ FORCE OPEN: Failed to open product detail page:', error);
+                showToast('Error opening product page');
+            }
+        };
+
+        // Enhanced mobile card click handler (backup)
+        window.handleMobileCardClick = function(element, productHandle) {
+            console.log('🔍 BACKUP: Mobile card clicked via backup handler:', productHandle);
+            
+            // Stop any other event handlers
+            event?.preventDefault();
+            event?.stopPropagation();
+            
+            // Force open the product detail page
+            window.forceOpenProductDetailPage(productHandle);
         };
 
         // Test product detail opening directly
