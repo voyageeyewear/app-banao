@@ -1813,21 +1813,8 @@
             console.log('🔒 Cross-origin restrictions detected, using default API base');
         }
 
-        // Default Slides Data (fallback if API fails)
-        const defaultSlides = [
-            {
-                id: 'slide-1',
-                image: 'https://eyejack.in/cdn/shop/files/eyejack_avaitor_banner_phone_b10f834b-1c0f-4306-835a-db64c8236762.jpg?v=1733487957&width=1500'
-            },
-            {
-                id: 'slide-2',
-                image: 'https://eyejack.in/cdn/shop/files/WEBSITE_1_phone_copy.jpg?v=1736147098&width=1500'
-            },
-            {
-                id: 'slide-3',
-                image: 'https://eyejack.in/cdn/shop/files/TOP_SELLING_PHONE_WITH_SUB_HEADING.jpg?v=1731061798&width=1500'
-            }
-        ];
+        // No default slides - only use slides provided via API
+        const defaultSlides = [];
 
         // Initialize Slider
         async function initializeSlider() {
@@ -1853,35 +1840,31 @@
             } catch (error) {
                 console.error('❌ Error initializing slider:', error);
                 
-                // Use default slides as fallback
-                slides = defaultSlides;
+                // No fallback slides - hide slider if API fails
+                slides = [];
                 generateSlides();
                 generateNavigation();
                 hideLoadingOverlay();
             }
         }
 
-        // Load Slides Data from API (with graceful 404 handling)
+        // Load Slides Data from API only
         async function loadSlidesData() {
             try {
                 const response = await fetch(`${API_BASE}/api/slider-data?collection=classic`);
                 
                 if (!response.ok) {
-                    if (response.status === 404) {
-                        console.log('ℹ️ Slider API endpoint not found (404), using default slides');
-                    } else {
-                        console.warn(`⚠️ Slider API failed with status ${response.status}, using default slides`);
-                    }
-                    return defaultSlides;
+                    console.warn(`⚠️ Slider API failed with status ${response.status}`);
+                    return [];
                 }
                 
                 const data = await response.json();
                 console.log('✅ Slider data loaded from API');
-                return data.slides || defaultSlides;
+                return data.slides || [];
                 
             } catch (error) {
-                console.warn('⚠️ Slider API error, using default slides:', error.message);
-                return defaultSlides;
+                console.error('❌ Slider API error:', error.message);
+                return [];
             }
         }
 
@@ -2967,16 +2950,22 @@
             }, 2000);
         }
 
-        // Slider data loader (using default slides)
-        function loadSliderData() {
+        // Slider data loader (loads from API only)
+        async function loadSliderData() {
             console.log('🎬 Loading slider data...');
-            slides = [...defaultSlides];
-            generateSlides();
-            console.log('✅ Slider data loaded with', slides.length, 'slides');
+            try {
+                slides = await loadSlidesData();
+                generateSlides();
+                console.log('✅ Slider data loaded with', slides.length, 'slides');
+            } catch (error) {
+                console.error('❌ Failed to load slider data:', error);
+                slides = [];
+                generateSlides();
+            }
         }
 
         // Initialize page with cross-origin safety
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('🎯 Eyejack Eyewear Page Initialized');
             console.log('🖼️ Iframe context:', {
                 isIframe: window !== window.parent,
@@ -2991,7 +2980,7 @@
             
             preloadLogo();
             startAutoPlay();
-            loadSliderData();
+            await loadSliderData();
             
             // Load featured products immediately
             console.log('🛍️ Loading featured products...');
