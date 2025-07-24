@@ -6288,19 +6288,15 @@
                      shopifyCompareAtPrice: 'Not set'
                  });
              } else if (!product.id && (!product.originalPrice || product.originalPrice === product.price)) {
-                 // This is local fallback data, add compare-at pricing
-                 const priceNum = parseFloat(product.price.replace(/[^\d.]/g, ''));
-                 product.originalPrice = `₹${Math.floor(priceNum * 1.4)}`;
-                 const originalPriceNum = Math.floor(priceNum * 1.4);
-                 product.discount = Math.floor(((originalPriceNum - priceNum) / originalPriceNum) * 100);
-                 console.log('💡 FALLBACK PRICING ADDED (local data only):', { 
+                 // This is local fallback data - DON'T add fake pricing, preserve real data
+                 console.log('⚠️ PRESERVED: Local fallback data without compare-at price (no fake pricing added):', { 
                      currentPrice: product.price, 
-                     addedOriginalPrice: product.originalPrice, 
-                     calculatedDiscount: product.discount,
-                     source: 'Local fallback'
+                     originalPrice: product.originalPrice,
+                     willAddFakePrice: false,
+                     source: 'Local fallback - preserved'
                  });
              } else {
-                 console.log('⚠️ Other data preserved:', { hasId: !!product.id, hasOriginalPrice: !!product.originalPrice });
+                 console.log('✅ Real data preserved:', { hasId: !!product.id, hasOriginalPrice: !!product.originalPrice });
              }
              
              // Ensure product has description
@@ -6330,16 +6326,16 @@
              let originalPrice = null;
              let discount = 0;
              
-             // FORCE DISPLAY pricing if product has originalPrice
+             // ONLY DISPLAY pricing if product has REAL originalPrice from Shopify
              if (product.originalPrice && product.originalPrice !== product.price) {
                  originalPrice = originalPriceNum || parseFloat(product.originalPrice.replace(/[^\d.]/g, ''));
                  discount = product.discount || Math.round(((originalPrice - currentPriceNum) / originalPrice) * 100);
-                 console.log('✅ FORCE SHOWING PRICING:', { originalPrice, discount, productOriginalPrice: product.originalPrice });
-             } else if (!product.originalPrice) {
-                 // Generate pricing for products without compare-at prices
-                 originalPrice = Math.floor(currentPriceNum * 1.3); // 30% discount
-                 discount = 23; // Fixed 23% discount
-                 console.log('💡 GENERATED PRICING for product without original price:', { originalPrice, discount });
+                 console.log('✅ DISPLAYING REAL SHOPIFY PRICING:', { originalPrice, discount, productOriginalPrice: product.originalPrice });
+             } else {
+                 // DON'T generate fake pricing - only show current price
+                 originalPrice = null;
+                 discount = 0;
+                 console.log('⚠️ NO REAL COMPARE-AT PRICE: Showing current price only (no fake pricing):', { currentPrice: product.price });
              }
              
              // ENSURE we have pricing to display
@@ -9497,52 +9493,105 @@
             console.log('✅ Image slider initialized successfully');
         };
 
-        // Test real Shopify pricing data
+        // Test real Shopify pricing data - COMPREHENSIVE DEBUG
         window.testRealPricing = async function(collection = 'glam') {
             console.log('💰 TESTING: Real Shopify pricing for collection:', collection);
+            console.log('💰 TESTING: ===============================================');
             
             try {
-                // Fetch real collection products
-                const realProducts = await fetchRealCollectionProducts(collection);
-                
-                if (realProducts && realProducts.length > 0) {
-                    console.log('💰 TESTING: Real products found:');
-                    realProducts.forEach((product, index) => {
-                        console.log(`💰 Product ${index + 1}:`, {
-                            title: product.title,
-                            currentPrice: product.price,
-                            originalPrice: product.originalPrice,
-                            hasComparePrice: !!product.originalPrice,
-                            willShowDiscount: !!(product.originalPrice && product.originalPrice > product.price),
-                            rawVariants: product.variants
-                        });
-                    });
-                } else {
-                    console.log('💰 TESTING: No real products found for collection:', collection);
-                }
-                
-                // Also test the API directly
-                console.log('💰 TESTING: Direct API call to mobile-products...');
+                // Test 1: Direct API call to see raw Shopify data
+                console.log('💰 TEST 1: Direct API call to mobile-products...');
                 const response = await fetch(`${API_BASE}/api/mobile-products`);
                 const data = await response.json();
                 
                 if (data.success && data.collections) {
                     const targetCollection = data.collections.find(c => c.handle === collection);
                     if (targetCollection) {
-                        console.log('💰 TESTING: Raw API collection products:');
+                        console.log('💰 RAW SHOPIFY API DATA:');
                         targetCollection.products.forEach((product, index) => {
                             console.log(`💰 Raw Product ${index + 1}:`, {
                                 title: product.title,
                                 price: product.price,
+                                currency: product.currency,
                                 variants: product.variants,
-                                firstVariant: product.variants?.[0]
+                                firstVariantPrice: product.variants?.[0]?.price,
+                                firstVariantCompareAt: product.variants?.[0]?.compareAtPrice || 'NOT SET'
                             });
                         });
+                    } else {
+                        console.error(`💰 Collection '${collection}' not found in API response`);
                     }
+                } else {
+                    console.error('💰 API response failed or missing collections');
                 }
                 
+                console.log('💰 TEST 2: Transformed products (after fetchRealCollectionProducts)...');
+                // Test 2: Check transformed products
+                const realProducts = await fetchRealCollectionProducts(collection);
+                
+                if (realProducts && realProducts.length > 0) {
+                    console.log('💰 TRANSFORMED PRODUCTS:');
+                    realProducts.forEach((product, index) => {
+                        console.log(`💰 Transformed Product ${index + 1}:`, {
+                            title: product.title,
+                            currentPrice: product.price,
+                            originalPrice: product.originalPrice,
+                            hasComparePrice: !!product.originalPrice,
+                            willShowDiscount: !!(product.originalPrice && product.originalPrice > product.price),
+                            transformationWasCorrect: product.originalPrice === null || product.originalPrice > product.price
+                        });
+                    });
+                } else {
+                    console.error('💰 No transformed products found');
+                }
+                
+                console.log('💰 TEST 3: Testing a specific product in PDP...');
+                // Test 3: Test PDP transformation
+                if (realProducts && realProducts.length > 0) {
+                    const testProduct = realProducts[0];
+                    console.log('💰 TESTING PDP with first product:', testProduct.title);
+                    
+                    // Simulate PDP transformation
+                    console.log('💰 Before PDP transformation:', {
+                        price: testProduct.price,
+                        originalPrice: testProduct.originalPrice
+                    });
+                    
+                    // Test if PDP would preserve the pricing
+                    const enhanced = enhanceProductFromAPI ? enhanceProductFromAPI(testProduct) : testProduct;
+                    console.log('💰 After enhancement (if any):', {
+                        price: enhanced.price,
+                        originalPrice: enhanced.originalPrice
+                    });
+                }
+                
+                console.log('💰 TESTING COMPLETE ===============================');
+                
             } catch (error) {
-                console.error('💰 TESTING: Error testing real pricing:', error);
+                console.error('💰 TESTING ERROR:', error);
+            }
+        };
+
+        // Quick test to see what's wrong with a specific product
+        window.debugSpecificProduct = async function(productHandle) {
+            console.log('🔍 DEBUGGING SPECIFIC PRODUCT:', productHandle);
+            
+            try {
+                const product = await findProductByHandle(productHandle);
+                console.log('🔍 Found product data:', {
+                    title: product?.title,
+                    price: product?.price,
+                    originalPrice: product?.originalPrice,
+                    hasOriginalPrice: !!product?.originalPrice,
+                    variants: product?.variants
+                });
+                
+                if (product) {
+                    console.log('🔍 Opening product to test PDP pricing...');
+                    await showProduct(productHandle);
+                }
+            } catch (error) {
+                console.error('🔍 Error debugging product:', error);
             }
         };
 
