@@ -1567,6 +1567,201 @@
             transform: translateY(-2px);
         }
 
+        /* Enhanced pricing styles for featured products */
+        .product-pricing {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        
+        .current-price {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+        
+        .original-price {
+            font-size: 0.9rem;
+            color: #6b7280;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+        .discount-badge {
+            font-size: 0.8rem;
+            color: #dc2626;
+            font-weight: 600;
+            background: #fef2f2;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            width: fit-content;
+        }
+        
+        .product-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .product-card:hover .product-actions {
+            opacity: 1;
+        }
+        
+        .action-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        .action-btn svg {
+            width: 18px;
+            height: 18px;
+            color: #374151;
+        }
+
+        /* Collections Full Page Styles */
+        .collections-page-header {
+            padding: 1.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-bottom: 1rem;
+        }
+        
+        .collections-page-header h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .collections-page-header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .collections-full-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+        
+        .collection-full-card {
+            display: block;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .collection-full-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .collection-full-image {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+        }
+        
+        .collection-full-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .collection-full-card:hover .collection-full-image img {
+            transform: scale(1.05);
+        }
+        
+        .collection-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            padding: 1rem;
+            color: white;
+        }
+        
+        .collection-products-count {
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .collection-full-info {
+            padding: 1rem;
+        }
+        
+        .collection-full-info h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .collection-full-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6b7280;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .retry-btn {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+        
+        .retry-btn:hover {
+            background: #1d4ed8;
+        }
+
         .product-image {
             width: 100%;
             height: 200px;
@@ -4858,6 +5053,16 @@
                     if (homeContent) {
                         homeContent.style.display = 'block';
                         console.log('🔍 DEBUG: home-content shown');
+                        
+                        // Fix featured product title styling after returning to home
+                        setTimeout(() => {
+                            const productTitles = homeContent.querySelectorAll('.product-title');
+                            productTitles.forEach(title => {
+                                title.style.fontWeight = 'normal';
+                                title.style.fontSize = '1rem';
+                            });
+                            console.log('🎨 Fixed product title styling:', productTitles.length, 'titles');
+                        }, 100);
                     } else {
                         console.error('🔍 ERROR: home-content element not found!');
                     }
@@ -4910,11 +5115,83 @@
         }
 
         function loadCollectionsPage() {
-            console.log('Loading collections page...');
-            // Show all collections
-            if (collections.length > 0) {
-                renderCollections(collections);
+            console.log('📚 Loading full collections page...');
+            
+            const collectionsGridPage = document.getElementById('collections-grid-page');
+            if (!collectionsGridPage) {
+                console.error('❌ collections-grid-page not found!');
+                return;
             }
+            
+            // Show loading state
+            collectionsGridPage.innerHTML = '<div class="loading">Loading collections...</div>';
+            
+            // Render all collections in the dedicated collections page
+            if (collections.length > 0) {
+                console.log(`📚 Rendering ${collections.length} collections in full page`);
+                renderCollectionsFullPage(collections);
+            } else {
+                console.log('📚 No collections found, loading from API...');
+                // Try to load collections if not already loaded
+                loadCollections().then(() => {
+                    if (collections.length > 0) {
+                        renderCollectionsFullPage(collections);
+                    } else {
+                        collectionsGridPage.innerHTML = `
+                            <div class="empty-state">
+                                <h3>No Collections Found</h3>
+                                <p>Collections will appear here when available</p>
+                                <button onclick="loadCollections(0)" class="retry-btn">Retry</button>
+                            </div>
+                        `;
+                    }
+                });
+            }
+        }
+        
+        // Render collections in full page layout
+        function renderCollectionsFullPage(collectionsData) {
+            const collectionsGridPage = document.getElementById('collections-grid-page');
+            if (!collectionsGridPage) return;
+            
+            console.log('📚 Rendering collections full page with', collectionsData.length, 'collections');
+            
+            collectionsGridPage.innerHTML = `
+                <div class="collections-page-header">
+                    <h2>All Collections</h2>
+                    <p>Discover our curated eyewear collections</p>
+                </div>
+                <div class="collections-full-grid">
+                    ${collectionsData.map(collection => `
+                        <a href="#" class="collection-full-card" onclick="openCollection('${collection.handle}', event)">
+                            <div class="collection-full-image">
+                                <img src="${collection.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjE1MCIgY3k9IjEwMCIgcj0iNDAiIGZpbGw9IiNEREQiLz4KPHN2Zz4K'}" alt="${collection.title}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjE1MCIgY3k9IjEwMCIgcj0iNDAiIGZpbGw9IiNEREQiLz4KPHN2Zz4K'">
+                                <div class="collection-overlay">
+                                    <span class="collection-products-count">${collection.products ? collection.products.length : 0} Products</span>
+                                </div>
+                            </div>
+                            <div class="collection-full-info">
+                                <h3>${collection.title}</h3>
+                                <p>${collection.description || 'Discover amazing products in this collection'}</p>
+                            </div>
+                        </a>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // Open collection from full collections page
+        function openCollection(handle, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            console.log('📚 Opening collection from full page:', handle);
+            
+            // Switch to collection view and load specific collection
+            showPage('collection');
+            loadCollectionProducts(handle);
         }
 
         function loadAccountPage() {
@@ -5795,14 +6072,35 @@
                 return;
             }
             
-            productsGrid.innerHTML = productsData.map(product => `
+            // First transform products to include real pricing data
+            const transformedProducts = transformProductsToFormat(productsData);
+            
+            console.log('🎨 RENDER: Featured products with pricing:', transformedProducts.map(p => ({
+                title: p.title,
+                price: p.price,
+                originalPrice: p.originalPrice,
+                hasComparePrice: !!p.originalPrice
+            })));
+            
+            productsGrid.innerHTML = transformedProducts.map(product => `
                 <a href="#" class="product-card" onclick="showProduct('${product.handle}')">
                     <div class="product-image">
-                        <img src="${product.image}" alt="${product.title}" loading="lazy">
+                        <img src="${product.image}" alt="${product.title}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik05NiA5NkgxNDRWMTQ0SDk2Vjk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K'">
+                        <div class="product-actions">
+                            <button class="action-btn wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, '${product.id}', event)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="product-info">
                         <h3 class="product-title">${product.title}</h3>
-                        <p class="product-price">${product.price}</p>
+                        <div class="product-pricing">
+                            <span class="current-price">${product.price}</span>
+                            ${product.originalPrice && product.originalPrice > product.price ? `<span class="original-price">₹${product.originalPrice}</span>` : ''}
+                            ${product.originalPrice && product.originalPrice > product.price ? `<span class="discount-badge">${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF</span>` : ''}
+                        </div>
                     </div>
                 </a>
             `).join('');
@@ -9405,107 +9703,138 @@
             window.forceOpenProductDetailPage(productHandle);
         };
 
-        // Initialize Image Slider for Product Detail Pages
+        // Initialize Image Slider for Product Detail Pages - ENHANCED
         window.initializeImageSlider = function() {
-            console.log('🖼️ Initializing image slider...');
+            console.log('🖼️ ENHANCED: Initializing image slider...');
             
-            const imageContainer = document.querySelector('.image-slider-container');
-            const images = document.querySelectorAll('.product-image');
-            const dots = document.querySelectorAll('.pagination-dot');
-            
-            if (!imageContainer || !images.length) {
-                console.log('⚠️ Image slider elements not found');
-                return;
-            }
-            
-            let currentSlide = 0;
-            let startX = 0;
-            let isDragging = false;
-            
-            console.log(`🖼️ Found ${images.length} images for slider`);
-            
-            // Touch/Swipe handlers
-            imageContainer.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-                isDragging = true;
-            });
-            
-            imageContainer.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                e.preventDefault();
-            });
-            
-            imageContainer.addEventListener('touchend', (e) => {
-                if (!isDragging) return;
-                isDragging = false;
+            // Wait for DOM to be ready
+            setTimeout(() => {
+                console.log('🖼️ ENHANCED: Looking for slider elements...');
                 
-                const endX = e.changedTouches[0].clientX;
-                const diffX = startX - endX;
+                const imageContainer = document.querySelector('.image-slider-container');
+                const images = document.querySelectorAll('.product-image');
+                const dots = document.querySelectorAll('.pagination-dot');
                 
-                if (Math.abs(diffX) > 50) { // Minimum swipe distance
-                    if (diffX > 0) {
-                        nextSlide();
-                    } else {
-                        prevSlide();
+                console.log('🖼️ ENHANCED: Slider elements found:', {
+                    imageContainer: !!imageContainer,
+                    imageCount: images.length,
+                    dotsCount: dots.length,
+                    containerClass: imageContainer?.className,
+                    imagesSelector: '.product-image'
+                });
+                
+                if (!imageContainer) {
+                    console.warn('⚠️ ENHANCED: Image container (.image-slider-container) not found');
+                    // Try alternative selectors
+                    const altContainer = document.querySelector('.product-images') || document.querySelector('.images-container');
+                    if (altContainer) {
+                        console.log('🖼️ ENHANCED: Found alternative container:', altContainer.className);
+                    }
+                    return;
+                }
+                
+                if (!images.length) {
+                    console.warn('⚠️ ENHANCED: No product images (.product-image) found');
+                    // Try alternative image selectors
+                    const altImages = document.querySelectorAll('.product-detail-image') || document.querySelectorAll('.slider-image');
+                    console.log('🖼️ ENHANCED: Alternative images found:', altImages.length);
+                    return;
+                }
+                
+                let currentSlide = 0;
+                let startX = 0;
+                let isDragging = false;
+                let autoSlideInterval = null;
+                
+                console.log(`🖼️ ENHANCED: Successfully found ${images.length} images for slider`);
+            
+                // Touch/Swipe handlers
+                imageContainer.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                    isDragging = true;
+                    // Stop auto-slide when user interacts
+                    if (autoSlideInterval) {
+                        clearInterval(autoSlideInterval);
+                        autoSlideInterval = null;
+                    }
+                });
+                
+                imageContainer.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                });
+                
+                imageContainer.addEventListener('touchend', (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    
+                    const endX = e.changedTouches[0].clientX;
+                    const diffX = startX - endX;
+                    
+                    if (Math.abs(diffX) > 50) { // Minimum swipe distance
+                        if (diffX > 0) {
+                            nextSlide();
+                        } else {
+                            prevSlide();
+                        }
+                    }
+                });
+                
+                // Navigation functions
+                window.nextSlide = function() {
+                    currentSlide = (currentSlide + 1) % images.length;
+                    updateSlider();
+                };
+                
+                window.prevSlide = function() {
+                    currentSlide = (currentSlide - 1 + images.length) % images.length;
+                    updateSlider();
+                };
+                
+                window.goToSlide = function(index) {
+                    currentSlide = index;
+                    updateSlider();
+                };
+                
+                function updateSlider() {
+                    // Update image positions
+                    images.forEach((img, index) => {
+                        img.style.transform = `translateX(-${currentSlide * 100}%)`;
+                    });
+                    
+                    // Update pagination dots
+                    dots.forEach((dot, index) => {
+                        dot.classList.toggle('active', index === currentSlide);
+                    });
+                    
+                    console.log(`🖼️ ENHANCED: Slider updated to slide ${currentSlide + 1}/${images.length}`);
+                }
+                
+                // Auto-slide functionality
+                function startAutoSlide() {
+                    if (images.length > 1) {
+                        autoSlideInterval = setInterval(() => {
+                            nextSlide();
+                        }, 4000); // Change slide every 4 seconds
+                        console.log('🖼️ ENHANCED: Auto-slide started');
                     }
                 }
-            });
-            
-            // Navigation functions
-            window.nextSlide = function() {
-                currentSlide = (currentSlide + 1) % images.length;
-                updateSlider();
-            };
-            
-            window.prevSlide = function() {
-                currentSlide = (currentSlide - 1 + images.length) % images.length;
-                updateSlider();
-            };
-            
-            window.goToSlide = function(index) {
-                currentSlide = index;
-                updateSlider();
-            };
-            
-            function updateSlider() {
-                // Update image positions
-                images.forEach((img, index) => {
-                    img.style.transform = `translateX(-${currentSlide * 100}%)`;
-                });
                 
-                // Update pagination dots
-                dots.forEach((dot, index) => {
-                    dot.classList.toggle('active', index === currentSlide);
-                });
+                function stopAutoSlide() {
+                    if (autoSlideInterval) {
+                        clearInterval(autoSlideInterval);
+                        autoSlideInterval = null;
+                        console.log('🖼️ ENHANCED: Auto-slide stopped');
+                    }
+                }
                 
-                console.log(`🖼️ Slider updated to slide ${currentSlide}`);
-            }
-            
-            // Auto-slide functionality (optional)
-            let autoSlideInterval;
-            
-            function startAutoSlide() {
-                if (images.length > 1) {
-                    autoSlideInterval = setInterval(() => {
-                        nextSlide();
-                    }, 4000); // Change slide every 4 seconds
-                }
-            }
-            
-            function stopAutoSlide() {
-                if (autoSlideInterval) {
-                    clearInterval(autoSlideInterval);
-                    autoSlideInterval = null;
-                }
-            }
-            
-            // Start auto-slide
-            startAutoSlide();
-            
-            // Pause auto-slide when user interacts
-            imageContainer.addEventListener('touchstart', stopAutoSlide);
-            
-            console.log('✅ Image slider initialized successfully');
+                // Initialize slider
+                updateSlider();
+                startAutoSlide();
+                
+                console.log('✅ ENHANCED: Image slider initialized successfully with', images.length, 'images');
+                
+            }, 200); // Wait 200ms for DOM to be ready
         };
 
         // Test real Shopify pricing data - COMPREHENSIVE DEBUG
