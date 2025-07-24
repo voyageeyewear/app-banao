@@ -8320,6 +8320,14 @@
 
         // Render products in mobile collection page
         function renderMobileCollectionProducts(collectionProducts, handle, collectionPage) {
+            console.log('🎨 RENDER: Mobile collection products for:', handle);
+            console.log('🎨 RENDER: Products to render:', collectionProducts.map(p => ({
+                title: p.title,
+                price: p.price,
+                originalPrice: p.originalPrice,
+                hasComparePrice: !!p.originalPrice
+            })));
+            
             const collectionName = handle.charAt(0).toUpperCase() + handle.slice(1);
             const contentDiv = collectionPage.querySelector('.collection-mobile-content');
             
@@ -8343,8 +8351,8 @@
                                     <h4 class="product-mobile-title">${product.title}</h4>
                                     <div class="product-mobile-price">
                                         <span class="mobile-current-price">₹${product.price}</span>
-                                        ${product.originalPrice > product.price ? `<span class="mobile-original-price">₹${product.originalPrice}</span>` : ''}
-                                        ${product.originalPrice > product.price ? `<span class="mobile-discount">${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF</span>` : ''}
+                                        ${product.originalPrice && product.originalPrice > product.price ? `<span class="mobile-original-price">₹${product.originalPrice}</span>` : ''}
+                                        ${product.originalPrice && product.originalPrice > product.price ? `<span class="mobile-discount">${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF</span>` : ''}
                                     </div>
                                     <div class="product-mobile-features">
                                         <span class="mobile-feature">${product.available ? '✓ In Stock' : '❌ Out of Stock'}</span>
@@ -8633,25 +8641,60 @@
             }
         }
 
-        // Helper function to transform products to our expected format
+        // Helper function to transform products to our expected format - PRESERVE REAL SHOPIFY PRICING
         function transformProductsToFormat(products) {
             return products.map(product => {
+                console.log('💰 TRANSFORM: Processing product pricing:', {
+                    productTitle: product.title,
+                    rawPrice: product.price,
+                    variants: product.variants,
+                    hasVariants: !!(product.variants && product.variants.length > 0)
+                });
+                
                 // Parse price from string format
                 let price = 0;
-                let originalPrice = 0;
+                let originalPrice = null; // Start with null - only set if we have real data
                 
                 if (product.price) {
                     price = parseFloat(product.price) || 0;
-                    originalPrice = Math.round(price * 1.4); // Generate 40% discount
                 }
                 
-                return {
+                // Check for real compare-at price from Shopify variants
+                if (product.variants && product.variants.length > 0) {
+                    const firstVariant = product.variants[0];
+                    
+                    console.log('💰 TRANSFORM: Checking variant for compare-at price:', {
+                        variantPrice: firstVariant.price,
+                        compareAtPrice: firstVariant.compareAtPrice,
+                        variantData: firstVariant
+                    });
+                    
+                    // If variant has compare-at price, use it
+                    if (firstVariant.compareAtPrice && parseFloat(firstVariant.compareAtPrice) > 0) {
+                        const compareAtPrice = parseFloat(firstVariant.compareAtPrice);
+                        if (compareAtPrice > price) {
+                            originalPrice = Math.round(compareAtPrice);
+                            console.log('✅ TRANSFORM: Using REAL Shopify compare-at price:', {
+                                current: price,
+                                original: originalPrice,
+                                discount: Math.round(((originalPrice - price) / originalPrice) * 100)
+                            });
+                        }
+                    }
+                }
+                
+                // If no real compare-at price found, don't generate fake ones
+                if (!originalPrice) {
+                    console.log('⚠️ TRANSFORM: No compare-at price from Shopify, showing current price only');
+                }
+                
+                const finalProduct = {
                     id: product.id,
                     title: product.title,
                     handle: product.handle,
                     price: Math.round(price),
-                    originalPrice: originalPrice,
-                    vendor: 'GoEye',
+                    originalPrice: originalPrice, // Will be null if no real compare-at price
+                    vendor: product.vendor || 'GoEye',
                     image: product.image || product.images?.[0] || '',
                     description: product.description || '',
                     available: product.available !== false,
@@ -8662,6 +8705,15 @@
                         available: product.available !== false
                     }]
                 };
+                
+                console.log('💰 TRANSFORM: Final product pricing:', {
+                    title: finalProduct.title,
+                    price: finalProduct.price,
+                    originalPrice: finalProduct.originalPrice,
+                    willShowComparePrice: !!finalProduct.originalPrice
+                });
+                
+                return finalProduct;
             });
         }
 
@@ -9443,6 +9495,55 @@
             imageContainer.addEventListener('touchstart', stopAutoSlide);
             
             console.log('✅ Image slider initialized successfully');
+        };
+
+        // Test real Shopify pricing data
+        window.testRealPricing = async function(collection = 'glam') {
+            console.log('💰 TESTING: Real Shopify pricing for collection:', collection);
+            
+            try {
+                // Fetch real collection products
+                const realProducts = await fetchRealCollectionProducts(collection);
+                
+                if (realProducts && realProducts.length > 0) {
+                    console.log('💰 TESTING: Real products found:');
+                    realProducts.forEach((product, index) => {
+                        console.log(`💰 Product ${index + 1}:`, {
+                            title: product.title,
+                            currentPrice: product.price,
+                            originalPrice: product.originalPrice,
+                            hasComparePrice: !!product.originalPrice,
+                            willShowDiscount: !!(product.originalPrice && product.originalPrice > product.price),
+                            rawVariants: product.variants
+                        });
+                    });
+                } else {
+                    console.log('💰 TESTING: No real products found for collection:', collection);
+                }
+                
+                // Also test the API directly
+                console.log('💰 TESTING: Direct API call to mobile-products...');
+                const response = await fetch(`${API_BASE}/api/mobile-products`);
+                const data = await response.json();
+                
+                if (data.success && data.collections) {
+                    const targetCollection = data.collections.find(c => c.handle === collection);
+                    if (targetCollection) {
+                        console.log('💰 TESTING: Raw API collection products:');
+                        targetCollection.products.forEach((product, index) => {
+                            console.log(`💰 Raw Product ${index + 1}:`, {
+                                title: product.title,
+                                price: product.price,
+                                variants: product.variants,
+                                firstVariant: product.variants?.[0]
+                            });
+                        });
+                    }
+                }
+                
+            } catch (error) {
+                console.error('💰 TESTING: Error testing real pricing:', error);
+            }
         };
 
         // Quick test function for immediate debugging
