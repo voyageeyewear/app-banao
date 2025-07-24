@@ -8316,9 +8316,18 @@
         
         // Open product detail page from collection
         window.openProductFromCollection = function(productHandle, event) {
+            console.log('🔍 COLLECTION CLICK DEBUG: Function called with:', {
+                productHandle,
+                eventExists: !!event,
+                eventType: event?.type,
+                target: event?.target?.tagName,
+                currentTarget: event?.currentTarget?.className
+            });
+            
             if (event) {
                 event.preventDefault();
                 event.stopPropagation();
+                console.log('🔍 COLLECTION CLICK DEBUG: Event prevented and stopped');
             }
             
             console.log('🔍 Opening product from collection:', productHandle);
@@ -8347,11 +8356,13 @@
             // Open product detail page after smooth transition
             setTimeout(async () => {
                 try {
+                    console.log('🔍 COLLECTION CLICK DEBUG: About to call showProduct with:', productHandle);
                     // Use the existing product detail page system
                     await showProduct(productHandle);
-                    console.log('✅ Product detail page opened for:', productHandle);
+                    console.log('✅ COLLECTION CLICK DEBUG: Product detail page opened successfully for:', productHandle);
                 } catch (error) {
-                    console.error('❌ Error opening product:', error);
+                    console.error('❌ COLLECTION CLICK DEBUG: Error opening product:', error);
+                    console.error('❌ COLLECTION CLICK DEBUG: Error stack:', error.stack);
                     showToast('Error opening product details');
                     // Restore collection page if product fails to load
                     restoreCollectionPage();
