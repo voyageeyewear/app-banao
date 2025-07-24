@@ -6104,48 +6104,92 @@
              };
          }
         
-        // Open Product Detail Page
-                 function openProductDetailPage(product) {
-             console.log('📱 Opening product detail page for:', product.title);
-             
-             // DEBUG: Log the actual product data received from API
-             console.log('🔍 ACTUAL PRODUCT DATA FROM API:', {
-                 title: product.title,
-                 price: product.price,
-                 originalPrice: product.originalPrice,
-                 discount: product.discount,
-                 id: product.id,
-                 hasApiId: !!product.id,
-                 hasOriginalPrice: !!product.originalPrice,
-                 apiSource: product.id ? 'Shopify API' : 'Local fallback'
-             });
-             
-             // Hide main app content
-             document.body.classList.add('hide-header');
+                // Open Product Detail Page
+        function openProductDetailPage(product) {
+            console.log('📱 Opening product detail page for:', product.title);
+            console.log('🚨 FORCE: Opening FULL-SCREEN product detail page (not modal)');
+            
+            // DEBUG: Log the actual product data received from API
+            console.log('🔍 ACTUAL PRODUCT DATA FROM API:', {
+                title: product.title,
+                price: product.price,
+                originalPrice: product.originalPrice,
+                discount: product.discount,
+                id: product.id,
+                hasApiId: !!product.id,
+                hasOriginalPrice: !!product.originalPrice,
+                apiSource: product.id ? 'Shopify API' : 'Local fallback'
+            });
+            
+            // FORCE CLOSE ANY MODALS FIRST
+            const existingModals = document.querySelectorAll('.product-modal');
+            existingModals.forEach(modal => modal.remove());
+            console.log('🚨 FORCE: Removed any existing modals');
+            
+            // FORCE FULL-SCREEN MODE
+            document.body.classList.add('hide-header');
+            document.body.style.overflow = 'hidden';
+            console.log('🚨 FORCE: Set body to full-screen mode');
+            
+            // Hide main app content COMPLETELY
             const mainContent = document.querySelector('.app-content');
             if (mainContent) {
                 mainContent.style.display = 'none';
+                mainContent.style.visibility = 'hidden';
             }
             
-            // Create and show product detail page
+            // Hide collection page
+            const collectionPage = document.getElementById('collection-full-page');
+            if (collectionPage) {
+                collectionPage.style.display = 'none';
+            }
+            
+            console.log('🚨 FORCE: Hidden all background content');
+            
+            // Create and show FULL-SCREEN product detail page
             createProductDetailPage(product);
+            console.log('🚨 FORCE: Created full-screen product detail page');
             
             // Update current view
             currentView = 'product-detail';
             
-                         // Update navigation state
-             updateNavigationForProductPage();
+            // Update navigation state
+            updateNavigationForProductPage();
          }
          
          // Create Product Detail Page
          function createProductDetailPage(product) {
+             console.log('🚨 CREATING FULL-SCREEN PRODUCT DETAIL PAGE');
+             
              // Remove existing product detail page if it exists
              removeProductDetailPage();
+             
+             // FORCE REMOVE ANY MODALS
+             const modals = document.querySelectorAll('.product-modal, .modal, .popup');
+             modals.forEach(modal => {
+                 console.log('🚨 FORCE: Removing modal:', modal.className);
+                 modal.remove();
+             });
              
              // Create product detail container
              const productDetailPage = document.createElement('div');
              productDetailPage.id = 'product-detail-page';
              productDetailPage.className = 'product-detail-page';
+             
+             // FORCE FULL-SCREEN STYLES
+             productDetailPage.style.cssText = `
+                 position: fixed !important;
+                 top: 0 !important;
+                 left: 0 !important;
+                 width: 100% !important;
+                 height: 100% !important;
+                 z-index: 9999 !important;
+                 background: white !important;
+                 overflow-y: auto !important;
+                 display: block !important;
+             `;
+             
+             console.log('🚨 FORCE: Applied full-screen styles to product detail page');
              
              // Generate product detail HTML
              const generatedHTML = generateProductDetailHTML(product);
@@ -6625,49 +6669,58 @@
               }
           }
           
-          // Return to collection page smoothly
-          function returnToCollectionPage(collectionInfo) {
-              const collectionPage = document.getElementById('collection-full-page');
-              
-              if (collectionPage) {
-                  // Collection page still exists, restore it smoothly
-                  console.log('✅ Collection page found, restoring...');
-                  
-                  // Show main app content but keep collection page mode
-                  const mainContent = document.querySelector('.app-content');
-                  if (mainContent) {
-                      mainContent.style.display = 'block';
-                  }
-                  
-                  // Restore collection page with smooth animation
-                  collectionPage.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease';
-                  collectionPage.style.transform = 'translateX(0)';
-                  collectionPage.style.opacity = '1';
-                  
-                  // Update navigation state
-                  currentView = 'collection';
-                  document.body.classList.remove('hide-header');
-                  
-                  console.log('✅ Smoothly returned to collection page');
-              } else {
-                  // Collection page doesn't exist, recreate it
-                  console.log('🔄 Collection page not found, reopening collection...');
-                  
-                  // Show main app content first
-                  const mainContent = document.querySelector('.app-content');
-                  if (mainContent) {
-                      mainContent.style.display = 'block';
-                  }
-                  
-                  // Update navigation state
-                  document.body.classList.remove('hide-header');
-                  
-                  // Reopen the collection after a brief delay
-                  setTimeout(() => {
-                      showCollection(collectionInfo.handle);
-                  }, 100);
-              }
-          }
+                     // Return to collection page smoothly
+           function returnToCollectionPage(collectionInfo) {
+               console.log('🚨 FORCE: Returning to collection page:', collectionInfo);
+               
+               // FORCE RESTORE BODY STATE
+               document.body.style.overflow = '';
+               document.body.classList.remove('hide-header');
+               console.log('🚨 FORCE: Restored body state');
+               
+               const collectionPage = document.getElementById('collection-full-page');
+               
+               if (collectionPage) {
+                   // Collection page still exists, restore it smoothly
+                   console.log('✅ Collection page found, restoring...');
+                   
+                   // FORCE SHOW COLLECTION PAGE
+                   collectionPage.style.display = 'block';
+                   collectionPage.style.visibility = 'visible';
+                   
+                   // Show main app content but keep collection page mode
+                   const mainContent = document.querySelector('.app-content');
+                   if (mainContent) {
+                       mainContent.style.display = 'block';
+                       mainContent.style.visibility = 'visible';
+                   }
+                   
+                   // Restore collection page with smooth animation
+                   collectionPage.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease';
+                   collectionPage.style.transform = 'translateX(0)';
+                   collectionPage.style.opacity = '1';
+                   
+                   // Update navigation state
+                   currentView = 'collection';
+                   
+                   console.log('✅ FORCE: Smoothly returned to collection page');
+               } else {
+                   // Collection page doesn't exist, recreate it
+                   console.log('🔄 Collection page not found, reopening collection...');
+                   
+                   // FORCE SHOW MAIN APP CONTENT
+                   const mainContent = document.querySelector('.app-content');
+                   if (mainContent) {
+                       mainContent.style.display = 'block';
+                       mainContent.style.visibility = 'visible';
+                   }
+                   
+                   // Reopen the collection after a brief delay
+                   setTimeout(() => {
+                       showCollection(collectionInfo.handle);
+                   }, 100);
+               }
+           }
           
           // Return to home page
           function returnToHomePage() {
@@ -9271,6 +9324,31 @@
             
             // Force open the product detail page
             window.forceOpenProductDetailPage(productHandle);
+        };
+
+        // Quick test function for immediate debugging
+        window.debugProductOpen = function() {
+            console.log('🧪 DEBUG: Testing product detail page opening...');
+            
+            // Test with a known product handle
+            const testProduct = {
+                id: 'test-product-123',
+                handle: 'eyejack-cream-square-eyeglasses-for-men-women-2903fcl2098-c6',
+                title: 'Eyejack Cream Square Eyeglasses for Men & Women',
+                price: '₹799',
+                originalPrice: '₹1199',
+                discount: 33,
+                image: 'https://cdn.shopify.com/s/files/1/0756/1/products/2903FCL2098-C6_Box.jpg',
+                images: ['https://cdn.shopify.com/s/files/1/0756/1/products/2903FCL2098-C6_Box.jpg'],
+                description: 'Premium quality eyeglasses with modern design.',
+                rating: 4.5,
+                ratingCount: 125,
+                isNew: true,
+                inStock: true
+            };
+            
+            console.log('🧪 DEBUG: Opening test product directly...');
+            openProductDetailPage(testProduct);
         };
 
         // Test product detail opening directly
