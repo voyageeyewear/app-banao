@@ -5966,14 +5966,43 @@
          async function findProductByHandle(handle) {
              console.log('🔍 Finding product by handle:', handle);
              
-             // First try to fetch from API for enhanced data
+             // First try to fetch from mobile-products API for enhanced data
              try {
-                 const response = await fetch(`${API_BASE}/api/product-detail?handle=${encodeURIComponent(handle)}`);
+                 console.log('🌐 Fetching from mobile-products API...');
+                 const response = await fetch(`${API_BASE}/api/mobile-products`);
                  if (response.ok) {
                      const data = await response.json();
-                     if (data.success && data.product) {
-                         console.log('✅ Product data fetched from API:', data.product.title);
-                         return data.product;
+                     if (data.success && data.collections) {
+                         console.log('✅ Mobile products data received, searching for product...');
+                         
+                         // Search through all collections for the product
+                         for (const collection of data.collections) {
+                             const product = collection.products.find(p => p.handle === handle);
+                             if (product) {
+                                 console.log('✅ Product found in collection:', collection.title);
+                                 return enhanceProductFromAPI(product);
+                             }
+                         }
+                         
+                         // Also search in the main products array if available
+                         if (data.products) {
+                             const product = data.products.find(p => p.handle === handle);
+                             if (product) {
+                                 console.log('✅ Product found in main products array');
+                                 return enhanceProductFromAPI(product);
+                             }
+                         }
+                     }
+                 }
+                 
+                 // Fallback: Try the product-detail endpoint
+                 console.log('🔄 Trying product-detail endpoint as fallback...');
+                 const detailResponse = await fetch(`${API_BASE}/api/product-detail?handle=${encodeURIComponent(handle)}`);
+                 if (detailResponse.ok) {
+                     const detailData = await detailResponse.json();
+                     if (detailData.success && detailData.product) {
+                         console.log('✅ Product data fetched from product-detail API:', detailData.product.title);
+                         return detailData.product;
                      }
                  }
              } catch (error) {
@@ -6007,6 +6036,49 @@
              
              console.log('❌ Product not found anywhere for handle:', handle);
              return null;
+         }
+         
+         // Enhance product data from API with proper formatting for product detail page
+         function enhanceProductFromAPI(product) {
+             console.log('🎨 Enhancing API product data:', product);
+             
+             // Calculate pricing information
+             const currentPrice = parseFloat(product.price || '0');
+             const compareAtPrice = product.variants && product.variants[0] && product.variants[0].compareAtPrice 
+                 ? parseFloat(product.variants[0].compareAtPrice) 
+                 : null;
+             
+             let discount = 0;
+             let originalPrice = null;
+             
+             if (compareAtPrice && compareAtPrice > currentPrice) {
+                 discount = Math.round(((compareAtPrice - currentPrice) / compareAtPrice) * 100);
+                 originalPrice = `₹${compareAtPrice}`;
+             }
+             
+             return {
+                 id: product.id || product.handle || '1',
+                 handle: product.handle || product.id || 'unknown',
+                 title: product.title || 'Unknown Product',
+                 subtitle: 'Premium Eyewear Collection',
+                 price: `₹${currentPrice}`,
+                 originalPrice: originalPrice,
+                 discount: discount,
+                 image: product.image || (product.images && product.images[0]) || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop',
+                 images: product.images || [product.image || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop'],
+                 rating: 4.5,
+                 ratingCount: Math.floor(Math.random() * 300) + 100,
+                 description: product.description || 'High-quality eyewear designed for comfort and style. Features premium materials and superior craftsmanship.',
+                 features: ['Premium Quality', 'UV Protection', 'Comfortable Fit', 'Durable Material', '1 Year Warranty'],
+                 isNew: Math.random() > 0.5, // Random new badge
+                 inStock: product.available !== false,
+                 feature: 'Anti-reflective coating & UV protection',
+                 variants: product.variants || [],
+                 deliveryTime: "2-3 business days",
+                 freeShipping: true,
+                 returnPolicy: "30-day free returns",
+                 warranty: "1-year manufacturer warranty"
+             };
          }
          
          // Enhance local product data with additional fields for product detail page
@@ -9150,6 +9222,71 @@
             if (collectionPage) {
                 console.log('📄 Collection data attribute:', collectionPage.getAttribute('data-collection-handle'));
                 console.log('📄 Collection title:', collectionPage.querySelector('.collection-mobile-title')?.textContent);
+            }
+        };
+
+        // Test product detail opening directly
+        window.testProductDetail = async function(handle = 'eyejack-cream-square-eyeglasses-for-men-women-2903fcl2098-c6') {
+            console.log('🔍 Testing product detail opening for:', handle);
+            
+            try {
+                console.log('🌐 Fetching product data...');
+                const product = await findProductByHandle(handle);
+                
+                if (product) {
+                    console.log('✅ Product found:', product.title);
+                    console.log('🎨 Product data:', product);
+                    
+                    // Open the product detail page
+                    await showProduct(handle);
+                    
+                    console.log('✅ Product detail page should be open now');
+                } else {
+                    console.log('❌ Product not found for handle:', handle);
+                    
+                    // Show available products
+                    console.log('🔍 Available products in collections:');
+                    const response = await fetch(`${API_BASE}/api/mobile-products`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.collections) {
+                        data.collections.forEach(collection => {
+                            console.log(`📁 Collection: ${collection.title} (${collection.handle})`);
+                            collection.products.forEach(product => {
+                                console.log(`  - ${product.title} (${product.handle})`);
+                            });
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Error testing product detail:', error);
+            }
+        };
+
+        // Test product opening from specific collection
+        window.testProductFromCollection = async function(collectionHandle = 'glam', productIndex = 0) {
+            console.log('🔍 Testing product opening from collection:', collectionHandle);
+            
+            try {
+                // First open the collection
+                await showCollection(collectionHandle);
+                
+                // Wait for collection to load
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Find and click the specified product
+                const collectionPage = document.getElementById('collection-full-page');
+                const productCards = collectionPage?.querySelectorAll('.collection-mobile-card');
+                
+                if (productCards && productCards[productIndex]) {
+                    console.log(`✅ Found product card ${productIndex}, clicking...`);
+                    productCards[productIndex].click();
+                } else {
+                    console.log('❌ Product card not found at index:', productIndex);
+                    console.log('📊 Available product cards:', productCards?.length);
+                }
+            } catch (error) {
+                console.error('❌ Error testing product from collection:', error);
             }
         };
 
