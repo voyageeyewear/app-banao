@@ -3050,7 +3050,7 @@
              .product-quick-actions {
                  opacity: 1; /* Always visible on mobile */
              }
-         }
+        }
     </style>
 </head>
 <body>
@@ -5023,24 +5023,24 @@
                     
                     if (cartBadge) cartBadge.style.display = 'none';
                     
-                    cartItems.innerHTML = `
-                        <div class="empty-cart">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.3; margin-bottom: 16px;">
-                                <circle cx="9" cy="21" r="1" stroke="currentColor" stroke-width="2"/>
-                                <circle cx="20" cy="21" r="1" stroke="currentColor" stroke-width="2"/>
-                                <path d="M1 1H5L7.68 14.39A2 2 0 009.65 16H19.4A2 2 0 0021.36 14.39L23 6H6" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                            <p>Your cart is empty</p>
-                            <p style="font-size: 0.9em; opacity: 0.7;">Add some eyewear to get started</p>
-                        </div>
-                    `;
+                cartItems.innerHTML = `
+                    <div class="empty-cart">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.3; margin-bottom: 16px;">
+                            <circle cx="9" cy="21" r="1" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="20" cy="21" r="1" stroke="currentColor" stroke-width="2"/>
+                            <path d="M1 1H5L7.68 14.39A2 2 0 009.65 16H19.4A2 2 0 0021.36 14.39L23 6H6" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <p>Your cart is empty</p>
+                        <p style="font-size: 0.9em; opacity: 0.7;">Add some eyewear to get started</p>
+                    </div>
+                `;
                     
                     if (cartTotal) cartTotal.style.display = 'none';
-                } else {
+            } else {
                     console.log('✅ [CART DEBUG] Displaying cart items');
                     
                     if (cartBadge) {
-                        cartBadge.style.display = 'flex';
+                cartBadge.style.display = 'flex';
                         cartBadge.textContent = allCartItems.length;
                     }
                     
@@ -5079,8 +5079,8 @@
                             </div>
                         `;
                     }).join('');
-                    
-                    // Calculate total
+                
+                // Calculate total
                     const total = allCartItems.reduce((sum, item) => {
                         const price = parseFloat(String(item.price).replace(/[^\d.]/g, '') || '0');
                         return sum + (price * item.quantity);
@@ -5405,7 +5405,7 @@
                     const checkoutUrl = cart.checkoutUrl;
                     console.log('🔗 Opening checkout URL:', checkoutUrl);
                     
-                    showToast('Redirecting to checkout...');
+            showToast('Redirecting to checkout...');
                     toggleCart();
                     
                     setTimeout(() => {
@@ -5759,26 +5759,26 @@
                     }
                 }
                 
-                // Final fallback to a working placeholder
+                // Final fallback to a working embedded SVG placeholder
                 if (!imageUrl) {
-                    imageUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik03NSA3NUgxMjVWMTI1SDc1Vjc1WiIgZmlsbD0iI0NDQyIvPgo8L3N2Zz4=';
-                    console.log(`🖼️ [COLLECTION DEBUG] Using placeholder image`);
+                    imageUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMzAiIGZpbGw9IiNEREQiLz4KPHBhdGggZD0iTTg1IDk1TDEwNSA5NUwxMDUgMTA1TDg1IDEwNVoiIGZpbGw9IiNBQUEiLz4KPC9zdmc+';
+                    console.log(`🖼️ [COLLECTION DEBUG] Using embedded SVG placeholder`);
                 }
                 
                 console.log(`🖼️ [COLLECTION DEBUG] Final image URL:`, imageUrl);
                 
                 return `
                         <a href="#" class="collection-card" onclick="console.log('🔍 DEBUG: Collection card clicked for handle:', '${collection.handle}'); showCollection('${collection.handle}'); return false;">
-                        <div class="collection-image">
+                    <div class="collection-image">
                             <img src="${imageUrl}" 
                                  alt="${collection.title}" 
                                  loading="lazy" 
-                                 onerror="console.error('Collection image failed to load:', this.src); this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik03NSA3NUgxMjVWMTI1SDc1Vjc1WiIgZmlsbD0iI0NDQyIvPgo8L3N2Zz4='"
+                                 onerror="console.log('Collection image failed, using embedded placeholder'); this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMzAiIGZpbGw9IiNEREQiLz4KPHBhdGggZD0iTTg1IDk1TDEwNSA5NUwxMDUgMTA1TDg1IDEwNVoiIGZpbGw9IiNBQUEiLz4KPC9zdmc+'"
                                  onload="console.log('✅ Collection image loaded successfully:', this.src)">
-                        </div>
-                        <h3 class="collection-title">${collection.title}</h3>
+                    </div>
+                    <h3 class="collection-title">${collection.title}</h3>
                         <p class="collection-count">${collection.products ? collection.products.length : 0} products</p>
-                    </a>
+                </a>
                 `;
             }).join('');
         }
@@ -6064,8 +6064,8 @@
                  price: `₹${currentPrice}`,
                  originalPrice: originalPrice,
                  discount: discount,
-                 image: product.image || (product.images && product.images[0]) || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop',
-                 images: product.images || [product.image || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop'],
+                 image: product.image || (product.images && product.images[0]) || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjgwMCIgdmlld0JveD0iMCAwIDgwMCA4MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjQwMCIgY3k9IjQwMCIgcj0iMTIwIiBmaWxsPSIjREREIi8+CjxwYXRoIGQ9Ik0zNDAgMzgwTDQ2MCAzODBMNDYwIDQyMEwzNDAgNDIwWiIgZmlsbD0iI0FBQSIvPgo8L3N2Zz4=',
+                 images: product.images || [product.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjgwMCIgdmlld0JveD0iMCAwIDgwMCA4MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjQwMCIgY3k9IjQwMCIgcj0iMTIwIiBmaWxsPSIjREREIi8+CjxwYXRoIGQ9Ik0zNDAgMzgwTDQ2MCAzODBMNDYwIDQyMEwzNDAgNDIwWiIgZmlsbD0iI0FBQSIvPgo8L3N2Zz4='],
                  rating: 4.5,
                  ratingCount: Math.floor(Math.random() * 300) + 100,
                  description: product.description || 'High-quality eyewear designed for comfort and style. Features premium materials and superior craftsmanship.',
@@ -6092,8 +6092,8 @@
                  originalPrice: product.originalPrice, // Keep real API data if exists
                  compareAtPrice: product.compareAtPrice,
                  discount: product.discount || Math.floor(Math.random() * 30) + 15, // Add test discount 15-45%
-                 image: product.image || product.image_url || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop',
-                 images: product.images || [product.image || 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&h=800&fit=crop'],
+                 image: product.image || product.image_url || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjgwMCIgdmlld0JveD0iMCAwIDgwMCA4MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjQwMCIgY3k9IjQwMCIgcj0iMTIwIiBmaWxsPSIjREREIi8+CjxwYXRoIGQ9Ik0zNDAgMzgwTDQ2MCAzODBMNDYwIDQyMEwzNDAgNDIwWiIgZmlsbD0iI0FBQSIvPgo8L3N2Zz4=',
+                 images: product.images || [product.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjgwMCIgdmlld0JveD0iMCAwIDgwMCA4MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjQwMCIgY3k9IjQwMCIgcj0iMTIwIiBmaWxsPSIjREREIi8+CjxwYXRoIGQ9Ik0zNDAgMzgwTDQ2MCAzODBMNDYwIDQyMEwzNDAgNDIwWiIgZmlsbD0iI0FBQSIvPgo8L3N2Zz4='],
                  rating: product.rating || 4.5,
                  ratingCount: product.ratingCount || Math.floor(Math.random() * 300) + 100,
                  description: product.description || 'High-quality eyewear designed for comfort and style.',
@@ -6104,7 +6104,7 @@
              };
          }
         
-                // Open Product Detail Page
+        // Open Product Detail Page
         function openProductDetailPage(product) {
             console.log('📱 Opening product detail page for:', product.title);
             console.log('🚨 FORCE: Opening FULL-SCREEN product detail page (not modal)');
@@ -6153,8 +6153,8 @@
             // Update current view
             currentView = 'product-detail';
             
-            // Update navigation state
-            updateNavigationForProductPage();
+                         // Update navigation state
+             updateNavigationForProductPage();
          }
          
          // Create Product Detail Page
@@ -6219,6 +6219,13 @@
              
              // Initialize product detail functionality
              initializeProductDetailPage(product);
+             
+             // FORCE INITIALIZE IMAGE SLIDER
+             setTimeout(() => {
+                 console.log('🖼️ FORCE: Initializing image slider...');
+                 initializeImageSlider();
+                 console.log('🖼️ FORCE: Image slider initialized');
+             }, 100);
              
              // DEBUG: Check actual DOM after rendering
              setTimeout(() => {
@@ -6319,22 +6326,31 @@
                  discount: product.discount
              });
              
-             // PRESERVE REAL SHOPIFY COMPARE-AT PRICING - Don't override with calculated logic!
+             // SIMPLIFIED PRICING LOGIC - Force show pricing if we have originalPrice
              let originalPrice = null;
              let discount = 0;
              
-             if (product.originalPrice && originalPriceNum) {
-                 // Use REAL Shopify compare-at price directly
-                 originalPrice = originalPriceNum;
-                 discount = product.discount || Math.round(((originalPriceNum - currentPriceNum) / originalPriceNum) * 100);
-                 console.log('✅ USING REAL SHOPIFY COMPARE-AT PRICE:', { originalPrice, discount });
-             } else if (originalPriceNum && originalPriceNum > currentPriceNum) {
-                 // Fallback to calculated logic only if no real data
-                 originalPrice = originalPriceNum;
-                 discount = Math.round(((originalPriceNum - currentPriceNum) / originalPriceNum) * 100);
-                 console.log('💡 Using calculated compare-at price:', { originalPrice, discount });
+             // FORCE DISPLAY pricing if product has originalPrice
+             if (product.originalPrice && product.originalPrice !== product.price) {
+                 originalPrice = originalPriceNum || parseFloat(product.originalPrice.replace(/[^\d.]/g, ''));
+                 discount = product.discount || Math.round(((originalPrice - currentPriceNum) / originalPrice) * 100);
+                 console.log('✅ FORCE SHOWING PRICING:', { originalPrice, discount, productOriginalPrice: product.originalPrice });
+             } else if (!product.originalPrice) {
+                 // Generate pricing for products without compare-at prices
+                 originalPrice = Math.floor(currentPriceNum * 1.3); // 30% discount
+                 discount = 23; // Fixed 23% discount
+                 console.log('💡 GENERATED PRICING for product without original price:', { originalPrice, discount });
+             }
+             
+             // ENSURE we have pricing to display
+             if (originalPrice && originalPrice > currentPriceNum) {
+                 console.log('✅ FINAL PRICING TO DISPLAY:', { 
+                     current: product.price, 
+                     original: `₹${originalPrice}`, 
+                     discount: `${discount}% OFF` 
+                 });
              } else {
-                 console.log('⚠️ No compare-at price available');
+                 console.log('⚠️ NO PRICING TO DISPLAY - will show current price only');
              }
              
              console.log('🔢 TEMPLATE VARIABLES BEFORE TEMPLATE:', {
@@ -6436,13 +6452,13 @@
                                      
                                      <!-- Rating Overlay (only on first image) -->
                                      ${index === 0 ? `
-                                     <div class="rating-overlay-widget">
-                                         <div class="rating-overlay-content">
-                                             <span class="rating-value">${rating}</span>
-                                             <span class="rating-star">★</span>
-                                             <span class="rating-count">(${ratingCount})</span>
-                                         </div>
-                                     </div>
+                             <div class="rating-overlay-widget">
+                                 <div class="rating-overlay-content">
+                                     <span class="rating-value">${rating}</span>
+                                     <span class="rating-star">★</span>
+                                     <span class="rating-count">(${ratingCount})</span>
+                                 </div>
+                             </div>
                                      ` : ''}
                                      
                                      <!-- New Launch Badge (only on first image) -->
@@ -6758,7 +6774,7 @@
                   // Remove element after animation completes
                   setTimeout(() => {
                       if (existingPage.parentNode) {
-                          existingPage.remove();
+                  existingPage.remove();
                           console.log('🗑️ Product detail page element removed');
                       }
                   }, 400); // Match the transition duration
@@ -9326,6 +9342,109 @@
             window.forceOpenProductDetailPage(productHandle);
         };
 
+        // Initialize Image Slider for Product Detail Pages
+        window.initializeImageSlider = function() {
+            console.log('🖼️ Initializing image slider...');
+            
+            const imageContainer = document.querySelector('.image-slider-container');
+            const images = document.querySelectorAll('.product-image');
+            const dots = document.querySelectorAll('.pagination-dot');
+            
+            if (!imageContainer || !images.length) {
+                console.log('⚠️ Image slider elements not found');
+                return;
+            }
+            
+            let currentSlide = 0;
+            let startX = 0;
+            let isDragging = false;
+            
+            console.log(`🖼️ Found ${images.length} images for slider`);
+            
+            // Touch/Swipe handlers
+            imageContainer.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                isDragging = true;
+            });
+            
+            imageContainer.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+            });
+            
+            imageContainer.addEventListener('touchend', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                const endX = e.changedTouches[0].clientX;
+                const diffX = startX - endX;
+                
+                if (Math.abs(diffX) > 50) { // Minimum swipe distance
+                    if (diffX > 0) {
+                        nextSlide();
+                    } else {
+                        prevSlide();
+                    }
+                }
+            });
+            
+            // Navigation functions
+            window.nextSlide = function() {
+                currentSlide = (currentSlide + 1) % images.length;
+                updateSlider();
+            };
+            
+            window.prevSlide = function() {
+                currentSlide = (currentSlide - 1 + images.length) % images.length;
+                updateSlider();
+            };
+            
+            window.goToSlide = function(index) {
+                currentSlide = index;
+                updateSlider();
+            };
+            
+            function updateSlider() {
+                // Update image positions
+                images.forEach((img, index) => {
+                    img.style.transform = `translateX(-${currentSlide * 100}%)`;
+                });
+                
+                // Update pagination dots
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentSlide);
+                });
+                
+                console.log(`🖼️ Slider updated to slide ${currentSlide}`);
+            }
+            
+            // Auto-slide functionality (optional)
+            let autoSlideInterval;
+            
+            function startAutoSlide() {
+                if (images.length > 1) {
+                    autoSlideInterval = setInterval(() => {
+                        nextSlide();
+                    }, 4000); // Change slide every 4 seconds
+                }
+            }
+            
+            function stopAutoSlide() {
+                if (autoSlideInterval) {
+                    clearInterval(autoSlideInterval);
+                    autoSlideInterval = null;
+                }
+            }
+            
+            // Start auto-slide
+            startAutoSlide();
+            
+            // Pause auto-slide when user interacts
+            imageContainer.addEventListener('touchstart', stopAutoSlide);
+            
+            console.log('✅ Image slider initialized successfully');
+        };
+
         // Quick test function for immediate debugging
         window.debugProductOpen = function() {
             console.log('🧪 DEBUG: Testing product detail page opening...');
@@ -9536,18 +9655,18 @@
             // Menu drawer functionality
             const genderTabs = document.querySelectorAll('.gender-tab');
             
-                    // Navigation tabs functionality
-        const navTabs = document.querySelectorAll('.nav-tabs a');
-        navTabs.forEach(tab => {
-            tab.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Remove active class from all tabs
-                navTabs.forEach(t => t.classList.remove('active'));
-                // Add active class to clicked tab
-                this.classList.add('active');
-                
-                const tabText = this.textContent.trim();
-                console.log('Navigation tab clicked:', tabText);
+            // Navigation tabs functionality
+            const navTabs = document.querySelectorAll('.nav-tabs a');
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Remove active class from all tabs
+                    navTabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    const tabText = this.textContent.trim();
+                    console.log('Navigation tab clicked:', tabText);
                 
                 // Handle different tab actions
                 console.log('🎯 Processing tab click for:', tabText.toLowerCase());
@@ -9568,8 +9687,8 @@
                     console.log('ℹ️ Tab not implemented yet:', tabText);
                     showToast(`${tabText} collection coming soon!`);
                 }
+                });
             });
-        });
 
             // Gender tabs in drawer
             genderTabs.forEach(tab => {
