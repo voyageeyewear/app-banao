@@ -8655,8 +8655,22 @@
                     price = parseFloat(product.price) || 0;
                 }
                 
-                // Check for real compare-at price from Shopify variants
-                if (product.variants && product.variants.length > 0) {
+                // ✅ PRIORITY 1: Use API-provided originalPrice (real Shopify compareAtPrice)
+                if (product.originalPrice) {
+                    const apiOriginalPrice = parseFloat(product.originalPrice.toString().replace(/[^\d.]/g, ''));
+                    if (apiOriginalPrice && apiOriginalPrice > price) {
+                        originalPrice = Math.round(apiOriginalPrice);
+                        console.log('✅ TRANSFORM: Using API-provided original price (Real Shopify):', {
+                            current: price,
+                            original: originalPrice,
+                            source: 'API.originalPrice',
+                            discount: Math.round(((originalPrice - price) / originalPrice) * 100)
+                        });
+                    }
+                }
+                
+                // ✅ PRIORITY 2: Check for real compare-at price from Shopify variants (backup)
+                if (!originalPrice && product.variants && product.variants.length > 0) {
                     const firstVariant = product.variants[0];
                     
                     console.log('💰 TRANSFORM: Checking variant for compare-at price:', {
@@ -8670,9 +8684,10 @@
                         const compareAtPrice = parseFloat(firstVariant.compareAtPrice);
                         if (compareAtPrice > price) {
                             originalPrice = Math.round(compareAtPrice);
-                            console.log('✅ TRANSFORM: Using REAL Shopify compare-at price:', {
+                            console.log('✅ TRANSFORM: Using variant compare-at price:', {
                                 current: price,
                                 original: originalPrice,
+                                source: 'variant.compareAtPrice',
                                 discount: Math.round(((originalPrice - price) / originalPrice) * 100)
                             });
                         }

@@ -39,19 +39,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
                   }
                 }
               }
-              variants(first: 5) {
-                edges {
-                  node {
-                    id
-                    title
-                    price {
-                      amount
-                      currencyCode
+                                  variants(first: 5) {
+                      edges {
+                        node {
+                          id
+                          title
+                          price {
+                            amount
+                            currencyCode
+                          }
+                          compareAtPrice {
+                            amount
+                            currencyCode
+                          }
+                          availableForSale
+                        }
+                      }
                     }
-                    availableForSale
-                  }
-                }
-              }
             }
           }
         }
@@ -81,19 +85,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
                         }
                       }
                     }
-                    variants(first: 1) {
-                      edges {
-                        node {
-                          id
-                          title
-                          price {
-                            amount
-                            currencyCode
-                          }
-                          availableForSale
-                        }
-                      }
+                                  variants(first: 1) {
+                edges {
+                  node {
+                    id
+                    title
+                    price {
+                      amount
+                      currencyCode
                     }
+                    compareAtPrice {
+                      amount
+                      currencyCode
+                    }
+                    availableForSale
+                  }
+                }
+              }
                   }
                 }
               }
@@ -128,6 +136,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     // Transform products to match expected format
     const products = data.data.products.edges.map((edge: any) => {
       const node = edge.node;
+      const firstVariant = node.variants.edges[0]?.node;
+      const currentPrice = parseFloat(firstVariant?.price?.amount || "0");
+      const compareAtPrice = firstVariant?.compareAtPrice?.amount ? parseFloat(firstVariant.compareAtPrice.amount) : null;
+      
+      // 🎯 REAL SHOPIFY COMPARE-AT PRICE LOGIC
+      console.log(`💰 PRODUCT PRICING - ${node.title}:`, {
+        currentPrice,
+        compareAtPrice,
+        hasRealComparePrice: !!compareAtPrice,
+        willShowDiscount: compareAtPrice && compareAtPrice > currentPrice
+      });
+      
       return {
         id: node.id,
         title: node.title,
@@ -135,13 +155,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         handle: node.handle,
         image: node.images.edges[0]?.node.url || null,
         images: node.images.edges.map((img: any) => img.node.url),
-        price: node.variants.edges[0]?.node.price?.amount || "0.00",
-        currency: node.variants.edges[0]?.node.price?.currencyCode || "USD",
-        available: node.variants.edges[0]?.node.availableForSale || false,
+        price: currentPrice.toString(),
+        originalPrice: compareAtPrice && compareAtPrice > currentPrice ? compareAtPrice.toString() : null,
+        currency: firstVariant?.price?.currencyCode || "USD",
+        available: firstVariant?.availableForSale || false,
         variants: node.variants.edges.map((v: any) => ({
           id: v.node.id,
           title: v.node.title,
           price: v.node.price?.amount || "0.00",
+          compareAtPrice: v.node.compareAtPrice?.amount || null,
           available: v.node.availableForSale
         })),
       };
@@ -158,6 +180,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         image: node.image?.url || null,
         products: node.products.edges.map((pEdge: any) => {
           const p = pEdge.node;
+          const firstVariant = p.variants.edges[0]?.node;
+          const currentPrice = parseFloat(firstVariant?.price?.amount || "0");
+          const compareAtPrice = firstVariant?.compareAtPrice?.amount ? parseFloat(firstVariant.compareAtPrice.amount) : null;
+          
+          // 🎯 COLLECTION PRODUCT PRICING
+          console.log(`💰 COLLECTION PRODUCT - ${p.title}:`, {
+            currentPrice,
+            compareAtPrice,
+            hasRealComparePrice: !!compareAtPrice,
+            willShowDiscount: compareAtPrice && compareAtPrice > currentPrice
+          });
+          
           return {
             id: p.id,
             title: p.title,
@@ -165,13 +199,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
             handle: p.handle,
             image: p.images.edges[0]?.node.url || null,
             images: p.images.edges.map((img: any) => img.node.url),
-            price: p.variants.edges[0]?.node.price?.amount || "0.00",
-            currency: p.variants.edges[0]?.node.price?.currencyCode || "USD",
-            available: p.variants.edges[0]?.node.availableForSale || false,
+            price: currentPrice.toString(),
+            originalPrice: compareAtPrice && compareAtPrice > currentPrice ? compareAtPrice.toString() : null,
+            currency: firstVariant?.price?.currencyCode || "USD",
+            available: firstVariant?.availableForSale || false,
             variants: p.variants.edges.map((v: any) => ({
               id: v.node.id,
               title: v.node.title,
               price: v.node.price?.amount || "0.00",
+              compareAtPrice: v.node.compareAtPrice?.amount || null,
               available: v.node.availableForSale
             })),
           };
