@@ -1860,8 +1860,69 @@
         .loading-text {
             font-size: 0.9rem;
             opacity: 0.8;
-            margin: 0;
+            margin: 0 0 1.5rem 0;
             animation: loadingTextPulse 2s ease-in-out infinite;
+            transition: opacity 0.3s ease;
+            min-height: 1.2rem;
+        }
+        
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #fff, #f0f0f0, #fff);
+            background-size: 200% 100%;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: progressShimmer 2s ease-in-out infinite;
+        }
+        
+        .progress-percent {
+            font-size: 0.8rem;
+            font-weight: 600;
+            min-width: 35px;
+            text-align: right;
+            animation: percentPulse 1.5s ease-in-out infinite;
+        }
+        
+        .loading-steps {
+            margin-top: 0.5rem;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .step-dot.active {
+            background: white;
+            transform: scale(1.3);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
         }
         
         /* Splash Screen Animations */
@@ -1934,6 +1995,70 @@
             }
             50% {
                 opacity: 1;
+            }
+        }
+        
+        @keyframes progressShimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+        
+        @keyframes percentPulse {
+            0%, 100% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+        
+        @keyframes sparkleFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-10px) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.8);
+            }
+        }
+        
+        @keyframes logoComplete {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 6px 16px rgba(255, 255, 255, 0.4));
+            }
+            100% {
+                transform: scale(1);
+                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            }
+        }
+        
+        @keyframes stepComplete {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+            }
+            50% {
+                transform: scale(1.5);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            }
+            100% {
+                transform: scale(1.3);
+                box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
             }
         }
 
@@ -3444,6 +3569,20 @@
                     <div class="spinner-circle"></div>
                 </div>
                 <p class="loading-text">Loading your experience...</p>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                    <span class="progress-percent">0%</span>
+                </div>
+                <div class="loading-steps">
+                    <div class="step-indicator">
+                        <span class="step-dot active"></span>
+                        <span class="step-dot"></span>
+                        <span class="step-dot"></span>
+                        <span class="step-dot"></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -4218,49 +4357,39 @@
             }
             
             // CRITICAL: Always reset iframe completely for ALL tabs
-            console.log('🧹 Resetting iframe for fresh load...');
+            console.log('🔄 Resetting iframe for fresh load...');
             
-            // Force hard refresh to clear cache
-            try {
-                iframe.contentWindow?.location?.reload(true);
-            } catch (e) {
-                console.log('🔄 Could not force reload:', e);
-            }
+            // Force complete iframe reset
+            iframe.src = 'about:blank';
             
-            // Clear all iframe attributes and content
-            iframe.src = '';
-            iframe.removeAttribute('data-loaded');
-            iframe.removeAttribute('data-url');
-            
-            // Clear any existing event handlers
-            iframe.onload = null;
-            iframe.onerror = null;
-            
-            // Show loading state
-            showToast('📄 Loading page...');
-            
-            // Force a complete reset by removing and re-adding iframe (most reliable method)
-            const iframeParent = iframe.parentNode;
-            const newIframe = iframe.cloneNode(false);
-            newIframe.id = 'externalPageFrame';
-            newIframe.className = 'external-page-iframe';
-            newIframe.frameBorder = '0';
-            
-            iframeParent.removeChild(iframe);
-            iframeParent.appendChild(newIframe);
-            
-            // Show overlay with smooth animation
-            showOverlayDirectly();
-            
-            // Load the new URL after a brief delay to ensure clean state
+            // Clear any cached content
             setTimeout(() => {
-                console.log('✅ Setting iframe source to:', url);
-                // Add cache-busting parameter
-                const cacheBustUrl = url.includes('?') ? `${url}&t=${Date.now()}` : `${url}?t=${Date.now()}`;
-                newIframe.src = cacheBustUrl;
-                setupIframeHandlers(newIframe, url);
-            }, 150);
-            
+                console.log('📄 Setting new iframe source:', url);
+                iframe.src = url;
+                
+                // Show overlay with loading state
+                overlay.style.display = 'flex';
+                overlay.style.opacity = '0';
+                
+                // Animate overlay in
+                requestAnimationFrame(() => {
+                    overlay.style.transition = 'opacity 0.3s ease';
+                    overlay.style.opacity = '1';
+                });
+                
+                // Handle iframe load completion
+                iframe.onload = function() {
+                    console.log('✅ External page loaded successfully:', url);
+                    showToast('Page loaded successfully!');
+                };
+                
+                iframe.onerror = function() {
+                    console.error('❌ Failed to load external page:', url);
+                    showToast('❌ Failed to load page. Please try again.');
+                    closeExternalPage();
+                };
+                
+            }, 100); // Small delay to ensure reset takes effect
         }
 
         function setupIframeHandlers(iframe, url) {
@@ -9568,13 +9697,42 @@
                         a.appendChild(iconSpan);
                         a.appendChild(document.createTextNode(' ' + item.title));
                         
-                        // Add click event
+                        // Add click event with proper page loading logic
                         a.addEventListener('click', function(e) {
                             e.preventDefault();
                             // Remove active class from all tabs
                             navTabs.querySelectorAll('a').forEach(tab => tab.classList.remove('active'));
                             // Add active class to clicked tab
                             a.classList.add('active');
+                            
+                            // Handle page loading based on title
+                            const tabText = item.title.toLowerCase().trim();
+                            console.log('🎯 Dynamic nav tab clicked:', tabText);
+                            
+                            if (tabText === 'classic') {
+                                console.log('🎨 Loading Classic Collection page...');
+                                loadExternalPage('./pages/classic-collection.html');
+                            } else if (tabText === 'premium') {
+                                console.log('💎 Loading Premium Collection page...');
+                                loadExternalPage('./pages/premium-collection.html');
+                            } else if (tabText === 'sport') {
+                                console.log('🏃 Loading Sport Collection page...');
+                                loadExternalPage('./pages/sport-collection.html');
+                            } else if (tabText === 'trendy') {
+                                console.log('✨ Loading Trendy Collection page...');
+                                loadExternalPage('./pages/trendy-collection.html');
+                            } else if (tabText === 'all') {
+                                console.log('🏠 Returning to home view...');
+                                // Close any external pages and return to home
+                                closeExternalPage();
+                            } else {
+                                console.log(`📄 Loading custom page for: ${tabText}`);
+                                if (item.link && item.link !== '#') {
+                                    loadExternalPage(item.link);
+                                } else {
+                                    showToast(`${item.title} section coming soon!`);
+                                }
+                            }
                         });
                         
                         li.appendChild(a);
@@ -10303,26 +10461,157 @@
              // Setup splash screen removal after app loads
              let appLoadingStartTime = Date.now();
              
-             // Monitor app loading progress
+             // Start initial loading progress
+             setTimeout(() => {
+                 updateLoadingProgress('Initializing app...', 0);
+             }, 300);
+             
+             // Enhanced loading progress monitoring with animations
+             let loadingSteps = {
+                 initialization: false,
+                 productsLoaded: false,
+                 collectionsLoaded: false,
+                 stylingApplied: false
+             };
+             
              const checkAppReady = setInterval(() => {
                  const elapsedTime = Date.now() - appLoadingStartTime;
-                 const minimumSplashTime = 2000; // Minimum 2 seconds splash
+                 const minimumSplashTime = 3500; // Increased to 3.5 seconds minimum
                  
-                 // Check if essential content is loaded
+                 // Check loading progress
                  const productsGrid = document.getElementById('products-grid');
                  const collectionsGrid = document.getElementById('collections-grid');
+                 
+                 // Update loading steps
+                 if (!loadingSteps.initialization && elapsedTime > 500) {
+                     loadingSteps.initialization = true;
+                     updateLoadingProgress('Initializing app...', 25);
+                 }
+                 
+                 if (!loadingSteps.productsLoaded && productsGrid && productsGrid.children.length > 0) {
+                     loadingSteps.productsLoaded = true;
+                     updateLoadingProgress('Loading products...', 50);
+                 }
+                 
+                 if (!loadingSteps.collectionsLoaded && collectionsGrid && collectionsGrid.children.length > 0) {
+                     loadingSteps.collectionsLoaded = true;
+                     updateLoadingProgress('Loading collections...', 75);
+                 }
+                 
+                 if (!loadingSteps.stylingApplied && loadingSteps.productsLoaded && elapsedTime > 2000) {
+                     loadingSteps.stylingApplied = true;
+                     updateLoadingProgress('Finalizing experience...', 90);
+                 }
+                 
+                 // Check if everything is ready
+                 const allStepsComplete = Object.values(loadingSteps).every(step => step);
                  const isContentLoaded = productsGrid && productsGrid.children.length > 0;
                  
-                 // Remove splash when content is ready AND minimum time has passed
-                 if (isContentLoaded && elapsedTime >= minimumSplashTime) {
-                     clearInterval(checkAppReady);
-                     hideSplashScreen();
-                 } else if (elapsedTime >= 5000) {
-                     // Force remove after 5 seconds maximum
-                     clearInterval(checkAppReady);
-                     hideSplashScreen();
+                 // Complete loading when all steps done AND minimum time passed
+                 if (allStepsComplete && isContentLoaded && elapsedTime >= minimumSplashTime) {
+                     updateLoadingProgress('Welcome to GoEye Store!', 100);
+                     setTimeout(() => {
+                         clearInterval(checkAppReady);
+                         hideSplashScreen();
+                     }, 800); // Show completion message briefly
+                 } else if (elapsedTime >= 8000) {
+                     // Force remove after 8 seconds maximum (increased from 5)
+                     updateLoadingProgress('Ready!', 100);
+                     setTimeout(() => {
+                         clearInterval(checkAppReady);
+                         hideSplashScreen();
+                     }, 500);
                  }
-             }, 100);
+             }, 200); // Check every 200ms for smoother progress
+         }
+         
+         // Update loading progress with animations
+         function updateLoadingProgress(message, progress) {
+             console.log(`🎬 SPLASH: ${message} (${progress}%)`);
+             
+             const loadingText = document.querySelector('.loading-text');
+             const progressBar = document.querySelector('.progress-bar-fill');
+             const progressPercent = document.querySelector('.progress-percent');
+             const stepDots = document.querySelectorAll('.step-dot');
+             
+             if (loadingText) {
+                 // Animate text change
+                 loadingText.style.opacity = '0.5';
+                 setTimeout(() => {
+                     loadingText.textContent = message;
+                     loadingText.style.opacity = '1';
+                 }, 150);
+             }
+             
+             if (progressBar) {
+                 progressBar.style.width = `${progress}%`;
+             }
+             
+             if (progressPercent) {
+                 progressPercent.textContent = `${progress}%`;
+             }
+             
+             // Update step indicators based on progress
+             stepDots.forEach((dot, index) => {
+                 dot.classList.remove('active');
+                 if (progress >= (index + 1) * 25) {
+                     dot.classList.add('active');
+                 }
+             });
+             
+             // Add special animations for milestones
+             if (progress === 25) {
+                 addPulseEffect('.step-dot:nth-child(1)');
+             } else if (progress === 50) {
+                 addSparkleEffect();
+                 addPulseEffect('.step-dot:nth-child(2)');
+             } else if (progress === 75) {
+                 addPulseEffect('.step-dot:nth-child(3)');
+             } else if (progress === 100) {
+                 addCompletionAnimation();
+                 addPulseEffect('.step-dot:nth-child(4)');
+             }
+         }
+         
+         // Add pulse effect to specific elements
+         function addPulseEffect(selector) {
+             const element = document.querySelector(selector);
+             if (element) {
+                 element.style.animation = 'stepComplete 0.6s ease-out';
+                 setTimeout(() => {
+                     element.style.animation = '';
+                 }, 600);
+             }
+         }
+         
+         // Add sparkle effect for mid-progress
+         function addSparkleEffect() {
+             const splashContent = document.querySelector('.splash-content');
+             if (splashContent) {
+                 const sparkle = document.createElement('div');
+                 sparkle.className = 'sparkle-effect';
+                 sparkle.innerHTML = '✨';
+                 sparkle.style.cssText = `
+                     position: absolute;
+                     top: 40%;
+                     right: 20%;
+                     font-size: 1.5rem;
+                     animation: sparkleFloat 1s ease-out forwards;
+                 `;
+                 splashContent.appendChild(sparkle);
+                 
+                 setTimeout(() => {
+                     sparkle.remove();
+                 }, 1000);
+             }
+         }
+         
+         // Add completion animation
+         function addCompletionAnimation() {
+             const logoSvg = document.querySelector('.logo-svg');
+             if (logoSvg) {
+                 logoSvg.style.animation = 'logoComplete 0.8s ease-out forwards';
+             }
          }
          
          function hideSplashScreen() {
@@ -10548,6 +10837,7 @@
             const genderTabs = document.querySelectorAll('.gender-tab');
             
             // Navigation tabs functionality
+            console.log('🎯 Setting up static navigation tab handlers...');
             const navTabs = document.querySelectorAll('.nav-tabs a');
             navTabs.forEach(tab => {
                 tab.addEventListener('click', function(e) {
@@ -10558,10 +10848,10 @@
                     this.classList.add('active');
                     
                     const tabText = this.textContent.trim();
-                    console.log('Navigation tab clicked:', tabText);
+                    console.log('📍 Static navigation tab clicked:', tabText);
                 
                 // Handle different tab actions
-                console.log('🎯 Processing tab click for:', tabText.toLowerCase());
+                console.log('🎯 Processing static tab click for:', tabText.toLowerCase());
                 
                 if (tabText.toLowerCase() === 'classic') {
                     console.log('🎨 Loading Classic Collection page...');
@@ -10575,6 +10865,9 @@
                 } else if (tabText.toLowerCase() === 'trendy') {
                     console.log('✨ Loading Trendy Collection page...');
                     loadExternalPage('./pages/trendy-collection.html');
+                } else if (tabText.toLowerCase() === 'all') {
+                    console.log('🏠 Returning to home view...');
+                    closeExternalPage();
                 } else {
                     console.log('ℹ️ Tab not implemented yet:', tabText);
                     showToast(`${tabText} collection coming soon!`);
