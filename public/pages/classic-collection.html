@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classic Collection - GoEye Store</title>
+    <title>Eyejack Eyewear - GoEye Store</title>
     <style>
         * {
             margin: 0;
@@ -16,6 +16,9 @@
             background: #f8f9fa;
             min-height: 100vh;
             padding-top: env(safe-area-inset-top, 20px);
+            padding-left: env(safe-area-inset-left, 0px);
+            padding-right: env(safe-area-inset-right, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
         }
 
         /* Header Styles from Home Page */
@@ -24,12 +27,13 @@
             top: 0;
             z-index: 20;
             width: 100%;
-            background: #fff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: #000000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            color: white;
         }
 
         .custom-header-wrapper {
-            padding: 1rem;
+            padding: 8px;
             margin-bottom: 0;
         }
 
@@ -58,7 +62,7 @@
             flex: 1;
             display: flex;
             justify-content: flex-end;
-            gap: 1rem;
+            
         }
 
         .custom-header-logo {
@@ -83,9 +87,14 @@
             width: 100%;
             padding: 10px 2.5rem 10px 1rem;
             border-radius: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid #444;
             font-size: 14px;
-            background: #f5f5f5;
+            background: #333;
+            color: white;
+        }
+
+        .custom-header-search input::placeholder {
+            color: #ccc;
         }
 
         .custom-header-search button {
@@ -109,12 +118,21 @@
             background: none;
             border: none;
             font-size: 20px;
-            padding: 0;
+            padding: 8px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            color: #1a1a1a;
+            color: white;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+        }
+
+        .custom-header-icons a:hover,
+        .custom-header-icons button:hover,
+        .custom-header-left button:hover,
+        .custom-header-right a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #f0f0f0;
         }
 
         .custom-header-nav {
@@ -134,7 +152,7 @@
             margin: 0;
             list-style: none;
             white-space: nowrap;
-            background: #fff;
+            background: #000000;
         }
 
         .nav-tabs li {
@@ -149,7 +167,7 @@
             gap: 8px;
             padding: 14px 16px;
             text-decoration: none;
-            color: #6B7280;
+            color: #ccc;
             font-size: 12px;
             font-weight: 600;
             transition: all 0.3s ease;
@@ -159,7 +177,7 @@
         }
 
         .nav-tabs a.active {
-            color: #1E1B4B;
+            color: white;
             font-weight: 600;
             background: transparent;
         }
@@ -171,8 +189,12 @@
             left: 0;
             width: 100%;
             height: 2px;
-            background-color: #1E1B4B;
+            background-color: white;
             border-radius: 2px 2px 0 0;
+        }
+
+        .nav-tabs a:hover:not(.active) {
+            color: #f0f0f0;
         }
 
         .nav-tab-icon {
@@ -233,7 +255,7 @@
             font-size: 2.2rem;
             font-weight: 900;
             margin: 0;
-            letter-spacing: -0.5px;
+            letter-spacing: 0px;
             text-transform: uppercase;
             color: #1a1a1a;
         }
@@ -275,7 +297,7 @@
 
         @media (max-width: 768px) {
             .banner-title {
-                font-size: 1.8rem;
+                font-size: 18px;
             }
             
             .banner-subtitle {
@@ -306,7 +328,6 @@
             font-weight: 700;
             color: #1a1a1a;
             margin: 0 0 10px 0;
-            letter-spacing: -0.5px;
         }
 
         .perfect-fit-subtitle {
@@ -351,7 +372,7 @@
         }
 
         .fit-option-label {
-            background: linear-gradient(135deg, #d4f442 0%, #b8e63c 100%);
+            background: linear-gradient(135deg, #d4f442 0%, #ffffff 100%);
             padding: 20px;
             text-align: center;
         }
@@ -367,7 +388,7 @@
 
         @media (max-width: 768px) {
             .perfect-fit-title {
-                font-size: 2rem;
+                font-size: 22px;
             }
             
             .perfect-fit-subtitle {
@@ -427,7 +448,7 @@
 
         /* Combo Offers Banner */
         .combo-offers-banner {
-            background: linear-gradient(135deg, #d4f442 0%, #b8e63c 100%);
+            background: linear-gradient(135deg, #d4f442 0%, #ffffff 100%);
             padding: 25px 20px;
             text-align: center;
             margin: 20px 0;
@@ -455,7 +476,7 @@
 
         @media (max-width: 480px) {
             .combo-offers-title {
-                font-size: 1.6rem;
+                font-size: 22px;
             }
             
             .combo-offers-banner {
@@ -644,245 +665,82 @@
             }
         }
 
-        /* Classic Collection Slider */
+        /* Classic Collection Slider - Full Screen */
         .classic-slider-container {
             position: relative;
-            width: 100%;
-            height: 50vh; /* Half screen height */
-            overflow: hidden;
+            width: 100vw;
             
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 0;
+            overflow: hidden;
+            background: transparent;
+            margin-left: calc(-50vw + 50%);
+            margin-bottom: 0;
         }
 
         .slider-wrapper {
             position: relative;
-            width: max-content;
+            width: 100%;
             height: 100%;
             display: flex;
-            transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
-            align-items: center;
-            padding: 0 50px;
+            transition: transform 0.5s ease-in-out;
         }
 
         .slide {
-            flex: 0 0 280px;
+            flex: 0 0 100%;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0;
-            margin: 0 15px;
-            transform: scale(0.85) perspective(1000px) rotateY(25deg);
-            opacity: 0.7;
-            transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .slide.center {
-            transform: scale(1) perspective(1000px) rotateY(0deg);
-            opacity: 1;
-            z-index: 5;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        }
-
-        .slide.prev {
-            transform: scale(0.85) perspective(1000px) rotateY(25deg);
-        }
-
-        .slide.next {
-            transform: scale(0.85) perspective(1000px) rotateY(-25deg);
+            width: 100%;
+            height: 100%;
         }
 
         .slide-image-container {
             width: 100%;
-            height: 350px;
+            height: 100%;
             position: relative;
-            overflow: hidden;
-            border-radius: 20px;
-            background: #fff;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .slide-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            transition: transform 0.8s ease;
+            object-fit: contain;
             display: block;
-        }
-
-        .slide.center .slide-image {
-            transform: scale(1.02);
-        }
-
-        .slide::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
             
-            z-index: 1;
         }
 
-        .slide-content {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.85) 100%);
-            padding: 40px 20px 20px;
-            color: white;
-            text-align: center;
-            z-index: 3;
-        }
 
-        .slide-badge {
-            background: rgba(255, 255, 255, 0.9);
-            color: #1e3c72;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: inline-block;
-            backdrop-filter: blur(10px);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
 
-        .slide-title {
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 4px;
-            line-height: 1.2;
-            color: white;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-        }
-
-        .slide-subtitle {
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-            opacity: 0.9;
-            font-weight: 400;
-        }
-
-        .slide-description {
-            font-size: 0.8rem;
-            line-height: 1.3;
-            margin-bottom: 12px;
-            opacity: 0.8;
-            max-width: 220px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .slide-cta {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .cta-button {
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            color: #1e3c72;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            margin: 0 4px;
-        }
-
-        .cta-button:hover {
-            background: white;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .cta-button.primary {
-            background: linear-gradient(45deg, #c1ea3d, #ffffff);
-            color: rgb(0, 0, 0);
-        }
-
-        .cta-button.primary:hover {
-            background: linear-gradient(45deg, #ff5252, #ff7979);
-            transform: translateY(-1px);
-        }
-
-        /* Slider Navigation */
+        /* Slider Navigation - Hidden */
         .slider-nav {
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-            z-index: 3;
+            display: none;
         }
 
         .nav-dot {
-            width: 8px;
-            height: 8px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.5);
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: none;
         }
 
         .nav-dot.active {
             background: white;
-            transform: scale(1.3);
+            transform: scale(1.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
-        /* Slider Controls */
-        .slider-controls {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 3;
+        .nav-dot:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: scale(1.1);
         }
 
-        .slider-control {
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
 
-        .slider-control:hover {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .slider-control.prev {
-            left: 10px;
-        }
-
-        .slider-control.next {
-            right: 10px;
-        }
 
         /* Back Button */
         .back-button {
@@ -988,12 +846,573 @@
             }
 
             .slide {
-                padding: 20px 15px;
+                padding: 0px 0px;
             }
 
             .cta-button {
                 width: 100%;
                 justify-content: center;
+            }
+        }
+
+        /* Pick Your Vibe Section */
+        .pick-your-vibe-section {
+            background: #f8f9fa;
+            padding: 60px 20px;
+            margin: 0;
+        }
+
+        .vibe-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .vibe-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin: 0 0 15px 0;
+            letter-spacing: 0px;
+        }
+
+        .vibe-subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin: 0 0 50px 0;
+            font-weight: 400;
+        }
+
+        .vibe-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 30px;
+            justify-items: center;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .vibe-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .vibe-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .vibe-circle {
+            width: 160px;
+            height: 160px;
+            background: #f5f3d0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .vibe-circle::before {
+            content: '';
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            background: #e8e8e8;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .vibe-item:hover .vibe-circle {
+            background: #f0ed85;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+            transform: scale(1.05);
+        }
+
+        .vibe-icon {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .vibe-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .vibe-title {
+                font-size: 2rem;
+            }
+            
+            .vibe-subtitle {
+                font-size: 1rem;
+            }
+            
+            .vibe-grid {
+                gap: 25px;
+                max-width: 550px;
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+            }
+            
+            .vibe-circle {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .vibe-circle::before {
+                width: 85px;
+                height: 85px;
+            }
+            
+            .vibe-icon {
+                width: 65px;
+                height: 65px;
+            }
+            
+            .vibe-label {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pick-your-vibe-section {
+                padding: 40px 15px;
+            }
+            
+            .vibe-title {
+                font-size: 1.8rem;
+            }
+            
+            .vibe-subtitle {
+                font-size: 0.9rem;
+                margin-bottom: 35px;
+            }
+            
+            .vibe-grid {
+                gap: 15px;
+                max-width: 350px;
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+            }
+            
+            .vibe-circle {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .vibe-circle::before {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .vibe-icon {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .vibe-label {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Recommended Section Styles */
+        .recommended-section {
+            padding: 60px 20px;
+            background: #f7f7f5;
+        }
+        
+        .recommended-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .recommended-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0 0 15px 0;
+            letter-spacing: -0.02em;
+        }
+        
+        .recommended-subtitle {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #666666;
+            margin: 0 0 50px 0;
+        }
+        
+        .recommendation-cards {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: nowrap;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .recommendation-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 24px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 200px;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .recommendation-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        
+        .bestselling-card {
+            background: linear-gradient(135deg, #c4d600 0%, #b8cc00 100%);
+            color: #1a1a1a;
+        }
+        
+        .men-card, .women-card {
+            background: #e8e2d9;
+            color: #1a1a1a;
+        }
+        
+        .card-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-text {
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 768px) {
+            .recommended-section {
+                padding: 15px 15px;
+            }
+            
+            .recommended-title {
+                font-size: 2rem;
+            }
+            
+            .recommended-subtitle {
+                font-size: 1rem;
+                margin-bottom: 40px;
+            }
+            
+            .recommendation-cards {
+                gap: 15px;
+            }
+            
+            .recommendation-card {
+                font-size: 1rem;
+                padding: 14px 20px;
+                min-width: 120px;
+                flex: 1;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .recommended-section {
+                padding: 10px 15px;
+            }
+            
+            .recommended-title {
+                font-size: 1.8rem;
+            }
+            
+            .recommended-subtitle {
+                font-size: 0.9rem;
+                margin-bottom: 35px;
+            }
+            
+            .recommendation-cards {
+                gap: 8px;
+            }
+            
+            .recommendation-card {
+                flex: 1;
+                font-size: 0.9rem;
+                padding: 12px 16px;
+                min-width: auto;
+            }
+        }
+
+        /* Featured Products Showcase Section */
+        .featured-products-section {
+            padding: 60px 20px;
+            background: #f7f7f5;
+        }
+        
+        .featured-products-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .products-carousel-wrapper {
+            position: relative;
+        }
+        
+        .products-carousel {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 20px 0 40px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .products-carousel::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .product-showcase-card {
+            flex: 0 0 300px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        
+        .product-showcase-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        
+        .product-showcase-image {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+        }
+        
+        .product-showcase-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .product-showcase-card:hover .product-showcase-image img {
+            transform: scale(1.05);
+        }
+        
+        .product-wishlist-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+        
+        .product-wishlist-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+        
+        .product-wishlist-btn.active {
+            background: #c4d600;
+            color: white;
+        }
+        
+        .product-color-options {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.95);
+            padding: 8px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .color-option {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.2);
+        }
+        
+        .color-option.blue { background: #4a90e2; }
+        .color-option.gray { background: #8e8e93; }
+        .color-option.brown { background: #8b4513; }
+        .color-option.black { background: #000000; }
+        .color-option.green { background: #34c759; }
+        
+        .color-count {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-left: 4px;
+        }
+        
+        .product-showcase-info {
+            padding: 20px;
+        }
+        
+        .product-brand {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .product-showcase-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .product-pricing {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .current-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .original-price {
+            font-size: 16px;
+            color: #999;
+            text-decoration: line-through;
+        }
+        
+        .discount-percent {
+            background: #c4d600;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .add-to-bag-btn {
+            width: 100%;
+            background: #333;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .add-to-bag-btn:hover {
+            background: #555;
+            transform: translateY(-1px);
+        }
+        
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-dot.active {
+            background: #333;
+            transform: scale(1.2);
+        }
+        
+        @media (max-width: 768px) {
+            .featured-products-section {
+                padding: 40px 15px;
+            }
+            
+            .product-showcase-card {
+                flex: 0 0 280px;
+            }
+            
+            .product-showcase-image {
+                height: 220px;
+            }
+            
+            .product-showcase-info {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .product-showcase-card {
+                flex: 0 0 260px;
+            }
+            
+            .product-showcase-image {
+                height: 200px;
+            }
+            
+            .products-carousel {
+                gap: 15px;
+                padding: 15px 0 30px 0;
             }
         }
     </style>
@@ -1020,10 +1439,10 @@
                 
                 <div class="custom-header-center">
                     <div class="custom-header-logo">
-                        <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=50&fit=crop&q=80" 
+                        <img src="https://goeye.in/cdn/shop/files/jpn_christmas_logo_goeye_png_1.png?v=1747214882" 
                              alt="GoEye Logo" 
                              loading="eager"
-                             onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;font-weight:bold;color:#333;font-size:14px;&quot;>GoEye</div>'">
+                             onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;font-weight:bold;color:white;font-size:14px;&quot;>GoEye</div>'">
                     </div>
                 </div>
 
@@ -1074,21 +1493,39 @@
                     <li>
                         <a href="#" class="active">
                             <span class="nav-tab-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M6 3h12M6 21h12"/>
                                 </svg>
                             </span>
-                            Classic
+                            Eyejack Eyewear
                         </a>
                     </li>
                     <li>
-                        <a href="#" onclick="showToast('Premium section coming soon!')">
+                        <a href="#" onclick="showToast('Sunglasses section coming soon!')">
                             <span class="nav-tab-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 12c0-1.5 1-3 3-3s3 1.5 3 3-1 3-3 3-3-1.5-3-3z"/>
+                                    <path d="M15 12c0-1.5 1-3 3-3s3 1.5 3 3-1 3-3 3-3-1.5-3-3z"/>
+                                    <path d="M9 12h6"/>
+                                    <path d="M3 9h3M18 9h3"/>
                                 </svg>
                             </span>
-                            Premium
+                            Sunglasses
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showToast('Eyeglasses section coming soon!')">
+                            <span class="nav-tab-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <circle cx="6" cy="12" r="4"/>
+                                    <circle cx="18" cy="12" r="4"/>
+                                    <path d="M10 12h4"/>
+                                    <path d="M2 9h2M20 9h2"/>
+                                </svg>
+                            </span>
+                            Eyeglasses
                         </a>
                     </li>
                 </ul>
@@ -1100,14 +1537,14 @@
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-content">
             <div class="spinner"></div>
-            <h3>Loading Classic Collection...</h3>
+            <h3>Loading Eyejack Eyewear...</h3>
             <p>Preparing your premium eyewear experience</p>
         </div>
     </div>
 
     <!-- Back Button removed - handled by parent app -->
 
-         <!-- Classic Collection Slider -->
+         <!-- Eyejack Eyewear Slider -->
     <div class="classic-slider-container">
         <div class="slider-wrapper" id="sliderWrapper">
             <!-- Slides will be dynamically generated here -->
@@ -1118,18 +1555,7 @@
             <!-- Navigation dots will be dynamically generated here -->
         </div>
 
-        <!-- Slider Controls -->
-        <button class="slider-controls slider-control prev" onclick="previousSlide()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 20px; height: 20px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-        </button>
 
-        <button class="slider-controls slider-control next" onclick="nextSlide()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 20px; height: 20px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-        </button>
     </div>
 
     <!-- Frames Freshies Banner -->
@@ -1227,6 +1653,121 @@
         </div>
     </div>
 
+    <!-- Pick Your Vibe Section -->
+    <section class="pick-your-vibe-section">
+        <div class="vibe-container">
+            <h2 class="vibe-title">Pick Your Vibe</h2>
+            <p class="vibe-subtitle">Because the right shape changes everything</p>
+            
+            <div class="vibe-grid">
+                <div class="vibe-item" onclick="navigateToCollection('wayfarer')">
+                    <div class="vibe-circle">
+                        <img src="https://images.unsplash.com/photo-1556306535-38febf6782e7?w=200&h=200&fit=crop&crop=center&q=80" 
+                             alt="Wayfarer Sunglasses" class="vibe-icon">
+                    </div>
+                    <span class="vibe-label">Wayfarer</span>
+                </div>
+                
+                <div class="vibe-item" onclick="navigateToCollection('rectangle')">
+                    <div class="vibe-circle">
+                        <img src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=200&h=200&fit=crop&crop=center&q=80" 
+                             alt="Rectangle Sunglasses" class="vibe-icon">
+                    </div>
+                    <span class="vibe-label">Rectangle</span>
+                </div>
+                
+                <div class="vibe-item" onclick="navigateToCollection('cateye')">
+                    <div class="vibe-circle">
+                        <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=200&h=200&fit=crop&crop=center&q=80" 
+                             alt="Cat-eye Sunglasses" class="vibe-icon">
+                    </div>
+                    <span class="vibe-label">Cateye</span>
+                </div>
+                
+                <div class="vibe-item" onclick="navigateToCollection('square')">
+                    <div class="vibe-circle">
+                        <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop&crop=center&q=80" 
+                             alt="Square Sunglasses" class="vibe-icon">
+                    </div>
+                    <span class="vibe-label">Square</span>
+                </div>
+                
+                <div class="vibe-item" onclick="navigateToCollection('oval')">
+                    <div class="vibe-circle">
+                        <img src="https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=200&h=200&fit=crop&crop=center&q=80" 
+                             alt="Oval Sunglasses" class="vibe-icon">
+                    </div>
+                    <span class="vibe-label">Oval</span>
+                </div>
+                
+                <div class="vibe-item" onclick="navigateToCollection('oversize')">
+                    <div class="vibe-circle">
+                        <img src="https://images.unsplash.com/photo-1509695507497-903c140c43b0?w=200&h=200&fit=crop&crop=center&q=80" 
+                             alt="Oversize Sunglasses" class="vibe-icon">
+                    </div>
+                    <span class="vibe-label">Oversize</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommended for you Section -->
+    <section class="recommended-section">
+        <div class="recommended-container">
+            <h2 class="recommended-title">Recommended for you</h2>
+            <p class="recommended-subtitle">Keep Shopping for your favorites</p>
+            
+            <div class="recommendation-cards">
+                <div class="recommendation-card bestselling-card" onclick="navigateToCollection('bestselling')">
+                    <div class="card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" 
+                                  fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <span class="card-text">Bestselling</span>
+                </div>
+                
+                <div class="recommendation-card men-card" onclick="navigateToCollection('men')">
+                    <div class="card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" 
+                                  fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <span class="card-text">Men</span>
+                </div>
+                
+                <div class="recommendation-card women-card" onclick="navigateToCollection('women')">
+                    <div class="card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" 
+                                  fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <span class="card-text">Women</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Showcase Section -->
+    <section class="featured-products-section" style="background: #f7f7f5; padding: 0 20px 60px 20px; min-height: 400px;">
+        <div class="featured-products-container" style="max-width: 1200px; margin: 0 auto;">
+            <div class="products-carousel-wrapper">
+                <div class="products-carousel" id="featuredProductsCarousel" style="display: flex; gap: 20px; overflow-x: auto; padding: 20px 0;">
+                    <!-- Products will be dynamically loaded here -->
+                    <div style="min-width: 300px; background: white; border-radius: 16px; padding: 20px; text-align: center;">
+                        Loading products...
+                    </div>
+                </div>
+                <div class="carousel-dots" id="carouselDots" style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;">
+                    <!-- Dots will be dynamically generated -->
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Content Area Below Slider -->
     <div id="contentArea" style="padding: 20px; background: #f8f9fa; min-height: 50vh;">
         <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
@@ -1258,107 +1799,39 @@
         let currentSlide = 0;
         let slides = [];
         let slideInterval;
-        const API_BASE = 'https://app-banao.vercel.app';
+        // API Base URL - use same as working mobile-app.html
+        let API_BASE = 'https://app-banao-git-main-voyageeyewears-projects.vercel.app';
+        
+        // Try to get the correct API base from iframe context
+        try {
+            if (window !== window.parent) {
+                console.log('🖼️ Running in iframe, using configured API base');
+                // We're in an iframe, keep the configured API base
+                // This should work even from iframe context
+            }
+        } catch (e) {
+            console.log('🔒 Cross-origin restrictions detected, using default API base');
+        }
 
         // Default Slides Data (fallback if API fails)
         const defaultSlides = [
             {
                 id: 'slide-1',
-                badge: '9 to 5',
-                title: 'Sleek Aviators',
-                subtitle: 'Professional Style',
-                description: 'Perfect for the modern workplace',
-                image: 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=400&h=500&fit=crop&crop=center&q=80',
-                ctaButtons: [
-                    {
-                        text: 'Shop Now',
-                        type: 'primary',
-                        link: '#',
-                        linkType: 'collection',
-                        linkValue: 'classic-eyewear'
-                    },
-                    {
-                        text: 'Details',
-                        type: 'secondary',
-                        link: '#',
-                        linkType: 'product',
-                        linkValue: 'eyejack-black-square-polarized-sunglasses-for-men-women-1905pcl2072'
-                    }
-                ]
+                image: 'https://eyejack.in/cdn/shop/files/eyejack_avaitor_banner_phone_b10f834b-1c0f-4306-835a-db64c8236762.jpg?v=1733487957&width=1500'
             },
             {
                 id: 'slide-2',
-                badge: 'Classic',
-                title: 'Round Frames',
-                subtitle: 'Timeless Design',
-                description: 'Vintage-inspired round eyeglasses',
-                image: 'https://images.unsplash.com/photo-1509695507497-903c140c43b0?w=400&h=500&fit=crop&crop=center&q=80',
-                ctaButtons: [
-                    {
-                        text: 'Explore',
-                        type: 'primary',
-                        link: '#',
-                        linkType: 'collection',
-                        linkValue: 'round-frames'
-                    }
-                ]
+                image: 'https://eyejack.in/cdn/shop/files/WEBSITE_1_phone_copy.jpg?v=1736147098&width=1500'
             },
             {
                 id: 'slide-3',
-                badge: 'Premium',
-                title: 'Designer Collection',
-                subtitle: 'Luxury Eyewear',
-                description: 'Premium materials and craftsmanship',
-                image: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400&h=500&fit=crop&crop=center&q=80',
-                ctaButtons: [
-                    {
-                        text: 'Shop Luxury',
-                        type: 'primary',
-                        link: '#',
-                        linkType: 'collection',
-                        linkValue: 'luxury-frames'
-                    }
-                ]
-            },
-            {
-                id: 'slide-4',
-                badge: 'Sport',
-                title: 'Active Wear',
-                subtitle: 'Performance Sunglasses',
-                description: 'Built for active lifestyles',
-                image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=500&fit=crop&crop=center&q=80',
-                ctaButtons: [
-                    {
-                        text: 'Shop Sport',
-                        type: 'primary',
-                        link: '#',
-                        linkType: 'collection',
-                        linkValue: 'sport-eyewear'
-                    }
-                ]
-            },
-            {
-                id: 'slide-5',
-                badge: 'Trendy',
-                title: 'Fashion Forward',
-                subtitle: 'Latest Trends',
-                description: 'Stay ahead with modern designs',
-                image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&h=500&fit=crop&crop=center&q=80',
-                ctaButtons: [
-                    {
-                        text: 'Discover',
-                        type: 'primary',
-                        link: '#',
-                        linkType: 'collection',
-                        linkValue: 'trendy-frames'
-                    }
-                ]
+                image: 'https://eyejack.in/cdn/shop/files/TOP_SELLING_PHONE_WITH_SUB_HEADING.jpg?v=1731061798&width=1500'
             }
         ];
 
         // Initialize Slider
         async function initializeSlider() {
-            console.log('🎬 Initializing Classic Collection Slider...');
+            console.log('🎬 Initializing Eyejack Eyewear Slider...');
             
             try {
                 // Load slides from API or use defaults
@@ -1388,20 +1861,26 @@
             }
         }
 
-        // Load Slides Data from API
+        // Load Slides Data from API (with graceful 404 handling)
         async function loadSlidesData() {
             try {
                 const response = await fetch(`${API_BASE}/api/slider-data?collection=classic`);
                 
                 if (!response.ok) {
-                    throw new Error('Failed to load slider data');
+                    if (response.status === 404) {
+                        console.log('ℹ️ Slider API endpoint not found (404), using default slides');
+                    } else {
+                        console.warn(`⚠️ Slider API failed with status ${response.status}, using default slides`);
+                    }
+                    return defaultSlides;
                 }
                 
                 const data = await response.json();
+                console.log('✅ Slider data loaded from API');
                 return data.slides || defaultSlides;
                 
             } catch (error) {
-                console.warn('⚠️ Using default slides:', error.message);
+                console.warn('⚠️ Slider API error, using default slides:', error.message);
                 return defaultSlides;
             }
         }
@@ -1412,41 +1891,22 @@
             
             slides.forEach((slide, index) => {
                 const slideElement = document.createElement('div');
-                slideElement.className = index === 0 ? 'slide center' : 'slide';
+                slideElement.className = 'slide';
                 
                 slideElement.innerHTML = `
                     <div class="slide-image-container">
-                        <img src="${slide.image}" alt="${slide.title}" class="slide-image" loading="lazy" 
-                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400&h=500&fit=crop&crop=center&q=80';">
-                        <div class="slide-content">
-                            <div class="slide-badge">${slide.badge}</div>
-                            <h1 class="slide-title">${slide.title}</h1>
-                            <h2 class="slide-subtitle">${slide.subtitle}</h2>
-                            <p class="slide-description">${slide.description}</p>
-                            <div class="slide-cta">
-                                ${generateCTAButtons(slide.ctaButtons)}
-                            </div>
-                        </div>
+                        <img src="${slide.image}" alt="Slide ${index + 1}" class="slide-image" loading="lazy">
                     </div>
                 `;
                 
                 sliderWrapper.appendChild(slideElement);
             });
             
-            // Set initial position for center-focused layout
+            // Set initial position
             updateSliderPosition();
         }
 
-        // Generate CTA Buttons
-        function generateCTAButtons(buttons) {
-            if (!buttons || !Array.isArray(buttons)) return '';
-            
-            return buttons.map(button => `
-                <button class="cta-button ${button.type}" onclick="handleCTAClick('${button.linkType}', '${button.linkValue}')">
-                    ${button.text}
-                </button>
-            `).join('');
-        }
+
 
         // Generate Navigation Dots
         function generateNavigation() {
@@ -1485,30 +1945,18 @@
 
         function updateSliderPosition() {
             const sliderWrapper = document.getElementById('sliderWrapper');
-            // Calculate the position for center-focused coverflow effect
-            const slideWidth = 280 + 30; // slide width + margin
-            const containerCenter = window.innerWidth / 2;
-            const translateX = containerCenter - (currentSlide * slideWidth) - (slideWidth / 2);
+            // Simple horizontal sliding - each slide is 100% width
+            const translateX = -(currentSlide * 100);
             
-            sliderWrapper.style.transform = `translateX(${translateX}px)`;
+            sliderWrapper.style.transform = `translateX(${translateX}%)`;
             
-            // Update slide classes for coverflow effect
-            updateSlideClasses();
+            // Update navigation dots
+            updateNavigation();
         }
 
         function updateSlideClasses() {
-            const slideElements = document.querySelectorAll('.slide');
-            slideElements.forEach((slide, index) => {
-                slide.classList.remove('center', 'prev', 'next');
-                
-                if (index === currentSlide) {
-                    slide.classList.add('center');
-                } else if (index === currentSlide - 1) {
-                    slide.classList.add('prev');
-                } else if (index === currentSlide + 1) {
-                    slide.classList.add('next');
-                }
-            });
+            // No special classes needed for simplified slider
+            // All slides are the same and only use transform for positioning
         }
 
         function updateNavigation() {
@@ -1522,7 +1970,7 @@
         function startAutoPlay() {
             slideInterval = setInterval(() => {
                 nextSlide();
-            }, 1000); // 1 second
+            }, 5000); // 5 seconds - slower for better viewing
         }
 
         function stopAutoPlay() {
@@ -1771,15 +2219,795 @@
             };
         }
 
-        // Initialize page
+        // Featured Products Functionality
+        let featuredProducts = [];
+        let currentCarouselIndex = 0;
+
+        // Helper function to transform products to our expected format - PRESERVE REAL SHOPIFY PRICING (from homepage)
+        function transformProductsToFormat(products) {
+            return products.map(product => {
+                console.log('💰 TRANSFORM: Processing product pricing:', {
+                    productTitle: product.title,
+                    rawPrice: product.price,
+                    variants: product.variants,
+                    hasVariants: !!(product.variants && product.variants.length > 0)
+                });
+                
+                // Parse price from string format
+                let price = 0;
+                let originalPrice = null; // Start with null - only set if we have real data
+                
+                if (product.price) {
+                    price = parseFloat(product.price) || 0;
+                }
+                
+                // ✅ PRIORITY 1: Use API-provided originalPrice (real Shopify compareAtPrice)
+                if (product.originalPrice) {
+                    const apiOriginalPrice = parseFloat(product.originalPrice.toString().replace(/[^\d.]/g, ''));
+                    if (apiOriginalPrice && apiOriginalPrice > price) {
+                        originalPrice = Math.round(apiOriginalPrice);
+                        console.log('✅ TRANSFORM: Using API-provided original price (Real Shopify):', {
+                            current: price,
+                            original: originalPrice,
+                            source: 'API.originalPrice',
+                            discount: Math.round(((originalPrice - price) / originalPrice) * 100)
+                        });
+                    }
+                }
+                
+                // ✅ PRIORITY 2: Check for real compare-at price from Shopify variants (backup)
+                if (!originalPrice && product.variants && product.variants.length > 0) {
+                    const firstVariant = product.variants[0];
+                    
+                    console.log('💰 TRANSFORM: Checking variant for compare-at price:', {
+                        variantPrice: firstVariant.price,
+                        compareAtPrice: firstVariant.compareAtPrice,
+                        variantData: firstVariant
+                    });
+                    
+                    // If variant has compare-at price, use it
+                    if (firstVariant.compareAtPrice && parseFloat(firstVariant.compareAtPrice) > 0) {
+                        const compareAtPrice = parseFloat(firstVariant.compareAtPrice);
+                        if (compareAtPrice > price) {
+                            originalPrice = Math.round(compareAtPrice);
+                            console.log('✅ TRANSFORM: Using variant compare-at price:', {
+                                current: price,
+                                original: originalPrice,
+                                source: 'variant.compareAtPrice',
+                                discount: Math.round(((originalPrice - price) / originalPrice) * 100)
+                            });
+                        }
+                    }
+                }
+                
+                // If no real compare-at price found, don't generate fake ones
+                if (!originalPrice) {
+                    console.log('⚠️ TRANSFORM: No compare-at price from Shopify, showing current price only');
+                }
+                
+                const finalProduct = {
+                    id: product.id,
+                    title: product.title,
+                    handle: product.handle,
+                    price: Math.round(price),
+                    originalPrice: originalPrice, // Will be null if no real compare-at price
+                    vendor: product.vendor || 'GoEye',
+                    image: product.image || product.images?.[0] || '',
+                    description: product.description || '',
+                    available: product.available !== false,
+                    variants: product.variants || [{
+                        id: product.id,
+                        title: 'Default',
+                        price: price,
+                        available: product.available !== false
+                    }],
+                    // Additional fields for carousel display
+                    brand: product.vendor || 'EYEJACK',
+                    colors: ['blue', 'gray', 'brown', 'black'], // Default colors
+                    code: product.handle || 'PROD001'
+                };
+                
+                console.log('💰 TRANSFORM: Final product pricing:', {
+                    title: finalProduct.title,
+                    price: finalProduct.price,
+                    originalPrice: finalProduct.originalPrice,
+                    willShowComparePrice: !!finalProduct.originalPrice
+                });
+                
+                return finalProduct;
+            });
+        }
+
+        // Transform real-shopify API product to display format
+        function transformRealShopifyProduct(shopifyProduct) {
+            console.log('🔄 Transforming real shopify product:', shopifyProduct.title);
+            
+            // Handle price from real-shopify API format 
+            let price = '₹999';
+            let compareAtPrice = null;
+            
+            if (shopifyProduct.price && shopifyProduct.price !== "Price not available") {
+                // Extract amount from "USD 99.99" or "INR 999" format
+                const priceMatch = shopifyProduct.price.match(/[\d.]+/);
+                if (priceMatch) {
+                    price = `₹${priceMatch[0]}`;
+                }
+            }
+            
+            // Generate a mock compare-at price for demo (30-50% higher)
+            if (price !== '₹999') {
+                const currentPrice = parseFloat(price.replace('₹', ''));
+                const mockOriginalPrice = Math.round(currentPrice * (1 + Math.random() * 0.5 + 0.3));
+                compareAtPrice = `₹${mockOriginalPrice}`;
+            }
+            
+            // Calculate discount
+            let discount = '';
+            if (compareAtPrice && price) {
+                const currentPrice = parseFloat(price.replace('₹', '').replace(',', ''));
+                const originalPrice = parseFloat(compareAtPrice.replace('₹', '').replace(',', ''));
+                if (originalPrice > currentPrice) {
+                    const discountPercent = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+                    discount = `${discountPercent}% off`;
+                }
+            }
+
+            const transformedProduct = {
+                handle: shopifyProduct.handle || 'product',
+                title: shopifyProduct.title || 'Product Title',
+                price: price,
+                originalPrice: compareAtPrice,
+                discount: discount,
+                image: shopifyProduct.image || 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=400&h=400&fit=crop&crop=center&q=80',
+                brand: 'EYEJACK',
+                colors: ['blue', 'gray', 'brown', 'black'],
+                code: shopifyProduct.handle || 'PROD001',
+                id: shopifyProduct.id
+            };
+            
+            console.log('✅ Transformed real shopify product:', transformedProduct);
+            return transformedProduct;
+        }
+
+        // Transform Shopify product to display format (fallback)
+        function transformProduct(shopifyProduct) {
+            console.log('🔄 Transforming product:', shopifyProduct.title);
+            
+            // Handle different price formats from API
+            let price = '₹999';
+            let compareAtPrice = null;
+            
+            if (shopifyProduct.variants && shopifyProduct.variants.length > 0) {
+                const variant = shopifyProduct.variants[0];
+                price = variant.price || variant.priceV2?.amount || shopifyProduct.price || '₹999';
+                compareAtPrice = variant.compareAtPrice || variant.compareAtPriceV2?.amount || shopifyProduct.compareAtPrice;
+            } else if (shopifyProduct.priceRange) {
+                price = shopifyProduct.priceRange.minVariantPrice?.amount || '₹999';
+                compareAtPrice = shopifyProduct.compareAtPriceRange?.minVariantPrice?.amount;
+            }
+            
+            // Ensure price has currency symbol
+            if (!price.toString().includes('₹')) {
+                price = `₹${price}`;
+            }
+            if (compareAtPrice && !compareAtPrice.toString().includes('₹')) {
+                compareAtPrice = `₹${compareAtPrice}`;
+            }
+            
+            // Calculate discount
+            let discount = '';
+            if (compareAtPrice && price) {
+                const currentPrice = parseFloat(price.replace('₹', '').replace(',', ''));
+                const originalPrice = parseFloat(compareAtPrice.replace('₹', '').replace(',', ''));
+                if (originalPrice > currentPrice) {
+                    const discountPercent = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+                    discount = `${discountPercent}% off`;
+                }
+            }
+
+            // Get image
+            const image = shopifyProduct.featuredImage?.src || 
+                         shopifyProduct.featuredImage?.url ||
+                         shopifyProduct.images?.[0]?.src || 
+                         shopifyProduct.images?.[0]?.url ||
+                         shopifyProduct.image ||
+                         'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=400&h=400&fit=crop&crop=center&q=80';
+
+            const transformedProduct = {
+                handle: shopifyProduct.handle || 'product',
+                title: shopifyProduct.title || 'Product Title',
+                price: price,
+                originalPrice: compareAtPrice,
+                discount: discount,
+                image: image,
+                brand: shopifyProduct.vendor || 'EYEJACK',
+                colors: ['blue', 'gray', 'brown', 'black'], // Default colors - could be enhanced later
+                code: shopifyProduct.handle || 'PROD001',
+                id: shopifyProduct.id
+            };
+            
+            console.log('✅ Transformed product:', transformedProduct);
+            return transformedProduct;
+        }
+
+                // Fetch featured products from Shopify API (using same approach as homepage)
+        async function loadFeaturedProducts() {
+            console.log('🛍️ Loading featured products using homepage approach...');
+            
+            // Check if carousel element exists
+            const carousel = document.getElementById('featuredProductsCarousel');
+            if (!carousel) {
+                console.error('❌ Featured products carousel element not found!');
+                return;
+            }
+            
+            console.log('✅ Carousel element found, proceeding with load...');
+            
+            try {
+                console.log('🛍️ Loading real Shopify products... (using homepage method)');
+                console.log('🌐 API_BASE:', API_BASE);
+                console.log('🏠 Current location:', window.location.href);
+                console.log('🖼️ Running in iframe:', window !== window.parent);
+                
+                // Try multiple API endpoints in order of preference (same as homepage)
+                const endpoints = [
+                    `${API_BASE}/api/mobile-products`,
+                    `${API_BASE}/api/storefront-data?type=products`,
+                    `${API_BASE}/api/public-products?type=products`
+                ];
+                
+                console.log('📍 API endpoints to try:', endpoints);
+                
+                for (const apiUrl of endpoints) {
+                    try {
+                        console.log(`🔄 Trying endpoint: ${apiUrl}`);
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                        
+                        const response = await fetch(apiUrl, {
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+                        
+                        console.log(`Products API Response status: ${response.status}`);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('Products API Data:', data);
+                            
+                            console.log('🔍 API Response Analysis:', {
+                                hasSuccess: !!data.success,
+                                hasProducts: !!data.products,
+                                productsLength: data.products ? data.products.length : 0,
+                                firstProduct: data.products?.[0],
+                                apiUrl: apiUrl
+                            });
+
+                            if (data.success && data.products && data.products.length > 0) {
+                                console.log('🎯 Processing successful API response with products...');
+                                console.log('📊 Raw products from API:', data.products.slice(0, 2)); // Log first 2 products
+                                
+                                // Use the same transformation as mobile-app.html
+                                const transformedProducts = transformProductsToFormat(data.products);
+                                featuredProducts = transformedProducts.slice(0, 6);
+                                
+                                console.log('🎯 Transformed products:', transformedProducts.slice(0, 2));
+                                console.log(`✅ Loaded ${featuredProducts.length} real products from ${apiUrl}`);
+                                
+                                renderFeaturedProducts();
+                                initializeCarouselDots();
+                                return;
+                            } else if (data.products && data.products.length > 0) {
+                                console.log('🎯 Processing alternative format API response...');
+                                console.log('📊 Raw products (alt format):', data.products.slice(0, 2));
+                                
+                                // Handle different response format
+                                const transformedProducts = transformProductsToFormat(data.products);
+                                featuredProducts = transformedProducts.slice(0, 6);
+                                
+                                console.log('🎯 Transformed products (alt):', transformedProducts.slice(0, 2));
+                                console.log(`✅ Loaded ${featuredProducts.length} products (alt format) from ${apiUrl}`);
+                                
+                                renderFeaturedProducts();
+                                initializeCarouselDots();
+                                return;
+                            } else {
+                                console.warn('⚠️ API response missing products data:', {
+                                    success: data.success,
+                                    hasProducts: !!data.products,
+                                    dataKeys: Object.keys(data)
+                                });
+                            }
+                        }
+                    } catch (apiError) {
+                        if (apiError.name === 'AbortError') {
+                            console.log(`⏰ Timeout for endpoint: ${apiUrl}`);
+                        } else {
+                            console.log(`❌ Error with endpoint ${apiUrl}:`, apiError.message);
+                        }
+                    }
+                }
+                
+                // If all APIs fail, fall back to mock products
+                console.log('⚠️ All real API attempts failed, loading mock products...');
+                loadMockFeaturedProducts();
+                
+            } catch (error) {
+                console.error('❌ Error loading featured products:', error);
+                loadMockFeaturedProducts();
+            }
+        }
+
+        // Mock products fallback
+        function loadMockFeaturedProducts() {
+            console.log('🔄 Loading realistic featured products...');
+            
+            const carousel = document.getElementById('featuredProductsCarousel');
+            if (!carousel) {
+                console.error('❌ Carousel element not found in mock load!');
+                return;
+            }
+            
+            // Clear loading message immediately
+            carousel.innerHTML = '';
+            
+            featuredProducts = [
+                {
+                    handle: 'aura-sky-blue-grey-wayfarer-eyeglasses',
+                    title: 'Aura Sky Blue & Grey Wayfarer Eyeglasses for Men & Women',
+                    price: '₹999',
+                    originalPrice: '₹3,000',
+                    discount: '67% off',
+                    image: 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=400&h=400&fit=crop&crop=center&q=80',
+                    brand: 'EYEJACK',
+                    colors: ['blue', 'gray', 'brown', 'black'],
+                    code: '2504FCL1570-C4'
+                },
+                {
+                    handle: 'premium-aviator-sunglasses-uv',
+                    title: 'Premium Aviator Sunglasses with UV Protection',
+                    price: '₹1,299',
+                    originalPrice: '₹2,500',
+                    discount: '48% off',
+                    image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&h=400&fit=crop&crop=center&q=80',
+                    brand: 'EYEJACK',
+                    colors: ['black', 'brown', 'gray'],
+                    code: 'AV101-BLK'
+                },
+                {
+                    handle: 'classic-round-computer-glasses',
+                    title: 'Classic Round Frame Computer Glasses',
+                    price: '₹799',
+                    originalPrice: '₹1,800',
+                    discount: '56% off',
+                    image: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400&h=400&fit=crop&crop=center&q=80',
+                    brand: 'EYEJACK',
+                    colors: ['black', 'brown', 'blue'],
+                    code: 'RD202-BLU'
+                },
+                {
+                    handle: 'elegant-cat-eye-glasses-women',
+                    title: 'Elegant Cat-Eye Glasses for Women',
+                    price: '₹1,199',
+                    originalPrice: '₹2,799',
+                    discount: '57% off',
+                    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop&crop=center&q=80',
+                    brand: 'EYEJACK',
+                    colors: ['brown', 'black', 'gold'],
+                    code: 'CE301-BRN'
+                },
+                {
+                    handle: 'modern-square-frame-glasses',
+                    title: 'Modern Square Frame Glasses',
+                    price: '₹899',
+                    originalPrice: '₹2,199',
+                    discount: '59% off',
+                    image: 'https://images.unsplash.com/photo-1509695507497-903c140c43b0?w=400&h=400&fit=crop&crop=center&q=80',
+                    brand: 'EYEJACK',
+                    colors: ['blue', 'black', 'gray'],
+                    code: 'SQ401-BLU'
+                },
+                {
+                    handle: 'oversized-fashion-sunglasses',
+                    title: 'Oversized Fashion Sunglasses',
+                    price: '₹1,499',
+                    originalPrice: '₹3,299',
+                    discount: '55% off',
+                    image: 'https://images.unsplash.com/photo-1556306535-38febf6782e7?w=400&h=400&fit=crop&crop=center&q=80',
+                    brand: 'EYEJACK',
+                    colors: ['black', 'brown', 'gray', 'gold'],
+                    code: 'OS501-BLK'
+                }
+            ];
+            
+            console.log('🎭 Realistic products created:', featuredProducts.length, featuredProducts);
+            renderFeaturedProducts();
+            initializeCarouselDots();
+            console.log('✅ Featured products ready! Click any product to view details.');
+        }
+
+        // Render featured products in carousel (EXACT copy from mobile-app.html)
+        function renderFeaturedProducts() {
+            console.log('🎨 Rendering featured products...');
+            const carousel = document.getElementById('featuredProductsCarousel');
+            if (!carousel) {
+                console.error('❌ Carousel element not found during render!');
+                return;
+            }
+
+            console.log('✅ Rendering', featuredProducts.length, 'products');
+            console.log('🎨 RENDER: Featured products with pricing:', featuredProducts.map(p => ({
+                title: p.title,
+                price: p.price,
+                originalPrice: p.originalPrice,
+                hasComparePrice: !!p.originalPrice
+            })));
+
+            const productsHTML = featuredProducts.map(product => {
+                const colors = product.colors || ['blue', 'gray', 'brown', 'black'];
+                const colorOptionsHTML = colors.slice(0, 4).map(color => 
+                    `<div class="color-option ${color}"></div>`
+                ).join('');
+
+                // Use EXACT same pricing display logic as mobile-app.html
+                return `
+                    <div class="product-showcase-card" onclick="openProduct('${product.handle}')">
+                        <div class="product-showcase-image">
+                            <img src="${product.image}" alt="${product.title}" loading="lazy">
+                            <button class="product-wishlist-btn" onclick="toggleWishlist(event, '${product.handle}')">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                            <div class="product-color-options">
+                                ${colorOptionsHTML}
+                                <span class="color-count">${colors.length}</span>
+                            </div>
+                        </div>
+                        <div class="product-showcase-info">
+                            <div class="product-brand">${product.brand || product.vendor || 'EYEJACK'}</div>
+                            <h3 class="product-showcase-title">${product.title}</h3>
+                            <div class="product-pricing">
+                                <span class="current-price">₹${product.price}</span>
+                                ${product.originalPrice && product.originalPrice > product.price ? `<span class="original-price">₹${product.originalPrice}</span>` : ''}
+                                ${product.originalPrice && product.originalPrice > product.price ? `<span class="discount-percent">${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF</span>` : ''}
+                            </div>
+                            <button class="add-to-bag-btn" onclick="addToBag(event, '${product.handle}')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                                </svg>
+                                Add to Bag
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            console.log('📝 Generated HTML length:', productsHTML.length);
+            carousel.innerHTML = productsHTML;
+            console.log('✅ Products rendered to carousel with EXACT mobile-app.html logic!');
+        }
+
+        // Initialize carousel dots
+        function initializeCarouselDots() {
+            const dotsContainer = document.getElementById('carouselDots');
+            if (!dotsContainer || featuredProducts.length === 0) return;
+
+            const dotsHTML = featuredProducts.map((_, index) => 
+                `<div class="carousel-dot ${index === 0 ? 'active' : ''}" onclick="scrollToProduct(${index})"></div>`
+            ).join('');
+
+            dotsContainer.innerHTML = dotsHTML;
+        }
+
+        // Scroll to specific product
+        function scrollToProduct(index) {
+            const carousel = document.getElementById('featuredProductsCarousel');
+            const cards = carousel.querySelectorAll('.product-showcase-card');
+            
+            if (cards[index]) {
+                cards[index].scrollIntoView({ 
+                    behavior: 'smooth', 
+                    inline: 'center' 
+                });
+                
+                // Update active dot
+                const dots = document.querySelectorAll('.carousel-dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            }
+        }
+
+        // Toggle wishlist - integrate with wishlist system
+        function toggleWishlist(event, productHandle) {
+            event.stopPropagation();
+            const btn = event.currentTarget;
+            btn.classList.toggle('active');
+            
+            // Find the product data
+            const product = featuredProducts.find(p => p.handle === productHandle);
+            const productTitle = product ? product.title : productHandle;
+            
+            try {
+                // Try to use parent app's wishlist functionality
+                if (typeof parent !== 'undefined' && parent.toggleWishlist) {
+                    console.log('📱 Using parent wishlist system');
+                    parent.toggleWishlist(productHandle);
+                } else if (typeof window.parent !== 'undefined' && window.parent.toggleWishlist) {
+                    console.log('📱 Using window.parent wishlist system');
+                    window.parent.toggleWishlist(productHandle);
+                } else {
+                    // Fallback - use localStorage wishlist
+                    console.log('💾 Using localStorage wishlist');
+                    let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+                    
+                    if (btn.classList.contains('active')) {
+                        if (!wishlist.includes(productHandle)) {
+                            wishlist.push(productHandle);
+                            console.log('💚 Added to wishlist:', productTitle);
+                            showToast(`Added ${productTitle} to wishlist!`);
+                        }
+                    } else {
+                        wishlist = wishlist.filter(handle => handle !== productHandle);
+                        console.log('💔 Removed from wishlist:', productTitle);
+                        showToast(`Removed ${productTitle} from wishlist!`);
+                    }
+                    
+                    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+                }
+            } catch (error) {
+                console.error('❌ Error toggling wishlist:', error);
+                if (btn.classList.contains('active')) {
+                    showToast(`Added ${productTitle} to wishlist!`);
+                } else {
+                    showToast(`Removed ${productTitle} from wishlist!`);
+                }
+            }
+        }
+
+        // Add to bag - integrate with cart system
+        function addToBag(event, productHandle) {
+            event.stopPropagation();
+            console.log('🛒 Adding to bag:', productHandle);
+            
+            // Find the product data
+            const product = featuredProducts.find(p => p.handle === productHandle);
+            if (!product) {
+                console.error('❌ Product not found:', productHandle);
+                showToast('Product not found');
+                return;
+            }
+
+            console.log('🛒 Adding product to bag:', product.title);
+            
+            // Add visual feedback immediately
+            const button = event.currentTarget;
+            const originalText = button.innerHTML;
+            button.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polyline points="20,6 9,17 4,12"></polyline>
+                </svg>
+                Added!
+            `;
+            button.style.background = '#4ade80';
+            
+            // Try to use parent app's cart functionality
+            try {
+                if (window.parent && window.parent !== window) {
+                    // Try different parent cart methods
+                    if (typeof window.parent.addToCart === 'function') {
+                        console.log('📱 Using parent.addToCart');
+                        window.parent.addToCart(productHandle, 1);
+                    } else if (typeof window.parent.updateCart === 'function') {
+                        console.log('📱 Using parent.updateCart');
+                        window.parent.updateCart(productHandle, 1);
+                    } else {
+                        // Send message to parent for cart update
+                        console.log('📱 Sending cart message to parent');
+                        window.parent.postMessage({
+                            action: 'addToCart',
+                            product: {
+                                handle: productHandle,
+                                title: product.title,
+                                price: product.price,
+                                image: product.image,
+                                quantity: 1
+                            }
+                        }, '*');
+                    }
+                } else {
+                    // Fallback - add to localStorage cart
+                    console.log('💾 Using localStorage cart');
+                    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                    
+                    const existingItem = cart.find(item => item.handle === productHandle);
+                    if (existingItem) {
+                        existingItem.quantity += 1;
+                    } else {
+                        cart.push({
+                            handle: productHandle,
+                            title: product.title,
+                            price: product.price,
+                            image: product.image,
+                            quantity: 1
+                        });
+                    }
+                    
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    
+                    // Update cart counter if it exists
+                    const cartCounter = document.querySelector('.cart-counter');
+                    if (cartCounter) {
+                        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                        cartCounter.textContent = totalItems;
+                    }
+                }
+                
+                showToast(`✅ ${product.title} added to bag!`);
+                
+            } catch (error) {
+                console.error('❌ Error adding to cart:', error);
+                showToast('❌ Error adding to cart');
+            }
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = '#333';
+            }, 2000);
+        }
+
+        // Open product details - navigate to PDP directly
+        function openProduct(productHandle) {
+            console.log('🔍 Opening product:', productHandle);
+            
+            // Find the product data
+            const product = featuredProducts.find(p => p.handle === productHandle);
+            if (!product) {
+                console.error('❌ Product not found:', productHandle);
+                showToast('Product not found');
+                return;
+            }
+
+            console.log('📦 Opening product details for:', product.title);
+            
+            // Direct navigation approach - avoid the postMessage that causes homepage flash
+            try {
+                // Method 1: Try direct parent function calls
+                if (window.parent && window.parent !== window) {
+                    console.log('📱 Attempting direct parent navigation...');
+                    
+                    // Try direct function calls on parent
+                    if (typeof window.parent.showProduct === 'function') {
+                        console.log('✅ Using parent.showProduct directly');
+                        window.parent.showProduct(productHandle);
+                        return;
+                    } else if (typeof window.parent.loadProductDetailPage === 'function') {
+                        console.log('✅ Using parent.loadProductDetailPage directly');
+                        window.parent.loadProductDetailPage(productHandle);
+                        return;
+                    } else if (typeof window.parent.openProductDetailPage === 'function') {
+                        console.log('✅ Using parent.openProductDetailPage directly');
+                        // First try to find the product in parent's data
+                        if (typeof window.parent.findProductByHandle === 'function') {
+                            window.parent.findProductByHandle(productHandle).then(foundProduct => {
+                                if (foundProduct) {
+                                    window.parent.openProductDetailPage(foundProduct);
+                                } else {
+                                    // Use our product data as fallback
+                                    window.parent.openProductDetailPage(product);
+                                }
+                            }).catch(() => {
+                                window.parent.openProductDetailPage(product);
+                            });
+                        } else {
+                            window.parent.openProductDetailPage(product);
+                        }
+                        return;
+                    }
+                    
+                    // Fallback to postMessage if direct calls don't work
+                    console.log('⚠️ No direct functions found, using postMessage');
+                    window.parent.postMessage({
+                        action: 'showProductDetails',
+                        product: productHandle
+                    }, '*');
+                } else {
+                    // Fallback: show toast
+                    console.log('🌐 No parent window, showing fallback toast');
+                    showToast(`Opening product: ${product.title}`);
+                }
+            } catch (error) {
+                console.error('❌ Error in direct navigation:', error);
+                // Final fallback to postMessage
+                console.log('🔄 Using postMessage fallback due to error');
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        action: 'showProductDetails',
+                        product: productHandle
+                    }, '*');
+                } else {
+                    showToast(`Error opening product: ${product.title}`);
+                }
+            }
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #333;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-size: 14px;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => toast.style.opacity = '1', 100);
+            
+            // Hide and remove toast
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 2000);
+        }
+
+        // Slider data loader (using default slides)
+        function loadSliderData() {
+            console.log('🎬 Loading slider data...');
+            slides = [...defaultSlides];
+            generateSlides();
+            console.log('✅ Slider data loaded with', slides.length, 'slides');
+        }
+
+        // Initialize page with cross-origin safety
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🎯 Classic Collection Page Initialized');
+            console.log('🎯 Eyejack Eyewear Page Initialized');
+            console.log('🖼️ Iframe context:', {
+                isIframe: window !== window.parent,
+                canAccessParent: (() => {
+                    try {
+                        return !!window.parent.location.href;
+                    } catch (e) {
+                        return false;
+                    }
+                })()
+            });
+            
             preloadLogo();
             startAutoPlay();
             loadSliderData();
+            
+            // Load featured products immediately
+            console.log('🛍️ Loading featured products...');
+            loadFeaturedProducts();
+            
+            // Final fallback check - only needed if mock products somehow failed to load
+            setTimeout(() => {
+                const carousel = document.getElementById('featuredProductsCarousel');
+                if (carousel && carousel.innerHTML.includes('Loading products...')) {
+                    console.log('⚠️ Emergency fallback: Mock products failed to load, retrying...');
+                    loadMockFeaturedProducts();
+                }
+            }, 3000);
         });
 
-        console.log('🎬 Classic Collection Slider Script Loaded');
+        console.log('🎬 Eyejack Eyewear Slider Script Loaded');
     </script>
 </body>
 </html> 
