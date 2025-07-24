@@ -1762,6 +1762,181 @@
             background: #1d4ed8;
         }
 
+        /* Splash Screen Styles */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .splash-screen.fade-out {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+        
+        .splash-content {
+            text-align: center;
+            color: white;
+            animation: splashFadeIn 1s ease-out;
+        }
+        
+        .splash-logo {
+            margin-bottom: 2rem;
+        }
+        
+        .logo-animation {
+            display: inline-block;
+            margin-bottom: 1rem;
+            animation: logoFloat 2s ease-in-out infinite;
+        }
+        
+        .logo-svg {
+            width: 80px;
+            height: 80px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+        
+        .logo-circle {
+            fill: none;
+            stroke: white;
+            stroke-width: 2;
+            stroke-dasharray: 126;
+            stroke-dashoffset: 126;
+            animation: drawCircle 2s ease-out forwards;
+        }
+        
+        .logo-diamond {
+            fill: white;
+            opacity: 0;
+            animation: diamondAppear 1s ease-out 1s forwards;
+        }
+        
+        .splash-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            animation: titleSlideIn 1s ease-out 0.5s both;
+        }
+        
+        .splash-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
+            animation: subtitleSlideIn 1s ease-out 0.7s both;
+        }
+        
+        .splash-loading {
+            margin-top: 2rem;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .spinner-circle {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            animation: spinnerBounce 1.4s ease-in-out infinite both;
+        }
+        
+        .spinner-circle:nth-child(1) { animation-delay: -0.32s; }
+        .spinner-circle:nth-child(2) { animation-delay: -0.16s; }
+        
+        .loading-text {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 0;
+            animation: loadingTextPulse 2s ease-in-out infinite;
+        }
+        
+        /* Splash Screen Animations */
+        @keyframes splashFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes logoFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes drawCircle {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        @keyframes diamondAppear {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes titleSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes subtitleSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes spinnerBounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes loadingTextPulse {
+            0%, 100% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
         .product-image {
             width: 100%;
             height: 200px;
@@ -3249,6 +3424,30 @@
     </style>
 </head>
 <body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <div class="logo-animation">
+                    <svg viewBox="0 0 100 100" class="logo-svg">
+                        <circle cx="50" cy="50" r="20" class="logo-circle"/>
+                        <path d="M30 50 L50 30 L70 50 L50 70 Z" class="logo-diamond"/>
+                    </svg>
+                </div>
+                <h1 class="splash-title">GoEye Store</h1>
+                <p class="splash-subtitle">Premium Eyewear Collection</p>
+            </div>
+            <div class="splash-loading">
+                <div class="loading-spinner">
+                    <div class="spinner-circle"></div>
+                    <div class="spinner-circle"></div>
+                    <div class="spinner-circle"></div>
+                </div>
+                <p class="loading-text">Loading your experience...</p>
+            </div>
+        </div>
+    </div>
+    
     <!-- Custom Header - Advanced Liquid Template Based -->
     <header class="custom-header" style="
       --header-background-color: #FFFFFF;
@@ -6152,6 +6351,11 @@
                     </div>
                 </a>
             `).join('');
+            
+            // Apply consistent styling immediately after rendering
+            setTimeout(() => {
+                applyConsistentStyling();
+            }, 50);
         }
 
         // Live Eyeglasses Render Function
@@ -8765,14 +8969,14 @@
             
             console.log('📍 Added to navigation stack:', navigationStack);
             
-            // Hide collection page with smooth transition (don't remove it)
+            // Hide collection page with FAST transition (optimized for performance)
             if (collectionPage) {
-                collectionPage.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                collectionPage.style.transform = 'translateX(-30%)';
-                collectionPage.style.opacity = '0.7';
+                collectionPage.style.transition = 'transform 0.15s ease-out, opacity 0.15s ease-out';
+                collectionPage.style.transform = 'translateX(-20%)';
+                collectionPage.style.opacity = '0.5';
             }
             
-            // Open product detail page after smooth transition
+            // Open product detail page after FAST transition
             setTimeout(async () => {
                 try {
                     console.log('🔍 COLLECTION CLICK DEBUG: About to call showProduct with:', productHandle);
@@ -8786,7 +8990,7 @@
                     // Restore collection page if product fails to load
                     restoreCollectionPage();
                 }
-            }, 150);
+            }, 75); // Reduced from 150ms to 75ms for faster transitions
         }
         
         // Get current collection handle
@@ -10077,9 +10281,155 @@
             }
         };
 
+                 // Splash Screen Control
+         function setupSplashScreen() {
+             console.log('🎬 SPLASH: Setting up splash screen...');
+             
+             const splashScreen = document.getElementById('splash-screen');
+             if (!splashScreen) {
+                 console.warn('⚠️ SPLASH: Splash screen element not found');
+                 return;
+             }
+             
+             // Hide main content initially
+             const mainContent = document.querySelector('.app-content');
+             const header = document.querySelector('.custom-header');
+             const navigation = document.querySelector('.mobile-navigation');
+             
+             if (mainContent) mainContent.style.opacity = '0';
+             if (header) header.style.opacity = '0';
+             if (navigation) navigation.style.opacity = '0';
+             
+             // Setup splash screen removal after app loads
+             let appLoadingStartTime = Date.now();
+             
+             // Monitor app loading progress
+             const checkAppReady = setInterval(() => {
+                 const elapsedTime = Date.now() - appLoadingStartTime;
+                 const minimumSplashTime = 2000; // Minimum 2 seconds splash
+                 
+                 // Check if essential content is loaded
+                 const productsGrid = document.getElementById('products-grid');
+                 const collectionsGrid = document.getElementById('collections-grid');
+                 const isContentLoaded = productsGrid && productsGrid.children.length > 0;
+                 
+                 // Remove splash when content is ready AND minimum time has passed
+                 if (isContentLoaded && elapsedTime >= minimumSplashTime) {
+                     clearInterval(checkAppReady);
+                     hideSplashScreen();
+                 } else if (elapsedTime >= 5000) {
+                     // Force remove after 5 seconds maximum
+                     clearInterval(checkAppReady);
+                     hideSplashScreen();
+                 }
+             }, 100);
+         }
+         
+         function hideSplashScreen() {
+             console.log('🎬 SPLASH: Hiding splash screen and showing app...');
+             
+             const splashScreen = document.getElementById('splash-screen');
+             const mainContent = document.querySelector('.app-content');
+             const header = document.querySelector('.custom-header');
+             const navigation = document.querySelector('.mobile-navigation');
+             
+             if (splashScreen) {
+                 splashScreen.classList.add('fade-out');
+                 setTimeout(() => {
+                     splashScreen.style.display = 'none';
+                 }, 500);
+             }
+             
+             // Fade in main content
+             setTimeout(() => {
+                 if (mainContent) {
+                     mainContent.style.transition = 'opacity 0.5s ease';
+                     mainContent.style.opacity = '1';
+                 }
+                 if (header) {
+                     header.style.transition = 'opacity 0.3s ease';
+                     header.style.opacity = '1';
+                 }
+                 if (navigation) {
+                     navigation.style.transition = 'opacity 0.3s ease';
+                     navigation.style.opacity = '1';
+                 }
+                 
+                 // Apply consistent styling after app loads
+                 setTimeout(() => {
+                     applyConsistentStyling();
+                 }, 200);
+                 
+                 console.log('✅ SPLASH: App fully loaded and styled');
+             }, 200);
+         }
+         
+         // Android Hardware Back Button Handler
+         function setupAndroidBackButton() {
+            console.log('📱 ANDROID: Setting up hardware back button handling...');
+            
+            // Handle browser history (for Android back button)
+            window.addEventListener('popstate', function(event) {
+                event.preventDefault();
+                console.log('📱 ANDROID: Hardware back button pressed');
+                handleAndroidBackNavigation();
+            });
+            
+            // Override browser back behavior
+            history.pushState(null, null, location.href);
+            window.addEventListener('beforeunload', function() {
+                history.pushState(null, null, location.href);
+            });
+        }
+        
+        // Handle Android back navigation logic
+        function handleAndroidBackNavigation() {
+            console.log('📱 ANDROID: Handling back navigation, current view:', currentView);
+            console.log('📱 ANDROID: Navigation stack:', navigationStack);
+            
+            // Check if we're in a product detail page
+            const productDetailPage = document.querySelector('.product-detail-page');
+            if (productDetailPage && productDetailPage.style.display !== 'none') {
+                console.log('📱 ANDROID: Closing product detail page');
+                closeProductDetailPage();
+                return;
+            }
+            
+            // Check if we're in a collection page
+            const collectionPage = document.getElementById('collection-full-page');
+            if (collectionPage && collectionPage.classList.contains('active')) {
+                console.log('📱 ANDROID: Closing collection page');
+                closeCollectionPage();
+                return;
+            }
+            
+            // Check navigation stack for proper back navigation
+            if (navigationStack && navigationStack.length > 0) {
+                console.log('📱 ANDROID: Using navigation stack for back navigation');
+                const previousPage = navigationStack.pop();
+                if (previousPage && previousPage.type === 'collection') {
+                    restoreCollectionPage();
+                    return;
+                }
+            }
+            
+            // Default: Go to home page
+            console.log('📱 ANDROID: Defaulting to home page');
+            showPage('home');
+            
+            // Prevent actual app exit - push state again
+            setTimeout(() => {
+                history.pushState(null, null, location.href);
+            }, 100);
+        }
+        
         // Initialize app when DOM is loaded
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 GoEye Store Mobile App Started');
+            
+            // Show splash screen and setup Android back button
+            setupSplashScreen();
+            setupAndroidBackButton();
             
             // Debug: Check if all required elements exist
             const requiredElements = [
@@ -10349,17 +10699,99 @@
             }
         }
 
-        // Auto-refresh header settings every 15 seconds
+        // Auto-refresh header settings every 15 seconds (OPTIMIZED)
         function startAutoRefresh() {
             setInterval(() => {
-                console.log('🔄 Auto-refreshing header settings...');
+                console.log('🔄 Auto-refreshing header settings (style-preserving)...');
                 loadTrendingSlides();
                 loadHeaderSettings(); // Also refresh navigation and announcement bar
-                loadCollections(0); // Auto-refresh collections
-                loadProducts(0); // Auto-refresh products
+                // REMOVED: Auto-refresh collections and products to prevent styling issues
+                // Only refresh data sections that don't affect styling
                 loadSharkTankData(true); // Auto-refresh Shark Tank section (silent)
-            }, 15000); // 15 seconds
+            }, 30000); // Increased to 30 seconds for better performance
         }
+        
+        // Style-preserving product reload function
+        function reloadProductsWithStylePreservation() {
+            console.log('🎨 STYLE-PRESERVING: Reloading products while maintaining styles...');
+            
+            // Store current styling state
+            const productCards = document.querySelectorAll('.product-card');
+            const currentStyles = Array.from(productCards).map(card => {
+                const title = card.querySelector('.product-title');
+                const discountBadge = card.querySelector('.discount-badge');
+                const currentPrice = card.querySelector('.current-price');
+                const originalPrice = card.querySelector('.original-price');
+                
+                return {
+                    element: card,
+                    titleStyle: title ? title.style.cssText : '',
+                    badgeStyle: discountBadge ? discountBadge.style.cssText : '',
+                    currentPriceStyle: currentPrice ? currentPrice.style.cssText : '',
+                    originalPriceStyle: originalPrice ? originalPrice.style.cssText : ''
+                };
+            });
+            
+            // Reload products
+            loadProducts(0).then(() => {
+                // Wait for DOM to update then restore styles
+                setTimeout(() => {
+                    console.log('🎨 STYLE-PRESERVING: Restoring consistent styling...');
+                    applyConsistentStyling();
+                                 }, 100);
+             });
+         }
+        
+         // Global function to apply consistent styling (prevents bolding issues)
+         function applyConsistentStyling() {
+             console.log('🎨 APPLYING: Global consistent styling...');
+             
+             // Fix all product titles
+             const productTitles = document.querySelectorAll('.product-title');
+             productTitles.forEach(title => {
+                 title.style.fontWeight = 'normal';
+                 title.style.fontSize = '1rem';
+             });
+             
+             // Fix all discount badges to red styling
+             const discountBadges = document.querySelectorAll('.discount-badge');
+             discountBadges.forEach(badge => {
+                 badge.style.background = '#fef2f2';
+                 badge.style.color = '#dc2626';
+                 badge.style.fontWeight = '600';
+                 badge.style.fontSize = '0.8rem';
+                 badge.style.padding = '2px 6px';
+                 badge.style.borderRadius = '4px';
+                 badge.style.backgroundImage = 'none';
+                 badge.style.boxShadow = 'none';
+                 badge.style.textTransform = 'none';
+                 badge.style.letterSpacing = 'normal';
+             });
+             
+             // Fix all current prices to blue
+             const currentPrices = document.querySelectorAll('.current-price');
+             currentPrices.forEach(price => {
+                 price.style.color = '#2563eb';
+                 price.style.fontWeight = '600';
+                 price.style.fontSize = '1.1rem';
+             });
+             
+             // Fix all original prices to gray crossed-out
+             const originalPrices = document.querySelectorAll('.original-price');
+             originalPrices.forEach(price => {
+                 price.style.color = '#6b7280';
+                 price.style.textDecoration = 'line-through';
+                 price.style.opacity = '0.7';
+                 price.style.fontSize = '0.9rem';
+             });
+             
+             console.log('🎨 APPLIED: Consistent styling to', {
+                 titles: productTitles.length,
+                 discountBadges: discountBadges.length,
+                 currentPrices: currentPrices.length,
+                 originalPrices: originalPrices.length
+             });
+         }
 
         // Refresh when app comes back into focus
         function setupFocusRefresh() {
