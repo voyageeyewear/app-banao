@@ -17,7 +17,10 @@
             color: #333;
             line-height: 1.6;
             padding-bottom: 80px; /* Space for bottom navigation */
-            padding-top: env(safe-area-inset-top, 20px); /* Safe area for system status bar with fallback */
+            /* No padding-top needed since header is now fixed */
+            /* Ensure smooth scrolling */
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         /* Announcement Bar Styles */
@@ -29,7 +32,7 @@
             font-size: 14px;
             font-weight: 500;
             position: relative;
-            z-index: 21;
+            z-index: 998;
             overflow: hidden;
             width: 100%;
         }
@@ -58,14 +61,57 @@
 
         /* Custom Header - Advanced Liquid Template Based */
         .custom-header {
-            position: sticky;
+            position: relative;
             top: 0;
             z-index: 20;
             width: 100%;
             overflow: visible;
             display: block;
-            background: var(--header-background-color, #fff);
+            background: transparent;
             padding-top: env(safe-area-inset-top, 0);
+        }
+
+        /* Fixed Header Wrapper - More reliable than sticky in WebView */
+        .custom-header-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000; /* Higher z-index to ensure it stays on top */
+            background: var(--header-background-color, #fff);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 0; /* Remove padding since announcement bar has its own */
+            padding-top: env(safe-area-inset-top, 0); /* Safe area for notched devices */
+            width: 100%;
+            /* Force hardware acceleration for smooth scrolling */
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        /* Header Content Padding - for the main header content only */
+        .custom-header-wrapper .custom-header-top,
+        .custom-header-wrapper .custom-header-search,
+        .custom-header-wrapper .custom-header-nav {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .custom-header-wrapper .custom-header-top {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        /* Content below fixed header needs margin to avoid being hidden */
+        .trending-section {
+            position: relative;
+            z-index: 15;
+            background: var(--trending-background, #f8f9fa);
+            margin-top: calc(180px + env(safe-area-inset-top, 0px)); /* Header height + safe area */
+        }
+
+        /* Alternative: Use padding-top on first content section */
+        .page-content {
+            padding-top: calc(180px + env(safe-area-inset-top, 0px)); /* Space for fixed header + safe area */
         }
 
         @media screen and (min-width: 768px) {
@@ -93,10 +139,7 @@
             display: none;
         }
 
-        .custom-header-wrapper {
-            padding: 1rem;
-            margin-bottom: -16px;
-        }
+
 
         .custom-header-top {
             display: flex;
@@ -3626,14 +3669,14 @@
       </div>
       <div class="menu-drawer-overlay" onclick="document.querySelector('body').classList.remove('menu-open')"></div>
       
-      <!-- Announcement Bar -->
-      <div class="announcement-bar" id="announcement-bar" style="display: block;">
-        <div class="announcement-content">
-          <span class="announcement-text" id="announcement-text">Free shipping on orders over $50! 🚚</span>
-        </div>
-      </div>
-      
+      <!-- Sticky Header Container -->
       <div class="custom-header-wrapper">
+        <!-- Announcement Bar -->
+        <div class="announcement-bar" id="announcement-bar" style="display: block;">
+          <div class="announcement-content">
+            <span class="announcement-text" id="announcement-text">Free shipping on orders over $50! 🚚</span>
+          </div>
+        </div>
         <div class="custom-header-top">
           <div class="custom-header-left">
             <button type="button" onclick="document.querySelector('body').classList.toggle('menu-open')" title="Menu">
@@ -3727,7 +3770,9 @@
           </ul>
         </nav>
       </div>
+    </header>
 
+    <!-- Trending Section - Outside of sticky header -->
       <div class="trending-section" style="--trending-background: #f8f9fa;">
         <div class="trending-header">
           <h2 class="trending-title">#Trending On <span>GoEye</span></h2>
@@ -3739,7 +3784,6 @@
           </div>
         </div>
       </div>
-    </header>
 
     <!-- Product Categories Section -->
     <div class="categories-section" id="categories-section">
@@ -4264,6 +4308,24 @@
         // Fixed API Base for Mobile Apps - Always use HTTPS
         const API_BASE = 'https://app-banao-git-main-voyageeyewears-projects.vercel.app';
         console.log('🔗 API_BASE set to:', API_BASE);
+
+        // Dynamic Header Height Adjustment for Fixed Header
+        function adjustContentForFixedHeader() {
+            const header = document.querySelector('.custom-header-wrapper');
+            const trendingSection = document.querySelector('.trending-section');
+            
+            if (header && trendingSection) {
+                const headerHeight = header.offsetHeight;
+                console.log('📏 Fixed header height:', headerHeight + 'px');
+                trendingSection.style.marginTop = headerHeight + 'px';
+                
+                // Also adjust other content sections if they exist
+                const pageContent = document.querySelector('.page-content');
+                if (pageContent) {
+                    pageContent.style.paddingTop = headerHeight + 'px';
+                }
+            }
+        }
         
         // Fallback URLs to try if main API fails
         const FALLBACK_APIS = [
@@ -10711,7 +10773,7 @@
                 history.pushState(null, null, location.href);
             }, 100);
         }
-        
+
         // Initialize app when DOM is loaded
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 GoEye Store Mobile App Started');
@@ -10719,6 +10781,14 @@
             // Show splash screen and setup Android back button
             setupSplashScreen();
             setupAndroidBackButton();
+            
+            // Adjust content for fixed header
+            setTimeout(adjustContentForFixedHeader, 100); // Small delay to ensure header is rendered
+            
+            // Re-adjust on window resize (for orientation changes)
+            window.addEventListener('resize', function() {
+                setTimeout(adjustContentForFixedHeader, 100);
+            });
             
             // Debug: Check if all required elements exist
             const requiredElements = [
@@ -11084,7 +11154,7 @@
                  currentPrices: currentPrices.length,
                  originalPrices: originalPrices.length
              });
-         }
+        }
 
         // Refresh when app comes back into focus
         function setupFocusRefresh() {

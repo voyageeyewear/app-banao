@@ -31,7 +31,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
 
     if (!collection) {
-      return addCorsHeaders(json({ 
+      return addCorsHeaders(json({
         error: "Collection handle is required. Use ?collection=handle",
         success: false 
       }, { status: 400 }));
@@ -59,8 +59,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
               vendor
               availableForSale
               images(first: 3) {
-                edges {
-                  node {
+                edges { 
+                  node { 
                     url
                     altText
                   }
@@ -90,7 +90,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }`;
 
     console.log("📋 GraphQL Query:", query);
-
+    
     const response = await fetch(`https://${SHOP_DOMAIN}/api/2023-10/graphql.json`, {
       method: 'POST',
       headers,
@@ -149,7 +149,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         }))
       };
     });
-
+    
     console.log(`✅ Returning ${products.length} products from collection '${collection}'`);
     
     return addCorsHeaders(json({ 

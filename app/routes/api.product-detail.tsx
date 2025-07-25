@@ -274,13 +274,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         });
         return addCorsHeaders(successResponse);
       } else {
-        const errorResponse = json({ 
-          success: false, 
+      const errorResponse = json({ 
+        success: false, 
           error: "No products available",
           availableProducts: []
         }, { status: 404 });
-        return addCorsHeaders(errorResponse);
-      }
+      return addCorsHeaders(errorResponse);
+    }
     }
 
     // Find specific product by handle
@@ -294,23 +294,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         title: p.title
       }));
 
-      const errorResponse = json({
-        success: false,
+      const errorResponse = json({ 
+        success: false, 
         error: "Product not found",
         availableProducts
       }, { status: 404 });
       return addCorsHeaders(errorResponse);
     }
-
+    
     console.log('✅ Real product found:', product.title);
     console.log('🖼️ Real product images:', product.images);
-
+    
     const successResponse = json({
       success: true,
       product
     });
     return addCorsHeaders(successResponse);
-
+    
   } catch (error) {
     console.error('❌ Product detail error:', error);
     const errorResponse = json({ 

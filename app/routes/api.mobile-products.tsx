@@ -39,23 +39,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
                   }
                 }
               }
-                                  variants(first: 5) {
-                      edges {
-                        node {
-                          id
-                          title
-                          price {
-                            amount
-                            currencyCode
-                          }
+              variants(first: 5) {
+                edges {
+                  node {
+                    id
+                    title
+                    price {
+                      amount
+                      currencyCode
+                    }
                           compareAtPrice {
                             amount
                             currencyCode
                           }
-                          availableForSale
-                        }
-                      }
-                    }
+                    availableForSale
+                  }
+                }
+              }
             }
           }
         }
@@ -85,23 +85,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
                         }
                       }
                     }
-                                  variants(first: 1) {
-                edges {
-                  node {
-                    id
-                    title
-                    price {
-                      amount
-                      currencyCode
-                    }
+                    variants(first: 1) {
+                      edges {
+                        node {
+                          id
+                          title
+                          price {
+                            amount
+                            currencyCode
+                          }
                     compareAtPrice {
                       amount
                       currencyCode
                     }
-                    availableForSale
-                  }
-                }
-              }
+                          availableForSale
+                        }
+                      }
+                    }
                   }
                 }
               }
