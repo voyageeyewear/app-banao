@@ -6521,7 +6521,7 @@
             })));
             
             productsGrid.innerHTML = transformedProducts.map(product => `
-                <a href="#" class="product-card" onclick="showProduct('${product.handle}')">
+                <a href="#" class="product-card" onclick="event.preventDefault(); event.stopPropagation(); console.log('🔍 FEATURED PRODUCT CLICKED:', '${product.handle}'); window.openProductFromCollection ? window.openProductFromCollection('${product.handle}', event) : console.error('openProductFromCollection not found');">
                     <div class="product-image">
                         <img src="${product.image}" alt="${product.title}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik05NiA5NkgxNDRWMTQ0SDk2Vjk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K'">
                         <div class="product-actions">
@@ -6862,15 +6862,24 @@
                 apiSource: product.id ? 'Shopify API' : 'Local fallback'
             });
             
+            // PREVENT SCROLL JUMP - Save current scroll position before any changes
+            const currentScrollY = window.scrollY || document.documentElement.scrollTop;
+            console.log('📍 Preventing scroll jump, current position:', currentScrollY);
+            
             // FORCE CLOSE ANY MODALS FIRST
             const existingModals = document.querySelectorAll('.product-modal');
             existingModals.forEach(modal => modal.remove());
             console.log('🚨 FORCE: Removed any existing modals');
             
-            // FORCE FULL-SCREEN MODE
+            // PREVENT SCROLL JUMP BY SETTING POSITION BEFORE OVERFLOW CHANGE
+            document.documentElement.style.scrollTop = currentScrollY + 'px';
+            document.body.style.top = `-${currentScrollY}px`;
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            
+            // FORCE FULL-SCREEN MODE without scroll jump
             document.body.classList.add('hide-header');
-            document.body.style.overflow = 'hidden';
-            console.log('🚨 FORCE: Set body to full-screen mode');
+            console.log('🚨 FORCE: Set body to full-screen mode without scroll jump');
             
             // Hide main app content COMPLETELY
             const mainContent = document.querySelector('.app-content');
@@ -7404,9 +7413,20 @@
           function closeProductDetailPage() {
               console.log('🔙 Closing product detail page');
               
-              // Check navigation stack for where to return
-              const previousPage = navigationStack.pop();
-              console.log('📍 Returning to previous page:', previousPage);
+              // Restore scroll position by undoing the fixed position hack
+              const bodyTop = document.body.style.top;
+              if (bodyTop) {
+                  const scrollY = parseInt(bodyTop || '0') * -1;
+                  document.body.style.position = '';
+                  document.body.style.top = '';
+                  document.body.style.width = '';
+                  window.scrollTo(0, scrollY);
+                  console.log('📍 Restored original scroll position:', scrollY);
+              }
+              
+              // Check navigation stack for where to return (don't pop here, let caller handle it)
+              const previousPage = navigationStack.length > 0 ? navigationStack[navigationStack.length - 1] : null;
+              console.log('📍 Previous page in stack:', previousPage);
               
               // Remove product detail page
               removeProductDetailPage();
@@ -7415,9 +7435,13 @@
                   // Return to collection page
                   console.log('🔙 Returning to collection:', previousPage.handle);
                   returnToCollectionPage(previousPage);
+              } else if (previousPage && previousPage.type === 'homepage-featured') {
+                  // Return directly to homepage featured products section without page refresh
+                  console.log('🔙 Returning to homepage featured products without page refresh');
+                  returnToHomepageFeaturedProducts(previousPage);
               } else {
                   // Fallback to home page
-                  console.log('🏠 Returning to home page');
+                  console.log('🏠 Fallback to home page');
                   returnToHomePage();
               }
           }
@@ -7475,6 +7499,49 @@
                }
            }
           
+          // Return to homepage featured products section without page refresh
+          function returnToHomepageFeaturedProducts(previousPage) {
+              console.log('🔙 Restoring homepage featured products without refresh');
+              
+              // Simply restore the main app state without triggering showPage('home')
+              const mainContent = document.querySelector('.app-content');
+              if (mainContent) {
+                  mainContent.style.display = 'block';
+                  mainContent.style.visibility = 'visible';
+              }
+              
+              // Ensure no collection pages are interfering
+              const collectionPage = document.getElementById('collection-full-page');
+              if (collectionPage) {
+                  collectionPage.style.display = 'none';
+              }
+              
+              // Update navigation state
+              currentView = 'home';
+              document.body.classList.remove('hide-header');
+              
+              // Restore body styles
+              document.body.style.position = '';
+              document.body.style.top = '';
+              document.body.style.width = '';
+              
+              // Update navigation silently
+              updateNavigationForMainApp();
+              
+              // Restore scroll position to featured products section
+              if (previousPage && previousPage.scrollPosition !== undefined) {
+                  setTimeout(() => {
+                      window.scrollTo({
+                          top: previousPage.scrollPosition,
+                          behavior: 'auto' // Instant scroll for smooth UX
+                      });
+                      console.log('📍 Restored scroll to featured products:', previousPage.scrollPosition);
+                  }, 50); // Small delay to ensure DOM is ready
+              }
+              
+              console.log('✅ Returned to featured products section');
+          }
+
           // Return to home page
           function returnToHomePage() {
               // Show main app content
@@ -9128,9 +9195,9 @@
         // Navigation stack to track page history
         let navigationStack = [];
         
-        // Open product detail page from collection
+        // Open product detail page from collection or featured products
         window.openProductFromCollection = function(productHandle, event) {
-            console.log('🔍 COLLECTION CLICK DEBUG: Function called with:', {
+            console.log('🔍 PRODUCT CLICK DEBUG: Function called with:', {
                 productHandle,
                 eventExists: !!event,
                 eventType: event?.type,
@@ -9141,47 +9208,77 @@
             if (event) {
                 event.preventDefault();
                 event.stopPropagation();
-                console.log('🔍 COLLECTION CLICK DEBUG: Event prevented and stopped');
+                console.log('🔍 PRODUCT CLICK DEBUG: Event prevented and stopped');
             }
             
-            console.log('🔍 Opening product from collection:', productHandle);
+            console.log('🔍 Opening product from collection/featured:', productHandle);
             
-            // Get current collection info
+            // SAVE CURRENT SCROLL POSITION
+            const currentScrollY = window.scrollY || document.documentElement.scrollTop;
+            console.log('📍 Saving scroll position:', currentScrollY);
+            
+            // Determine current context (homepage featured products vs collection page)
             const collectionPage = document.getElementById('collection-full-page');
-            const collectionTitle = collectionPage?.querySelector('.collection-mobile-title')?.textContent;
-            const collectionHandle = getCurrentCollectionHandle();
+            const isFromCollection = collectionPage && collectionPage.classList.contains('active');
             
-            // Add current collection to navigation stack
-            navigationStack.push({
-                type: 'collection',
-                handle: collectionHandle,
-                title: collectionTitle
-            });
+            let navigationData;
             
+            if (isFromCollection) {
+                // From collection page
+                const collectionTitle = collectionPage?.querySelector('.collection-mobile-title')?.textContent;
+                const collectionHandle = getCurrentCollectionHandle();
+                navigationData = {
+                    type: 'collection',
+                    handle: collectionHandle,
+                    title: collectionTitle,
+                    scrollPosition: currentScrollY
+                };
+            } else {
+                // From homepage featured products
+                navigationData = {
+                    type: 'homepage-featured',
+                    scrollPosition: currentScrollY,
+                    section: 'featured-products'
+                };
+            }
+            
+            // Add current context to navigation stack
+            navigationStack.push(navigationData);
             console.log('📍 Added to navigation stack:', navigationStack);
             
-            // Hide collection page with FAST transition (optimized for performance)
-            if (collectionPage) {
+            // Smooth transition without scroll jump
+            if (isFromCollection && collectionPage) {
                 collectionPage.style.transition = 'transform 0.15s ease-out, opacity 0.15s ease-out';
                 collectionPage.style.transform = 'translateX(-20%)';
                 collectionPage.style.opacity = '0.5';
             }
             
-            // Open product detail page after FAST transition
+            // Open product detail page with NO SCROLL JUMP
             setTimeout(async () => {
                 try {
-                    console.log('🔍 COLLECTION CLICK DEBUG: About to call showProduct with:', productHandle);
+                    console.log('🔍 PRODUCT CLICK DEBUG: About to call showProduct with:', productHandle);
                     // Use the existing product detail page system
                     await showProduct(productHandle);
-                    console.log('✅ COLLECTION CLICK DEBUG: Product detail page opened successfully for:', productHandle);
+                    console.log('✅ PRODUCT CLICK DEBUG: Product detail page opened successfully for:', productHandle);
                 } catch (error) {
-                    console.error('❌ COLLECTION CLICK DEBUG: Error opening product:', error);
-                    console.error('❌ COLLECTION CLICK DEBUG: Error stack:', error.stack);
+                    console.error('❌ PRODUCT CLICK DEBUG: Error opening product:', error);
+                    console.error('❌ PRODUCT CLICK DEBUG: Error stack:', error.stack);
                     showToast('Error opening product details');
-                    // Restore collection page if product fails to load
-                    restoreCollectionPage();
+                    // Restore previous page if product fails to load
+                    if (isFromCollection) {
+                        restoreCollectionPage();
+                    } else {
+                        // For featured products, just restore scroll position without page refresh
+                        console.log('📍 Restoring scroll position without page refresh');
+                        setTimeout(() => {
+                            window.scrollTo({
+                                top: currentScrollY,
+                                behavior: 'auto'
+                            });
+                        }, 100);
+                    }
                 }
-            }, 75); // Reduced from 150ms to 75ms for faster transitions
+            }, isFromCollection ? 75 : 0); // No delay for homepage, small delay for collection
         }
         
         // Get current collection handle
@@ -9201,13 +9298,39 @@
             return 'frontpage';
         }
         
-        // Restore collection page smoothly
+        // Restore collection page smoothly with scroll position
         function restoreCollectionPage() {
             const collectionPage = document.getElementById('collection-full-page');
             if (collectionPage) {
                 collectionPage.style.transform = 'translateX(0)';
                 collectionPage.style.opacity = '1';
+                
+                // Restore scroll position from navigation stack
+                const lastNavigation = navigationStack[navigationStack.length - 1];
+                if (lastNavigation && lastNavigation.scrollPosition !== undefined) {
+                    setTimeout(() => {
+                        window.scrollTo(0, lastNavigation.scrollPosition);
+                        console.log('📍 Restored collection scroll position:', lastNavigation.scrollPosition);
+                    }, 100);
+                }
             }
+        }
+
+        // Restore homepage with scroll position
+        function restoreHomepageWithScrollPosition(scrollPosition) {
+            console.log('📍 Restoring homepage with scroll position:', scrollPosition);
+            
+            // Show homepage
+            showPage('home');
+            
+            // Restore scroll position after a brief delay to ensure page is rendered
+            setTimeout(() => {
+                window.scrollTo({
+                    top: scrollPosition,
+                    behavior: 'auto' // Use auto for instant restoration
+                });
+                console.log('📍 Homepage scroll position restored to:', scrollPosition);
+            }, 150);
         }
 
         // Add to cart from collection with event handling
@@ -10742,6 +10865,26 @@
             const productDetailPage = document.querySelector('.product-detail-page');
             if (productDetailPage && productDetailPage.style.display !== 'none') {
                 console.log('📱 ANDROID: Closing product detail page');
+                
+                // Check navigation stack for proper restoration
+                if (navigationStack && navigationStack.length > 0) {
+                    const previousPage = navigationStack.pop();
+                    console.log('📱 ANDROID: Restoring previous page:', previousPage);
+                    
+                    if (previousPage.type === 'collection') {
+                        // Restore collection page with scroll position
+                        restoreCollectionPage();
+                        closeProductDetailPage();
+                        return;
+                                         } else if (previousPage.type === 'homepage-featured') {
+                         // Restore homepage featured products section without page refresh
+                         closeProductDetailPage();
+                         // Don't call additional restoration here - closeProductDetailPage handles it
+                         return;
+                    }
+                }
+                
+                // Fallback: just close product detail
                 closeProductDetailPage();
                 return;
             }
@@ -10758,9 +10901,14 @@
             if (navigationStack && navigationStack.length > 0) {
                 console.log('📱 ANDROID: Using navigation stack for back navigation');
                 const previousPage = navigationStack.pop();
+                
                 if (previousPage && previousPage.type === 'collection') {
                     restoreCollectionPage();
                     return;
+                                 } else if (previousPage && previousPage.type === 'homepage-featured') {
+                     // Use the direct restoration function for featured products
+                     returnToHomepageFeaturedProducts(previousPage);
+                     return;
                 }
             }
             
