@@ -68,20 +68,19 @@
             overflow: visible;
             display: block;
             background: transparent;
-            padding-top: env(safe-area-inset-top, 0);
+            /* Removed duplicate safe area - wrapper handles it */
         }
 
-        /* Fixed Header Wrapper - More reliable than sticky in WebView */
+        /* Fixed Header Wrapper - High but reasonable z-index */
         .custom-header-wrapper {
             position: fixed;
-            top: 0;
+            top: env(safe-area-inset-top, 0);
             left: 0;
             right: 0;
-            z-index: 1000; /* Higher z-index to ensure it stays on top */
+            z-index: 2000; /* High enough to be on top */
             background: var(--header-background-color, #fff);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 0; /* Remove padding since announcement bar has its own */
-            padding-top: env(safe-area-inset-top, 0); /* Safe area for notched devices */
+            padding: 0;
             width: 100%;
             /* Force hardware acceleration for smooth scrolling */
             will-change: transform;
@@ -106,12 +105,26 @@
             position: relative;
             z-index: 15;
             background: var(--trending-background, #f8f9fa);
-            margin-top: calc(180px + env(safe-area-inset-top, 0px)); /* Header height + safe area */
+            margin-top: calc(250px + env(safe-area-inset-top, 0)) !important; /* Increased header height + safe area + buffer */
+            padding-top: 20px !important; /* Additional padding for safety */
         }
 
         /* Alternative: Use padding-top on first content section */
         .page-content {
-            padding-top: calc(180px + env(safe-area-inset-top, 0px)); /* Space for fixed header + safe area */
+            padding-top: calc(250px + env(safe-area-inset-top, 0)) !important; /* Space for fixed header + safe area + buffer */
+        }
+        
+        /* Back to working fe48edc approach */
+        .trending-section {
+            position: relative;
+            z-index: 15;
+            background: var(--trending-background, #f8f9fa);
+            margin-top: calc(180px + env(safe-area-inset-top, 0)) !important;
+        }
+        
+        /* Alternative: Use padding-top on first content section */
+        .page-content {
+            padding-top: calc(180px + env(safe-area-inset-top, 0)) !important;
         }
 
         @media screen and (min-width: 768px) {
@@ -120,23 +133,49 @@
             }
         }
 
-        /* Tablet and Desktop Safe Area Support */
+        /* Tablet and Desktop Support - safe area handled by wrapper only */
         @media screen and (min-width: 768px) and (max-width: 1024px) {
-            .custom-header {
-                padding-top: calc(env(safe-area-inset-top, 0) + 4px);
-            }
-            
-            .announcement-bar {
-                padding-top: calc(8px + env(safe-area-inset-top, 0));
-            }
+            /* No additional safe area - wrapper handles it */
+                }
+        
+        /* Permanent Safe Area Spacer - ALWAYS VISIBLE */
+        .safe-area-spacer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: env(safe-area-inset-top, 0);
+            z-index: 9999;
+            pointer-events: none;
+            background: transparent;
         }
-
-        /* Hide header and categories on product and collection pages */
-        body.hide-header .custom-header,
+        
+        /* Back to simple approach */
+        
+        /* Hide header content but NOT wrapper (preserves safe area) */
+        body.hide-header .custom-header-top,
+        body.hide-header .custom-header-search,
+        body.hide-header .custom-header-nav,
+        body.hide-header .announcement-bar,
         body.hide-header .categories-section,
         body.hide-header #sunglasses-categories-section,
         body.hide-header .shark-tank-section {
             display: none;
+        }
+
+        /* Keep wrapper visible to preserve safe area */
+        body.hide-header .custom-header-wrapper {
+            background: transparent;
+            box-shadow: none;
+        }
+        
+        /* Adjust content spacing when header is hidden */
+        body.hide-header .trending-section {
+            margin-top: calc(80px + env(safe-area-inset-top, 0)) !important;
+        }
+        
+        body.hide-header .page-content {
+            padding-top: calc(80px + env(safe-area-inset-top, 0)) !important;
         }
 
 
@@ -3630,6 +3669,9 @@
         </div>
     </div>
     
+            <!-- Permanent Safe Area Spacer (NEVER HIDDEN) -->
+        <div class="safe-area-spacer"></div>
+    
     <!-- Custom Header - Advanced Liquid Template Based -->
     <header class="custom-header" style="
       --header-background-color: #FFFFFF;
@@ -3671,12 +3713,12 @@
       
       <!-- Sticky Header Container -->
       <div class="custom-header-wrapper">
-        <!-- Announcement Bar -->
-        <div class="announcement-bar" id="announcement-bar" style="display: block;">
-          <div class="announcement-content">
-            <span class="announcement-text" id="announcement-text">Free shipping on orders over $50! 🚚</span>
-          </div>
+      <!-- Announcement Bar -->
+      <div class="announcement-bar" id="announcement-bar" style="display: block;">
+        <div class="announcement-content">
+          <span class="announcement-text" id="announcement-text">Free shipping on orders over $50! 🚚</span>
         </div>
+      </div>
         <div class="custom-header-top">
           <div class="custom-header-left">
             <button type="button" onclick="document.querySelector('body').classList.toggle('menu-open')" title="Menu">
@@ -4309,22 +4351,61 @@
         const API_BASE = 'https://app-banao-git-main-voyageeyewears-projects.vercel.app';
         console.log('🔗 API_BASE set to:', API_BASE);
 
+                // CSS-only solution - no JavaScript needed
+        console.log('📱 Using pure CSS solution for header spacing');
+
         // Dynamic Header Height Adjustment for Fixed Header
         function adjustContentForFixedHeader() {
-            const header = document.querySelector('.custom-header-wrapper');
-            const trendingSection = document.querySelector('.trending-section');
+            console.log('📏 Content adjustment disabled - using static spacing to avoid safe area duplication');
+            // Removed dynamic spacing that was causing triple safe area application
+        }
+
+        // Zero body manipulation approach to preserve safe area completely
+        
+        // Helper functions to show/hide main content sections
+        function hideMainContent(useOpacity = false) {
+            const sections = [
+                document.querySelector('.trending-section'),
+                document.getElementById('home-content'),
+                document.querySelector('.categories-section'),
+                document.querySelector('.looks-section'),
+                document.querySelector('.shark-tank-section'),
+                document.querySelector('.new-drops-section')
+            ];
             
-            if (header && trendingSection) {
-                const headerHeight = header.offsetHeight;
-                console.log('📏 Fixed header height:', headerHeight + 'px');
-                trendingSection.style.marginTop = headerHeight + 'px';
-                
-                // Also adjust other content sections if they exist
-                const pageContent = document.querySelector('.page-content');
-                if (pageContent) {
-                    pageContent.style.paddingTop = headerHeight + 'px';
+            sections.forEach(element => {
+                if (element) {
+                    if (useOpacity) {
+                        element.style.opacity = '0';
+                    } else {
+                        element.style.display = 'none';
+                        element.style.visibility = 'hidden';
+                    }
                 }
-            }
+            });
+        }
+        
+        function showMainContent() {
+            // CRITICAL FIX: Remove hide-header class when showing main content
+            document.body.classList.remove('hide-header');
+            console.log('🏠 HOMEPAGE FIX: Removed hide-header class');
+            
+            const sections = [
+                document.querySelector('.trending-section'),
+                document.getElementById('home-content'),
+                document.querySelector('.categories-section'),
+                document.querySelector('.looks-section'),
+                document.querySelector('.shark-tank-section'),
+                document.querySelector('.new-drops-section')
+            ];
+            
+            sections.forEach(element => {
+                if (element) {
+                    element.style.display = '';
+                    element.style.visibility = '';
+                    element.style.opacity = '';
+                }
+            });
         }
         
         // Fallback URLs to try if main API fails
@@ -6866,27 +6947,24 @@
             const currentScrollY = window.scrollY || document.documentElement.scrollTop;
             console.log('📍 Preventing scroll jump, current position:', currentScrollY);
             
+            // Note: Zero body manipulation preserves safe area completely
+            
             // FORCE CLOSE ANY MODALS FIRST
             const existingModals = document.querySelectorAll('.product-modal');
             existingModals.forEach(modal => modal.remove());
             console.log('🚨 FORCE: Removed any existing modals');
             
-            // PREVENT SCROLL JUMP BY SETTING POSITION BEFORE OVERFLOW CHANGE
-            document.documentElement.style.scrollTop = currentScrollY + 'px';
-            document.body.style.top = `-${currentScrollY}px`;
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
+            // PRESERVE SAFE AREA - NO BODY MANIPULATION
+            // Simply store scroll position without any CSS changes
+            window.tempScrollPosition = currentScrollY;
+            console.log('📦 Stored scroll position without body changes:', currentScrollY);
             
             // FORCE FULL-SCREEN MODE without scroll jump
             document.body.classList.add('hide-header');
             console.log('🚨 FORCE: Set body to full-screen mode without scroll jump');
             
             // Hide main app content COMPLETELY
-            const mainContent = document.querySelector('.app-content');
-            if (mainContent) {
-                mainContent.style.display = 'none';
-                mainContent.style.visibility = 'hidden';
-            }
+            hideMainContent();
             
             // Hide collection page
             const collectionPage = document.getElementById('collection-full-page');
@@ -7413,16 +7491,15 @@
           function closeProductDetailPage() {
               console.log('🔙 Closing product detail page');
               
-              // Restore scroll position by undoing the fixed position hack
-              const bodyTop = document.body.style.top;
-              if (bodyTop) {
-                  const scrollY = parseInt(bodyTop || '0') * -1;
-                  document.body.style.position = '';
-                  document.body.style.top = '';
-                  document.body.style.width = '';
-                  window.scrollTo(0, scrollY);
-                  console.log('📍 Restored original scroll position:', scrollY);
-              }
+              // Restore scroll position with zero body manipulation
+              const scrollY = window.tempScrollPosition || 0;
+              
+              // Only restore scroll position - no CSS changes
+              window.scrollTo(0, scrollY);
+              console.log('📍 Restored scroll position with zero body manipulation:', scrollY);
+              
+              // Clear temp storage
+              delete window.tempScrollPosition;
               
               // Check navigation stack for where to return (don't pop here, let caller handle it)
               const previousPage = navigationStack.length > 0 ? navigationStack[navigationStack.length - 1] : null;
@@ -7466,11 +7543,7 @@
                    collectionPage.style.visibility = 'visible';
                    
                    // Show main app content but keep collection page mode
-                   const mainContent = document.querySelector('.app-content');
-                   if (mainContent) {
-                       mainContent.style.display = 'block';
-                       mainContent.style.visibility = 'visible';
-                   }
+                   showMainContent();
                    
                    // Restore collection page with smooth animation
                    collectionPage.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease';
@@ -7486,11 +7559,7 @@
                    console.log('🔄 Collection page not found, reopening collection...');
                    
                    // FORCE SHOW MAIN APP CONTENT
-                   const mainContent = document.querySelector('.app-content');
-                   if (mainContent) {
-                       mainContent.style.display = 'block';
-                       mainContent.style.visibility = 'visible';
-                   }
+                   showMainContent();
                    
                    // Reopen the collection after a brief delay
                    setTimeout(() => {
@@ -7504,11 +7573,7 @@
               console.log('🔙 Restoring homepage featured products without refresh');
               
               // Simply restore the main app state without triggering showPage('home')
-              const mainContent = document.querySelector('.app-content');
-              if (mainContent) {
-                  mainContent.style.display = 'block';
-                  mainContent.style.visibility = 'visible';
-              }
+              showMainContent();
               
               // Ensure no collection pages are interfering
               const collectionPage = document.getElementById('collection-full-page');
@@ -7520,10 +7585,7 @@
               currentView = 'home';
               document.body.classList.remove('hide-header');
               
-              // Restore body styles
-              document.body.style.position = '';
-              document.body.style.top = '';
-              document.body.style.width = '';
+              // No body style restoration needed - never changed anything
               
               // Update navigation silently
               updateNavigationForMainApp();
@@ -7545,10 +7607,7 @@
           // Return to home page
           function returnToHomePage() {
               // Show main app content
-              const mainContent = document.querySelector('.app-content');
-              if (mainContent) {
-                  mainContent.style.display = 'block';
-              }
+              showMainContent();
               
               // Close any collection pages
               const collectionPage = document.getElementById('collection-full-page');
@@ -8882,21 +8941,10 @@
                        transform: scale(0.95);
                    }
                    
-                   /* Mobile Responsive */
+                   /* Mobile Responsive - safe area handled by wrapper only */
                    @media (max-width: 767px) {
-                       /* Enhanced Safe Area Support for Mobile */
-                       body {
-                           padding-top: env(safe-area-inset-top, 25px);
-                       }
-                       
-                       .custom-header {
-                           padding-top: calc(env(safe-area-inset-top, 0) + 8px);
-                       }
-                       
-                       .announcement-bar {
-                           padding-top: calc(8px + env(safe-area-inset-top, 0));
-                           padding-bottom: 8px;
-                       }
+                       /* No additional safe area applications - wrapper handles it */
+                   }
                        
                        .nav-button {
                            width: 36px;
@@ -9011,10 +9059,7 @@
                        scroll-behavior: smooth;
                    }
                    
-                   /* Hide main app scrollbar when product page is open */
-                   body.hide-header {
-                       overflow: hidden;
-                   }
+                   /* Note: Removed overflow: hidden to preserve safe area */
                `;
                
                document.head.appendChild(style);
@@ -10635,11 +10680,11 @@
              }
              
              // Hide main content initially
-             const mainContent = document.querySelector('.app-content');
              const header = document.querySelector('.custom-header');
              const navigation = document.querySelector('.mobile-navigation');
              
-             if (mainContent) mainContent.style.opacity = '0';
+             // Hide all main content sections initially (use opacity for splash)
+             hideMainContent(true);
              if (header) header.style.opacity = '0';
              if (navigation) navigation.style.opacity = '0';
              
@@ -10803,7 +10848,6 @@
              console.log('🎬 SPLASH: Hiding splash screen and showing app...');
              
              const splashScreen = document.getElementById('splash-screen');
-             const mainContent = document.querySelector('.app-content');
              const header = document.querySelector('.custom-header');
              const navigation = document.querySelector('.mobile-navigation');
              
@@ -10816,10 +10860,7 @@
              
              // Fade in main content
              setTimeout(() => {
-                 if (mainContent) {
-                     mainContent.style.transition = 'opacity 0.5s ease';
-                     mainContent.style.opacity = '1';
-                 }
+                 showMainContent();
                  if (header) {
                      header.style.transition = 'opacity 0.3s ease';
                      header.style.opacity = '1';
@@ -10879,7 +10920,7 @@
                                          } else if (previousPage.type === 'homepage-featured') {
                          // Restore homepage featured products section without page refresh
                          closeProductDetailPage();
-                         // Don't call additional restoration here - closeProductDetailPage handles it
+                         // Safe area preserved with zero body manipulation
                          return;
                     }
                 }
@@ -10908,6 +10949,7 @@
                                  } else if (previousPage && previousPage.type === 'homepage-featured') {
                      // Use the direct restoration function for featured products
                      returnToHomepageFeaturedProducts(previousPage);
+                     // Safe area preserved with zero body manipulation
                      return;
                 }
             }
@@ -10930,13 +10972,11 @@
             setupSplashScreen();
             setupAndroidBackButton();
             
-            // Adjust content for fixed header
-            setTimeout(adjustContentForFixedHeader, 100); // Small delay to ensure header is rendered
+            // Using pure CSS solution - no JavaScript header adjustment needed
+            console.log('✅ Header spacing handled by CSS !important rules');
             
-            // Re-adjust on window resize (for orientation changes)
-            window.addEventListener('resize', function() {
-                setTimeout(adjustContentForFixedHeader, 100);
-            });
+            // Back to simple commit fe48edc approach but with higher header z-index
+            console.log('🔄 Reverted to working fe48edc approach with z-index: 2000 header');
             
             // Debug: Check if all required elements exist
             const requiredElements = [
