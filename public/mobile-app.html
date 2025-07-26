@@ -71,16 +71,19 @@
             /* Removed duplicate safe area - wrapper handles it */
         }
 
-        /* Fixed Header Wrapper - High but reasonable z-index */
+        /* Fixed Header Wrapper - Extends into safe area for black background */
         .custom-header-wrapper {
             position: fixed;
-            top: env(safe-area-inset-top, 0);
+            top: 0; /* Start at very top */
             left: 0;
             right: 0;
             z-index: 2000; /* High enough to be on top */
             background: var(--header-background-color, #fff);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 0;
+            padding-top: env(safe-area-inset-top, 0); /* Add safe area as padding */
+            padding-left: 0;
+            padding-right: 0;
+            padding-bottom: 0;
             width: 100%;
             /* Force hardware acceleration for smooth scrolling */
             will-change: transform;
@@ -114,7 +117,7 @@
             padding-top: calc(250px + env(safe-area-inset-top, 0)) !important; /* Space for fixed header + safe area + buffer */
         }
         
-        /* Back to working fe48edc approach */
+        /* Fixed header extends into safe area - adjust content spacing */
         .trending-section {
             position: relative;
             z-index: 15;
@@ -169,13 +172,13 @@
             box-shadow: none;
         }
         
-        /* Adjust content spacing when header is hidden */
+        /* Adjust content spacing when header is hidden - safe area still extends */
         body.hide-header .trending-section {
-            margin-top: calc(80px + env(safe-area-inset-top, 0)) !important;
+            margin-top: calc(40px + env(safe-area-inset-top, 0)) !important;
         }
         
         body.hide-header .page-content {
-            padding-top: calc(80px + env(safe-area-inset-top, 0)) !important;
+            padding-top: calc(40px + env(safe-area-inset-top, 0)) !important;
         }
 
 
@@ -10975,8 +10978,8 @@
             // Using pure CSS solution - no JavaScript header adjustment needed
             console.log('✅ Header spacing handled by CSS !important rules');
             
-            // Back to simple commit fe48edc approach but with higher header z-index
-            console.log('🔄 Reverted to working fe48edc approach with z-index: 2000 header');
+            // Fixed safe area background - header extends into safe area like classic collection
+            console.log('🎨 Fixed safe area background - header extends to top: 0 with safe area padding');
             
             // Debug: Check if all required elements exist
             const requiredElements = [
