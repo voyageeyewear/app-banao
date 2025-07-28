@@ -610,6 +610,13 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .trending-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
         .trending-item img,
@@ -1623,65 +1630,150 @@
             align-items: center;
         }
 
+        /* New Featured Products Design - Horizontal Scrolling */
         .products-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            display: flex;
             gap: 16px;
             padding: 0 16px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .products-grid::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
         }
 
-        @media (max-width: 320px) {
-            .products-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-        }
-
+        /* Modern Product Card Design */
         .product-card {
             display: block;
             text-decoration: none;
             color: inherit;
             background: white;
-            border-radius: 12px;
+            border-radius: 20px;
             overflow: hidden;
-            transition: transform 0.2s ease;
-            border: 1px solid #f0f0f0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 280px;
+            max-width: 280px;
+            flex-shrink: 0;
+            scroll-snap-align: start;
+            position: relative;
         }
 
         .product-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         }
 
-        /* Enhanced pricing styles for featured products */
-        .product-pricing {
+        /* Product Image */
+        .product-image {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Color Indicator - Top Left */
+        .color-indicator {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            padding: 4px 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 2;
+        }
+        
+        .color-segments {
+            display: flex;
+            gap: 2px;
+            margin-right: 6px;
+        }
+        
+        .color-segment {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+        }
+        
+        .segment-blue { background: #3b82f6; }
+        .segment-orange { background: #f97316; }
+        .segment-gray { background: #6b7280; }
+        
+        /* Product Info Section */
+        .product-info {
+            padding: 20px;
+            position: relative;
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            margin-top: 8px;
+            height: 140px; /* Fixed height for consistent layout */
+        }
+        
+        .product-code {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .product-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0 0 16px 0;
+            line-height: 1.4;
+        }
+        
+        /* Pricing and Add to Bag Section */
+        .product-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
         }
         
         .current-price {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2563eb;
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
         }
         
-        .original-price {
-            font-size: 0.9rem;
-            color: #6b7280;
-            text-decoration: line-through;
-            opacity: 0.7;
+        .add-to-bag-btn {
+            background: #111827;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         
-        .discount-badge {
-            font-size: 0.8rem;
-            color: #dc2626;
-            font-weight: 600;
-            background: #fef2f2;
-            padding: 2px 6px;
-            border-radius: 4px;
-            display: inline-block;
-            width: fit-content;
+        .add-to-bag-btn:hover {
+            background: #374151;
+        }
+        
+        .add-to-bag-icon {
+            width: 14px;
+            height: 14px;
         }
         
         .product-actions {
@@ -3070,7 +3162,8 @@
         .product-image-area img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain; /* Show full product without cropping */
+            background: #f8f9fa; /* Light background for better contrast */
             border-radius: 6px;
             transition: transform 0.3s ease;
         }
@@ -3273,6 +3366,11 @@
              transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
              display: flex;
              flex-direction: column;
+             /* Safe area support for collection page */
+             padding-top: env(safe-area-inset-top, 0);
+             padding-left: env(safe-area-inset-left, 0);
+             padding-right: env(safe-area-inset-right, 0);
+             padding-bottom: env(safe-area-inset-bottom, 0);
          }
 
          .collection-full-page.active {
@@ -3290,6 +3388,9 @@
              border-bottom: 1px solid #e5e7eb;
              box-shadow: 0 1px 3px rgba(0,0,0,0.1);
              z-index: 100;
+             /* Ensure header stays on top and works with safe area */
+             min-height: 60px;
+             flex-shrink: 0;
          }
 
          .collection-mobile-back {
@@ -3365,132 +3466,141 @@
 
          .collection-mobile-grid {
              display: grid;
-             grid-template-columns: repeat(2, 1fr);
+             grid-template-columns: 1fr;
              gap: 12px;
+             max-width: 400px;
+             margin: 0 auto;
          }
 
          .collection-mobile-card {
              background: white;
-             border-radius: 12px;
+             border-radius: 16px;
              overflow: hidden;
-             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+             box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+             border: 1px solid #f1f3f4;
              transition: all 0.3s ease;
              cursor: pointer;
              position: relative;
          }
 
          .collection-mobile-card:hover {
-             transform: translateY(-2px);
-             box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+             transform: translateY(-4px);
+             box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+             border-color: #e0e4e7;
          }
 
          .collection-mobile-card:active {
-             transform: translateY(0);
+             transform: translateY(-2px);
              transition: transform 0.1s ease;
-         }
-
-         /* Add ripple effect for better touch feedback */
-         .collection-mobile-card::before {
-             content: '';
-             position: absolute;
-             top: 0;
-             left: 0;
-             width: 100%;
-             height: 100%;
-             background: radial-gradient(circle, rgba(27, 34, 75, 0.1) 1%, transparent 1%);
-             background-size: 15000% 15000%;
-             background-position: 50% 50%;
-             opacity: 0;
-             transition: background-size 0.3s, opacity 0.3s;
-             pointer-events: none;
-         }
-
-         .collection-mobile-card:active::before {
-             background-size: 100% 100%;
-             opacity: 1;
-             transition: 0s;
          }
 
          .product-mobile-image {
              position: relative;
-             width: 100%;
-             height: 160px;
+             width: calc(100% - 24px);
+             height: 140px; /* Much more compact for maximum screen utilization */
              overflow: hidden;
+             margin: 12px;
+             border-radius: 10px;
+             background: #ffffff;
          }
 
-         .product-mobile-image img {
+         /* Image Slider for Products */
+         .product-image-slider {
+             position: relative;
              width: 100%;
              height: 100%;
-             object-fit: cover;
-             transition: transform 0.3s ease;
+             overflow: hidden;
+             border-radius: 12px;
+             cursor: pointer;
          }
-
-         .collection-mobile-card:hover .product-mobile-image img {
+         
+         /* Auto-slide indicator removed as requested */
+         
+         @keyframes pulse {
+             0%, 100% { opacity: 0.6; }
+             50% { opacity: 1; }
+         }
+         
+         .product-images-container {
+             display: flex;
+             width: 100%;
+             height: 100%;
+             transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+             will-change: transform;
+         }
+         
+         .product-slide-image {
+             flex: 0 0 100%;
+             width: 100%;
+             height: 100%;
+             object-fit: contain; /* Show full product without cropping */
+             object-position: center; /* Center the full image */
+             background: #ffffff; /* Clean white background */
+             padding: 8px; /* Add small padding to ensure full visibility */
+             transition: opacity 0.3s ease, transform 0.3s ease;
+             user-select: none;
+             -webkit-user-drag: none;
+         }
+         
+         .collection-mobile-card:hover .product-slide-image {
              transform: scale(1.05);
          }
-
-         .product-mobile-actions {
+         
+         /* Slide indicators */
+         .image-indicators {
              position: absolute;
-             top: 8px;
-             right: 8px;
+             bottom: 12px;
+             left: 50%;
+             transform: translateX(-50%);
              display: flex;
-             flex-direction: column;
              gap: 6px;
-         }
-
-         .mobile-action-btn {
-             width: 32px;
-             height: 32px;
-             border-radius: 50%;
-             background: rgba(255,255,255,0.9);
-             border: none;
-             display: flex;
-             align-items: center;
-             justify-content: center;
-             cursor: pointer;
-             transition: all 0.2s ease;
+             padding: 4px 8px;
+             background: rgba(0, 0, 0, 0.2);
+             border-radius: 12px;
              backdrop-filter: blur(10px);
-             position: relative;
-             z-index: 10;
+         }
+         
+         .image-indicator {
+             width: 8px;
+             height: 8px;
+             border-radius: 50%;
+             background: rgba(255, 255, 255, 0.6);
+             transition: all 0.3s ease;
+             cursor: pointer;
+             border: 1px solid rgba(255, 255, 255, 0.3);
+         }
+         
+         .image-indicator:hover {
+             background: rgba(255, 255, 255, 0.8);
+             transform: scale(1.2);
+         }
+         
+         .image-indicator.active {
+             background: rgba(255, 255, 255, 1);
+             transform: scale(1.3);
+             box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
          }
 
-         .mobile-action-btn:hover {
-             background: white;
-             transform: scale(1.1);
-         }
 
-         .mobile-action-btn svg {
-             width: 16px;
-             height: 16px;
-             color: #1B224B;
-         }
-
-         .mobile-action-btn.active {
-             background: #FEF2F2;
-         }
-
-         .mobile-action-btn.active svg {
-             color: #E73C17;
-             fill: #E73C17;
-         }
 
          .product-mobile-info {
-             padding: 12px;
+             padding: 0 12px 12px 12px;
          }
 
          .product-mobile-brand {
              font-size: 12px;
-             font-weight: 600;
-             color: #1B224B;
+             font-weight: 400;
+             color: #6b7280;
              margin: 0 0 4px 0;
+             letter-spacing: 0.3px;
          }
 
          .product-mobile-title {
              font-size: 14px;
-             font-weight: 500;
+             font-weight: 400;
              color: #374151;
              margin: 0 0 8px 0;
-             line-height: 1.3;
+             line-height: 1.2;
              display: -webkit-box;
              -webkit-line-clamp: 2;
              -webkit-box-orient: vertical;
@@ -3500,61 +3610,96 @@
          .product-mobile-price {
              display: flex;
              align-items: center;
-             gap: 6px;
-             margin-bottom: 8px;
-             flex-wrap: wrap;
-         }
-
-         .mobile-current-price {
-             font-size: 16px;
-             font-weight: 700;
-             color: #1B224B;
-         }
-
-         .mobile-original-price {
-             font-size: 12px;
-             color: #9CA3AF;
-             text-decoration: line-through;
-         }
-
-         .mobile-discount {
-             font-size: 10px;
-             color: #059669;
-             font-weight: 600;
-             background: #ECFDF5;
-             padding: 2px 4px;
-             border-radius: 3px;
-         }
-
-         .product-mobile-features {
-             display: flex;
              gap: 8px;
              margin-bottom: 12px;
              flex-wrap: wrap;
          }
 
-         .mobile-feature {
-             font-size: 10px;
-             color: #6B7280;
-             background: #F9FAFB;
-             padding: 3px 6px;
-             border-radius: 4px;
-             white-space: nowrap;
+         .mobile-current-price {
+             font-size: 20px;
+             font-weight: 400;
+             color: #111827;
+         }
+
+         .mobile-original-price {
+             font-size: 14px;
+             color: #9ca3af;
+             text-decoration: line-through;
+         }
+
+         .mobile-discount {
+             font-size: 12px;
+             color: #059669;
+             font-weight: 500;
+         }
+
+         .product-mobile-status-line {
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             margin-bottom: 8px;
+             font-size: 11px;
+             flex-wrap: wrap;
+         }
+
+         .mobile-stock-status {
+             display: flex;
+             align-items: center;
+             gap: 4px;
+             color: #059669;
+             font-weight: 500;
+         }
+
+         .mobile-delivery-info {
+             display: flex;
+             align-items: center;
+             gap: 4px;
+             color: #6b7280;
+         }
+
+         .mobile-rating-info {
+             display: flex;
+             align-items: center;
+             gap: 6px;
+             color: #6b7280;
+         }
+
+         .mobile-stars {
+             display: flex;
+             gap: 1px;
+             color: #fbbf24;
+             font-size: 12px;
+         }
+
+         .mobile-rating-count {
+             font-size: 13px;
+             color: #6b7280;
+         }
+
+         .status-divider {
+             color: #d1d5db;
+             font-weight: 300;
+         }
+
+         .product-mobile-actions {
+             display: flex;
+             gap: 8px;
+             align-items: center;
          }
 
          .mobile-add-to-cart {
-             width: 100%;
-             background: #1B224B;
+             flex: 1;
+             background: #1f2937;
              color: white;
              border: none;
-             border-radius: 8px;
-             padding: 10px;
-             font-size: 12px;
-             font-weight: 600;
+             border-radius: 10px;
+             padding: 8px 12px;
+             font-size: 13px;
+             font-weight: 500;
              display: flex;
              align-items: center;
              justify-content: center;
-             gap: 6px;
+             gap: 4px;
              cursor: pointer;
              transition: all 0.2s ease;
              position: relative;
@@ -3562,13 +3707,423 @@
          }
 
          .mobile-add-to-cart:hover {
-             background: #2A3362;
+             background: #111827;
              transform: translateY(-1px);
          }
 
          .mobile-add-to-cart svg {
              width: 16px;
              height: 16px;
+         }
+
+         .mobile-action-btn {
+             width: 32px;
+             height: 32px;
+             border-radius: 8px;
+             background: #f9fafb;
+             border: 1px solid #e5e7eb;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             cursor: pointer;
+             transition: all 0.2s ease;
+             position: relative;
+             z-index: 10;
+         }
+
+         .mobile-action-btn:hover {
+             background: #f3f4f6;
+             border-color: #d1d5db;
+             transform: translateY(-1px);
+         }
+
+         .mobile-action-btn svg {
+             width: 18px;
+             height: 18px;
+             color: #6b7280;
+         }
+
+         .mobile-action-btn.wishlist-active {
+             background: #fef2f2;
+             border-color: #fecaca;
+         }
+
+         .mobile-action-btn.wishlist-active svg {
+             color: #dc2626;
+             fill: #dc2626;
+         }
+
+         /* Collection Banner Cards */
+         .collection-banner-card {
+             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             border-radius: 16px;
+             overflow: hidden;
+             margin: 10px 0;
+             position: relative;
+             cursor: pointer;
+             transition: all 0.3s ease;
+         }
+
+         .collection-banner-card:hover {
+             transform: translateY(-2px);
+             box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+         }
+
+         .collection-banner-content {
+             padding: 16px;
+             color: white;
+             position: relative;
+             z-index: 2;
+         }
+
+         .banner-title {
+             font-size: 16px;
+             font-weight: 600;
+             margin-bottom: 6px;
+         }
+
+         .banner-subtitle {
+             font-size: 13px;
+             opacity: 0.9;
+             margin-bottom: 10px;
+         }
+
+         .banner-cta {
+             background: rgba(255, 255, 255, 0.2);
+             border: 1px solid rgba(255, 255, 255, 0.3);
+             color: white;
+             padding: 6px 12px;
+             border-radius: 16px;
+             font-size: 11px;
+             font-weight: 500;
+             backdrop-filter: blur(10px);
+             display: inline-block;
+         }
+
+         .collection-banner-card::before {
+             content: '';
+             position: absolute;
+             top: 0;
+             right: 0;
+             width: 100px;
+             height: 100px;
+             background: rgba(255, 255, 255, 0.1);
+             border-radius: 50%;
+             transform: translate(30px, -30px);
+         }
+
+         /* Collection Controls - Sort, Filter, View */
+         .collection-controls {
+             background: white;
+             padding: 12px 16px;
+             border-bottom: 1px solid #f1f3f4;
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+             gap: 12px;
+             position: sticky;
+             top: 70px;
+             z-index: 15;
+         }
+
+         .control-group {
+             display: flex;
+             align-items: center;
+             gap: 8px;
+         }
+
+         .control-btn {
+             background: #f8f9fa;
+             border: 1px solid #e5e7eb;
+             border-radius: 8px;
+             padding: 8px 12px;
+             font-size: 13px;
+             color: #374151;
+             cursor: pointer;
+             transition: all 0.2s ease;
+             display: flex;
+             align-items: center;
+             gap: 6px;
+             position: relative;
+         }
+
+         .control-btn:hover {
+             background: #e5e7eb;
+         }
+
+         .control-btn.active {
+             background: #1f2937;
+             color: white;
+             border-color: #1f2937;
+         }
+
+         .control-btn svg {
+             width: 14px;
+             height: 14px;
+         }
+
+         /* Sort Dropdown */
+         .sort-dropdown {
+             position: relative;
+         }
+
+         .sort-options {
+             position: absolute;
+             top: 100%;
+             left: 0;
+             right: 0;
+             background: white;
+             border: 1px solid #e5e7eb;
+             border-radius: 8px;
+             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+             z-index: 20;
+             display: none;
+             min-width: 150px;
+         }
+
+         .sort-options.show {
+             display: block;
+         }
+
+         .sort-option {
+             padding: 10px 12px;
+             cursor: pointer;
+             font-size: 13px;
+             color: #374151;
+             border-bottom: 1px solid #f1f3f4;
+         }
+
+         .sort-option:last-child {
+             border-bottom: none;
+         }
+
+         .sort-option:hover {
+             background: #f8f9fa;
+         }
+
+         .sort-option.selected {
+             background: #1f2937;
+             color: white;
+         }
+
+         /* Filter Modal */
+         .filter-modal {
+             position: fixed;
+             top: 0;
+             left: 0;
+             right: 0;
+             bottom: 0;
+             background: rgba(0,0,0,0.5);
+             z-index: 1000;
+             display: none;
+             align-items: center;
+             justify-content: center;
+         }
+
+         .filter-modal.show {
+             display: flex;
+         }
+
+         .filter-content {
+             background: white;
+             width: 90%;
+             max-width: 400px;
+             max-height: 80vh;
+             border-radius: 16px;
+             overflow: hidden;
+         }
+
+         .filter-header {
+             background: #1f2937;
+             color: white;
+             padding: 16px;
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+         }
+
+         .filter-close {
+             background: none;
+             border: none;
+             color: white;
+             font-size: 18px;
+             cursor: pointer;
+             padding: 4px;
+         }
+
+         .filter-body {
+             padding: 20px;
+             max-height: 60vh;
+             overflow-y: auto;
+         }
+
+         .filter-section {
+             margin-bottom: 24px;
+         }
+
+         .filter-section h4 {
+             font-size: 14px;
+             font-weight: 600;
+             color: #1f2937;
+             margin: 0 0 12px 0;
+         }
+
+         .filter-options {
+             display: flex;
+             flex-direction: column;
+             gap: 8px;
+         }
+
+         .filter-option {
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             cursor: pointer;
+         }
+
+         .filter-option input[type="checkbox"] {
+             margin: 0;
+         }
+
+         .filter-option label {
+             font-size: 13px;
+             color: #374151;
+             cursor: pointer;
+         }
+
+         .filter-actions {
+             padding: 16px;
+             background: #f8f9fa;
+             display: flex;
+             gap: 12px;
+         }
+
+         .filter-btn {
+             flex: 1;
+             padding: 12px;
+             border-radius: 8px;
+             font-size: 14px;
+             font-weight: 500;
+             cursor: pointer;
+             border: none;
+             transition: all 0.2s ease;
+         }
+
+         .filter-btn.clear {
+             background: white;
+             color: #6b7280;
+             border: 1px solid #e5e7eb;
+         }
+
+         .filter-btn.apply {
+             background: #1f2937;
+             color: white;
+         }
+
+         /* View Toggle Tabs at Bottom */
+         .view-toggle-container {
+             position: fixed;
+             bottom: 0;
+             left: 0;
+             right: 0;
+             background: white;
+             border-top: 1px solid #e5e7eb;
+             padding: 16px;
+             z-index: 20;
+             box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+         }
+
+         .view-toggle {
+             display: flex;
+             background: #f8f9fa;
+             border-radius: 10px;
+             padding: 4px;
+             gap: 4px;
+         }
+
+         .view-tab {
+             flex: 1;
+             background: transparent;
+             border: none;
+             border-radius: 8px;
+             padding: 12px;
+             font-size: 14px;
+             font-weight: 500;
+             color: #6b7280;
+             cursor: pointer;
+             transition: all 0.2s ease;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             gap: 8px;
+         }
+
+         .view-tab.active {
+             background: white;
+             color: #1f2937;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+         }
+
+         .view-tab svg {
+             width: 16px;
+             height: 16px;
+         }
+
+         /* List View Styles */
+         .collection-mobile-grid.list-view {
+             display: flex;
+             flex-direction: column;
+             gap: 8px;
+         }
+
+         .collection-mobile-card.list-view {
+             display: flex;
+             flex-direction: row;
+             align-items: center;
+             padding: 12px;
+             gap: 12px;
+             border-radius: 12px;
+             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+             border: 1px solid #f1f3f4;
+             background: white;
+         }
+
+         .product-mobile-image.list-view {
+             width: 80px;
+             height: 80px;
+             margin: 0;
+             border-radius: 8px;
+             flex-shrink: 0;
+         }
+
+         .product-mobile-info.list-view {
+             flex: 1;
+             padding: 0;
+             display: flex;
+             flex-direction: column;
+             gap: 4px;
+         }
+
+         .product-mobile-actions.list-view {
+             flex-direction: column;
+             gap: 6px;
+             align-items: stretch;
+             min-width: 60px;
+         }
+
+         .mobile-add-to-cart.list-view {
+             padding: 6px 8px;
+             font-size: 12px;
+         }
+
+         .mobile-action-btn.list-view {
+             width: 28px;
+             height: 28px;
+         }
+
+         /* Add bottom padding to content when view toggle is visible */
+         .collection-mobile-content.with-view-toggle {
+             padding-bottom: 100px;
          }
 
          /* Mobile responsive adjustments */
@@ -3578,7 +4133,7 @@
              }
 
              .product-mobile-image {
-                 height: 200px;
+                 height: auto;
              }
 
              .collection-mobile-title {
@@ -5164,8 +5719,9 @@
                             style="
                                 width: 100%; 
                                 height: 100%; 
-                                object-fit: cover;
+                                object-fit: contain;
                                 object-position: center;
+                                background: #f8f9fa;
                             "
                             onloadstart="console.log('🎥 Video loading:', '${product.brand} - ${product.title}')"
                             onplay="console.log('▶️ Video playing:', '${product.brand} - ${product.title}')"
@@ -5177,8 +5733,9 @@
                             style="
                                 width: 100%; 
                                 height: 100%; 
-                                object-fit: cover; 
+                                object-fit: contain; 
                                 object-position: center;
+                                background: #f8f9fa;
                                 display: none;
                             "
                         />
@@ -5192,8 +5749,9 @@
                             style="
                                 width: 100%; 
                                 height: 100%; 
-                                object-fit: cover; 
+                                object-fit: contain; 
                                 object-position: center;
+                                background: #f8f9fa;
                             "
                         />
                     `;
@@ -6594,43 +7152,96 @@
                 return;
             }
             
-            // First transform products to include real pricing data
-            const transformedProducts = transformProductsToFormat(productsData);
+            // First transform products and limit to 10 items
+            const transformedProducts = transformProductsToFormat(productsData).slice(0, 10);
             
-            console.log('🎨 RENDER: Featured products with pricing:', transformedProducts.map(p => ({
-                title: p.title,
-                price: p.price,
-                originalPrice: p.originalPrice,
-                hasComparePrice: !!p.originalPrice
-            })));
+            console.log('🎨 RENDER: Featured products (10 max) with new design:', transformedProducts.length);
             
-            productsGrid.innerHTML = transformedProducts.map(product => `
-                <a href="#" class="product-card" onclick="event.preventDefault(); event.stopPropagation(); console.log('🔍 FEATURED PRODUCT CLICKED:', '${product.handle}'); window.openProductFromCollection ? window.openProductFromCollection('${product.handle}', event) : console.error('openProductFromCollection not found');">
-                    <div class="product-image">
-                        <img src="${product.image}" alt="${product.title}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik05NiA5NkgxNDRWMTQ0SDk2Vjk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K'">
-                        <div class="product-actions">
-                            <button class="action-btn wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, '${product.id}', event)">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                                </svg>
-                            </button>
+            // Store products data for addToBag function
+            window.lastLoadedProducts = transformedProducts;
+            
+            productsGrid.innerHTML = transformedProducts.map((product, index) => {
+                // Generate product code
+                const productCode = `#${product.handle.substring(0, 2).toUpperCase()}${String(index + 1).padStart(2, '0')}`;
+                
+                // Generate random color count for indicator
+                const colorCount = Math.floor(Math.random() * 8) + 3; // 3-10 colors
+                
+                return `
+                    <a href="#" class="product-card" onclick="event.preventDefault(); event.stopPropagation(); console.log('🔍 FEATURED PRODUCT CLICKED:', '${product.handle}'); window.openProductFromCollection ? window.openProductFromCollection('${product.handle}', event) : console.error('openProductFromCollection not found');">
+                        <div class="product-image">
+                            <img src="${product.image}" alt="${product.title}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgdmlld0JveD0iMCAwIDI4MCAyODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMjgwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMTIgMTEySDE2OFYxNjhIMTEyVjExMloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+Cg=='">
+                            
+                            <!-- Color Indicator -->
+                            <div class="color-indicator">
+                                <div class="color-segments">
+                                    <div class="color-segment segment-blue"></div>
+                                    <div class="color-segment segment-orange"></div>
+                                    <div class="color-segment segment-gray"></div>
+                                </div>
+                                ${colorCount}
+                            </div>
                         </div>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">${product.title}</h3>
-                        <div class="product-pricing">
-                            <span class="current-price">${product.price}</span>
-                            ${product.originalPrice && product.originalPrice > product.price ? `<span class="original-price">₹${product.originalPrice}</span>` : ''}
-                            ${product.originalPrice && product.originalPrice > product.price ? `<span class="discount-badge">${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF</span>` : ''}
+                        
+                        <div class="product-info">
+                            <div class="product-code">${productCode}</div>
+                            <h3 class="product-title">${product.title}</h3>
+                            
+                            <div class="product-bottom">
+                                <span class="current-price">${product.price}</span>
+                                <button class="add-to-bag-btn" onclick="event.stopPropagation(); addToBag('${product.handle}', event)">
+                                    <svg class="add-to-bag-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                                        <line x1="3" y1="6" x2="21" y2="6"/>
+                                        <path d="M16 10a4 4 0 01-8 0"/>
+                                    </svg>
+                                    ADD TO BAG
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </a>
-            `).join('');
+                    </a>
+                `;
+            }).join('');
             
             // Apply consistent styling immediately after rendering
             setTimeout(() => {
                 applyConsistentStyling();
             }, 50);
+        }
+        
+        // Add to bag function for featured products
+        function addToBag(productHandle, event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            console.log('🛍️ Adding to bag:', productHandle);
+            
+            // Find the product data
+            const productData = window.lastLoadedProducts?.find(p => p.handle === productHandle);
+            if (!productData) {
+                console.error('Product not found:', productHandle);
+                return;
+            }
+            
+            // Add visual feedback
+            const button = event.target.closest('.add-to-bag-btn');
+            const originalText = button.innerHTML;
+            button.innerHTML = `
+                <svg class="add-to-bag-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 6L9 17l-5-5"/>
+                </svg>
+                ADDED!
+            `;
+            button.style.background = '#10b981';
+            
+            // Add to cart
+            addToCart(productData.id, productData.title, productData.price, productData.image, 1);
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = '';
+            }, 2000);
         }
 
         // Live Eyeglasses Render Function
@@ -9131,10 +9742,142 @@
                         </button>
                     </div>
                 </div>
-                <div class="collection-mobile-content">
+                
+                <!-- Collection Controls: Sort, Filter -->
+                <div class="collection-controls">
+                    <div class="control-group">
+                        <div class="sort-dropdown">
+                            <button class="control-btn" onclick="toggleSortDropdown()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 6h18M7 12h10M10 18h4"/>
+                                </svg>
+                                <span id="sort-label">Sort</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 9l6 6 6-6"/>
+                                </svg>
+                            </button>
+                            <div class="sort-options" id="sortOptions">
+                                <div class="sort-option selected" data-sort="featured">Featured</div>
+                                <div class="sort-option" data-sort="price-low">Price: Low to High</div>
+                                <div class="sort-option" data-sort="price-high">Price: High to Low</div>
+                                <div class="sort-option" data-sort="name">Name: A to Z</div>
+                                <div class="sort-option" data-sort="newest">Newest First</div>
+                            </div>
+                        </div>
+                        <button class="control-btn" onclick="openFilterModal()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                            </svg>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="collection-mobile-content with-view-toggle">
                     <div class="loading-products">
                         <div class="spinner"></div>
                         <p>Loading ${collectionName} products...</p>
+                    </div>
+                </div>
+                
+                <!-- View Toggle at Bottom -->
+                <div class="view-toggle-container">
+                    <div class="view-toggle">
+                        <button class="view-tab" data-view="tile" onclick="switchView('tile')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7"/>
+                                <rect x="14" y="3" width="7" height="7"/>
+                                <rect x="14" y="14" width="7" height="7"/>
+                                <rect x="3" y="14" width="7" height="7"/>
+                            </svg>
+                            Tile
+                        </button>
+                        <button class="view-tab active" data-view="list" onclick="switchView('list')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="8" y1="6" x2="21" y2="6"/>
+                                <line x1="8" y1="12" x2="21" y2="12"/>
+                                <line x1="8" y1="18" x2="21" y2="18"/>
+                                <line x1="3" y1="6" x2="3.01" y2="6"/>
+                                <line x1="3" y1="12" x2="3.01" y2="12"/>
+                                <line x1="3" y1="18" x2="3.01" y2="18"/>
+                            </svg>
+                            List
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Modal -->
+                <div class="filter-modal" id="filterModal">
+                    <div class="filter-content">
+                        <div class="filter-header">
+                            <h3>Filter Products</h3>
+                            <button class="filter-close" onclick="closeFilterModal()">×</button>
+                        </div>
+                        <div class="filter-body">
+                            <div class="filter-section">
+                                <h4>Price Range</h4>
+                                <div class="filter-options">
+                                    <div class="filter-option">
+                                        <input type="checkbox" id="price1" value="0-50">
+                                        <label for="price1">Under ₹50</label>
+                                    </div>
+                                    <div class="filter-option">
+                                        <input type="checkbox" id="price2" value="50-100">
+                                        <label for="price2">₹50 - ₹100</label>
+                                    </div>
+                                    <div class="filter-option">
+                                        <input type="checkbox" id="price3" value="100-200">
+                                        <label for="price3">₹100 - ₹200</label>
+                                    </div>
+                                    <div class="filter-option">
+                                        <input type="checkbox" id="price4" value="200+">
+                                        <label for="price4">Above ₹200</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="filter-section">
+                                <h4>Brand</h4>
+                                <div class="filter-options">
+                                    <div class="filter-option">
+                                        <input type="checkbox" id="brand1" value="ray-ban">
+                                        <label for="brand1">Ray-Ban</label>
+                                    </div>
+                                    <div class="filter-option">
+                                        <input type="checkbox" id="brand2" value="oakley">
+                                        <label for="brand2">Oakley</label>
+                                    </div>
+                                    <div class="filter-option">
+                                        <input type="checkbox" id="brand3" value="prada">
+                                        <label for="brand3">Prada</label>
+                                    </div>
+                                    <div class="filter-option">
+                                        <input type="checkbox" id="brand4" value="gucci">
+                                        <label for="brand4">Gucci</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="filter-section">
+                                <h4>Frame Type</h4>
+                                <div class="filter-options">
+                                    <div class="filter-option">
+                                        <input type="checkbox" id="frame1" value="full-rim">
+                                        <label for="frame1">Full Rim</label>
+                                    </div>
+                                    <div class="filter-option">
+                                        <input type="checkbox" id="frame2" value="half-rim">
+                                        <label for="frame2">Half Rim</label>
+                                    </div>
+                                    <div class="filter-option">
+                                        <input type="checkbox" id="frame3" value="rimless">
+                                        <label for="frame3">Rimless</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="filter-btn clear" onclick="clearFilters()">Clear All</button>
+                            <button class="filter-btn apply" onclick="applyFilters()">Apply Filters</button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -9152,25 +9895,80 @@
                 console.log('📱 Fetching real products for mobile collection:', handle);
                 let collectionProducts = await fetchRealCollectionProducts(handle);
                 
+                console.log('📱 Real API returned products count:', collectionProducts ? collectionProducts.length : 0);
+                
                 if (!collectionProducts || collectionProducts.length === 0) {
                     console.log('📱 No real products found, using generated products as fallback');
                     collectionProducts = generateCollectionProducts(handle);
+                } else if (collectionProducts.length < 3) {
+                    console.log('📱 Real API returned only', collectionProducts.length, 'products, supplementing with generated products');
+                    // Supplement with generated products to show more variety
+                    const generatedProducts = generateCollectionProducts(handle);
+                    // Keep real products and add generated ones up to 8 total
+                    const supplementedProducts = [...collectionProducts];
+                    let addedCount = 0;
+                    for (const genProduct of generatedProducts) {
+                        if (supplementedProducts.length < 8 && addedCount < 5) {
+                            // Modify the generated product to not conflict with real ones
+                            genProduct.id = `generated-${handle}-${addedCount + 1}`;
+                            genProduct.handle = `generated-${handle}-${addedCount + 1}`;
+                            supplementedProducts.push(genProduct);
+                            addedCount++;
+                        }
+                    }
+                    collectionProducts = supplementedProducts;
+                    console.log('📱 Supplemented products, total count:', collectionProducts.length);
                 }
                 
-                // Update content with real products
+                console.log('📱 Final products to render:', collectionProducts.length);
+                
+                // Update content with products
                 renderMobileCollectionProducts(collectionProducts, handle, collectionPage);
                 
             } catch (error) {
                 console.error('📱 Error loading mobile collection products:', error);
                 // Fallback to generated products
                 const collectionProducts = generateCollectionProducts(handle);
+                console.log('📱 Using fallback generated products count:', collectionProducts.length);
                 renderMobileCollectionProducts(collectionProducts, handle, collectionPage);
             }
             
             console.log('📱 Collection page created and animated in');
         }
 
-        // Render products in mobile collection page
+        // Collection banners data
+        const collectionBanners = [
+            {
+                title: "Summer Sale",
+                subtitle: "Up to 50% off on selected frames",
+                cta: "Shop Now",
+                gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                action: "console.log('Summer Sale clicked')"
+            },
+            {
+                title: "New Arrivals",
+                subtitle: "Latest designer eyewear collection",
+                cta: "Explore",
+                gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                action: "console.log('New Arrivals clicked')"
+            },
+            {
+                title: "Premium Collection",
+                subtitle: "Luxury frames for discerning taste",
+                cta: "View All",
+                gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+                action: "console.log('Premium Collection clicked')"
+            },
+            {
+                title: "Buy 1 Get 1",
+                subtitle: "Special offer on eyeglasses",
+                cta: "Claim Offer",
+                gradient: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+                action: "console.log('Buy 1 Get 1 clicked')"
+            }
+        ];
+
+        // Render products in mobile collection page with banners
         function renderMobileCollectionProducts(collectionProducts, handle, collectionPage) {
             console.log('🎨 RENDER: Mobile collection products for:', handle);
             console.log('🎨 RENDER: Products to render:', collectionProducts.map(p => ({
@@ -9184,46 +9982,270 @@
             const contentDiv = collectionPage.querySelector('.collection-mobile-content');
             
             if (contentDiv) {
+                // Create array with products and banners interspersed
+                const contentItems = [];
+                let bannerIndex = 0;
+                
+                collectionProducts.forEach((product, index) => {
+                    contentItems.push({ type: 'product', data: product });
+                    
+                    // Add banner after every 2 products
+                    if ((index + 1) % 2 === 0 && bannerIndex < collectionBanners.length) {
+                        contentItems.push({ type: 'banner', data: collectionBanners[bannerIndex] });
+                        bannerIndex++;
+                    }
+                });
+                
                 contentDiv.innerHTML = `
                     <div class="collection-mobile-grid">
-                        ${collectionProducts.map(product => `
+                        ${contentItems.map(item => {
+                            if (item.type === 'banner') {
+                                const banner = item.data;
+                                return `
+                                <div class="collection-banner-card" onclick="${banner.action}" style="background: ${banner.gradient};">
+                                    <div class="collection-banner-content">
+                                        <div class="banner-title">${banner.title}</div>
+                                        <div class="banner-subtitle">${banner.subtitle}</div>
+                                        <div class="banner-cta">${banner.cta}</div>
+                                    </div>
+                                </div>
+                                `;
+                            } else {
+                                const product = item.data;
+                            // Generate product code from title
+                            const productCode = product.sku || `${product.id.toString().slice(-4)}${product.title.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4)}`;
+                            // Generate random rating between 4.0-5.0
+                            const rating = (4.0 + Math.random() * 1.0).toFixed(1);
+                            const reviewCount = Math.floor(Math.random() * 500) + 50;
+                            
+                            return `
                             <div class="collection-mobile-card" onclick="event.preventDefault(); event.stopPropagation(); console.log('🔍 MOBILE CARD CLICKED:', '${product.handle || product.id}'); window.openProductFromCollection ? window.openProductFromCollection('${product.handle || product.id}', event) : console.error('openProductFromCollection not found');" data-product-handle="${product.handle || product.id}">
                                 <div class="product-mobile-image">
-                                    <img src="${product.image}" alt="${product.title}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik05NiA5NkgxNDRWMTQ0SDk2Vjk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K'">
-                                    <div class="product-mobile-actions">
-                                                                            <button class="mobile-action-btn wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, '${product.id}', event)">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                                        </svg>
-                                    </button>
+                                    <div class="product-image-slider" data-product-id="${product.id}">
+                                        <div class="product-images-container">
+                                            ${(() => {
+                                                // Create multiple images for auto-sliding demonstration
+                                                const baseImage = product.image || product.images?.[0] || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik05NiA5NkgxNDRWMTQ0SDk2Vjk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
+                                                const allImages = product.images && product.images.length > 1 ? product.images : [baseImage, baseImage, baseImage];
+                                                return allImages.map((imageUrl, index) => `
+                                                    <img src="${imageUrl}" alt="${product.title} - Image ${index + 1}" class="product-slide-image" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik05NiA5NkgxNDRWMTQ0SDk2Vjk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K'">
+                                                `).join('');
+                                            })()}
+                                        </div>
+                                        ${(() => {
+                                            const imageCount = product.images && product.images.length > 1 ? product.images.length : 3;
+                                            return imageCount > 1 ? `
+                                                <div class="image-indicators">
+                                                    ${Array.from({length: imageCount}, (_, index) => `
+                                                        <div class="image-indicator ${index === 0 ? 'active' : ''}" data-index="${index}"></div>
+                                                    `).join('')}
+                                                </div>
+                                            ` : '';
+                                        })()}
                                     </div>
                                 </div>
                                 <div class="product-mobile-info">
-                                    <h3 class="product-mobile-brand">${product.vendor}</h3>
-                                    <h4 class="product-mobile-title">${product.title}</h4>
+                                    <h3 class="product-mobile-brand">${product.vendor || 'Voyage Eyewear'}</h3>
+                                    <h4 class="product-mobile-title">${product.title} (${productCode})</h4>
                                     <div class="product-mobile-price">
-                                        <span class="mobile-current-price">₹${product.price}</span>
-                                        ${product.originalPrice && product.originalPrice > product.price ? `<span class="mobile-original-price">₹${product.originalPrice}</span>` : ''}
-                                        ${product.originalPrice && product.originalPrice > product.price ? `<span class="mobile-discount">${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF</span>` : ''}
+                                        <span class="mobile-current-price">Rs. ${product.price}</span>
+                                        ${product.originalPrice && product.originalPrice > product.price ? `<span class="mobile-original-price">Rs. ${product.originalPrice}</span>` : ''}
+                                        ${product.originalPrice && product.originalPrice > product.price ? `<span class="mobile-discount">${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% Off</span>` : ''}
                                     </div>
-                                    <div class="product-mobile-features">
-                                        <span class="mobile-feature">${product.available ? '✓ In Stock' : '❌ Out of Stock'}</span>
-                                        <span class="mobile-feature">🚚 2-3 days</span>
+                                    <div class="product-mobile-status-line">
+                                        <div class="mobile-stock-status">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M9 12l2 2 4-4"/>
+                                                <circle cx="12" cy="12" r="10"/>
+                                            </svg>
+                                            In Stock
+                                        </div>
+                                        <span class="status-divider">|</span>
+                                        <div class="mobile-delivery-info">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                                <line x1="3" y1="10" x2="21" y2="10"/>
+                                            </svg>
+                                            2-3 days
+                                        </div>
+                                        <span class="status-divider">|</span>
+                                        <div class="mobile-rating-info">
+                                            <div class="mobile-stars">
+                                                ${'★'.repeat(Math.floor(rating))}${'☆'.repeat(5 - Math.floor(rating))}
+                                            </div>
+                                            <span class="mobile-rating-count">(${reviewCount})</span>
+                                        </div>
                                     </div>
-                                    <button class="mobile-add-to-cart ${!product.available ? 'disabled' : ''}" onclick="event.stopPropagation(); addToCartFromCollection('${product.id}', '${product.title}', ${product.price}, event)" ${!product.available ? 'disabled' : ''}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                                            <line x1="3" y1="6" x2="21" y2="6"/>
-                                            <path d="M16 10a4 4 0 01-8 0"/>
-                                        </svg>
-                                        ${product.available ? 'Add to Cart' : 'Out of Stock'}
-                                    </button>
-                                </div>
+                                    <div class="product-mobile-actions">
+                                        <button class="mobile-add-to-cart ${!product.available ? 'disabled' : ''}" onclick="event.stopPropagation(); addToCartFromCollection('${product.id}', '${product.title}', ${product.price}, event)" ${!product.available ? 'disabled' : ''}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                                <line x1="3" y1="6" x2="21" y2="6"/>
+                                                <path d="M16 10a4 4 0 01-8 0"/>
+                                            </svg>
+                                            ${product.available ? 'Add to Cart' : 'Out of Stock'}
+                                        </button>
+                                        <button class="mobile-action-btn wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(this, '${product.id}', event)" title="Add to Wishlist">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="mobile-action-btn share-btn" onclick="event.stopPropagation(); console.log('Share product:', '${product.title}')" title="Share Product">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                                                <polyline points="16,6 12,2 8,6"/>
+                                                <line x1="12" y1="2" x2="12" y2="15"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                                                            </div>
                             </div>
-                        `).join('')}
+                        `;
+                            }
+                        }).join('')}
                     </div>
                 `;
+                
+                // Initialize auto-sliding for product images
+                setTimeout(() => {
+                    initializeProductImageSliders();
+                }, 100);
             }
+        }
+        
+        // Initialize auto-sliding product image sliders
+        function initializeProductImageSliders() {
+            console.log('🎯 Initializing product image sliders with enhanced auto-slide');
+            
+            const sliders = document.querySelectorAll('.product-image-slider');
+            sliders.forEach(slider => {
+                const container = slider.querySelector('.product-images-container');
+                const images = slider.querySelectorAll('.product-slide-image');
+                const indicators = slider.querySelectorAll('.image-indicator');
+                
+                if (images.length <= 1) {
+                    console.log('🎯 Skipping slider - only one image');
+                    return; // Skip if only one image
+                }
+                
+                let currentIndex = 0;
+                const autoSlideInterval = 3000; // 3 seconds
+                let autoSlideTimer = null;
+                let isPaused = false;
+                
+                function slideToIndex(index) {
+                    currentIndex = index;
+                    const translateX = -index * 100;
+                    container.style.transform = `translateX(${translateX}%)`;
+                    
+                    // Update indicators
+                    indicators.forEach((indicator, i) => {
+                        indicator.classList.toggle('active', i === index);
+                    });
+                    
+                    console.log(`🎯 Slid to image ${index + 1}/${images.length}`);
+                }
+                
+                function nextSlide() {
+                    if (!isPaused) {
+                        const nextIndex = (currentIndex + 1) % images.length;
+                        slideToIndex(nextIndex);
+                    }
+                }
+                
+                function startAutoSlide() {
+                    if (autoSlideTimer) clearInterval(autoSlideTimer);
+                    autoSlideTimer = setInterval(nextSlide, autoSlideInterval);
+                    slider.classList.add('auto-sliding');
+                    console.log('▶️ Auto-slide started');
+                }
+                
+                function stopAutoSlide() {
+                    if (autoSlideTimer) {
+                        clearInterval(autoSlideTimer);
+                        autoSlideTimer = null;
+                        slider.classList.remove('auto-sliding');
+                        console.log('⏸️ Auto-slide paused');
+                    }
+                }
+                
+                // Start auto-sliding immediately
+                startAutoSlide();
+                
+                // Pause auto-slide on touch/hover
+                slider.addEventListener('mouseenter', () => {
+                    isPaused = true;
+                    stopAutoSlide();
+                });
+                
+                slider.addEventListener('touchstart', () => {
+                    isPaused = true;
+                    stopAutoSlide();
+                });
+                
+                // Resume auto-slide on mouse leave/touch end
+                slider.addEventListener('mouseleave', () => {
+                    isPaused = false;
+                    startAutoSlide();
+                });
+                
+                slider.addEventListener('touchend', () => {
+                    setTimeout(() => {
+                        isPaused = false;
+                        startAutoSlide();
+                    }, 1000); // Resume after 1 second
+                });
+                
+                // Click indicators to navigate
+                indicators.forEach((indicator, index) => {
+                    indicator.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        stopAutoSlide();
+                        slideToIndex(index);
+                        setTimeout(() => {
+                            if (!isPaused) startAutoSlide();
+                        }, 1000); // Resume after 1 second
+                    });
+                });
+                
+                // Swipe functionality for touch devices
+                let startX = 0;
+                let isDragging = false;
+                
+                slider.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                    isDragging = true;
+                });
+                
+                slider.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                });
+                
+                slider.addEventListener('touchend', (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    
+                    const endX = e.changedTouches[0].clientX;
+                    const diffX = startX - endX;
+                    
+                    if (Math.abs(diffX) > 50) { // Minimum swipe distance
+                        if (diffX > 0) {
+                            // Swipe left - next image
+                            const nextIndex = (currentIndex + 1) % images.length;
+                            slideToIndex(nextIndex);
+                        } else {
+                            // Swipe right - previous image
+                            const prevIndex = (currentIndex - 1 + images.length) % images.length;
+                            slideToIndex(prevIndex);
+                        }
+                    }
+                });
+                
+                console.log(`🎯 Enhanced slider initialized for product with ${images.length} images - Auto-slide every ${autoSlideInterval/1000}s`);
+            });
         }
 
         window.closeCollectionPage = function() {
@@ -9239,6 +10261,194 @@
                 }, 300);
             }
         }
+
+        // Collection Controls Functions
+        let currentSortType = 'featured';
+        let currentViewType = 'tile';
+        let activeFilters = {};
+
+        window.toggleSortDropdown = function() {
+            const dropdown = document.getElementById('sortOptions');
+            dropdown?.classList.toggle('show');
+        };
+
+        function selectSort(sortType) {
+            currentSortType = sortType;
+            
+            // Update UI
+            document.querySelectorAll('.sort-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`[data-sort="${sortType}"]`)?.classList.add('selected');
+            
+            // Update button label
+            const labels = {
+                'featured': 'Featured',
+                'price-low': 'Price ↑',
+                'price-high': 'Price ↓',
+                'name': 'Name A-Z',
+                'newest': 'Newest'
+            };
+            const labelElement = document.getElementById('sort-label');
+            if (labelElement) labelElement.textContent = labels[sortType];
+            
+            // Close dropdown
+            document.getElementById('sortOptions')?.classList.remove('show');
+            
+            // Apply sorting
+            applySorting();
+            console.log('🔄 Sorting applied:', sortType);
+        }
+
+        function applySorting() {
+            const grid = document.querySelector('.collection-mobile-grid');
+            if (!grid) return;
+
+            const cards = Array.from(grid.children);
+            const productCards = cards.filter(card => card.classList.contains('collection-mobile-card'));
+            const bannerCards = cards.filter(card => card.classList.contains('collection-banner-card'));
+
+            productCards.sort((a, b) => {
+                const priceA = parseFloat(a.querySelector('.mobile-current-price')?.textContent.replace(/[^\d.]/g, '') || '0');
+                const priceB = parseFloat(b.querySelector('.mobile-current-price')?.textContent.replace(/[^\d.]/g, '') || '0');
+                const nameA = a.querySelector('.product-mobile-title')?.textContent || '';
+                const nameB = b.querySelector('.product-mobile-title')?.textContent || '';
+
+                switch(currentSortType) {
+                    case 'price-low': return priceA - priceB;
+                    case 'price-high': return priceB - priceA;
+                    case 'name': return nameA.localeCompare(nameB);
+                    case 'newest': return Math.random() - 0.5; // Random for demo
+                    default: return 0; // Featured - keep original order
+                }
+            });
+
+            // Clear and rebuild grid with sorted products + banners
+            grid.innerHTML = '';
+            let bannerIndex = 0;
+            productCards.forEach((card, index) => {
+                grid.appendChild(card);
+                if ((index + 1) % 2 === 0 && bannerIndex < bannerCards.length) {
+                    grid.appendChild(bannerCards[bannerIndex]);
+                    bannerIndex++;
+                }
+            });
+        }
+
+        window.openFilterModal = function() {
+            document.getElementById('filterModal')?.classList.add('show');
+            console.log('📂 Filter modal opened');
+        };
+
+        window.closeFilterModal = function() {
+            document.getElementById('filterModal')?.classList.remove('show');
+            console.log('📂 Filter modal closed');
+        };
+
+        window.clearFilters = function() {
+            // Uncheck all checkboxes
+            document.querySelectorAll('#filterModal input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            activeFilters = {};
+            applyFilters();
+            console.log('🧹 Filters cleared');
+        };
+
+        window.applyFilters = function() {
+            // Collect selected filters
+            activeFilters = {};
+            document.querySelectorAll('#filterModal input[type="checkbox"]:checked').forEach(checkbox => {
+                const section = checkbox.closest('.filter-section')?.querySelector('h4')?.textContent;
+                if (section) {
+                    if (!activeFilters[section]) activeFilters[section] = [];
+                    activeFilters[section].push(checkbox.value);
+                }
+            });
+
+            console.log('🔍 Filters applied:', activeFilters);
+            
+            // Apply filters to products (simplified demo implementation)
+            const cards = document.querySelectorAll('.collection-mobile-card');
+            cards.forEach(card => {
+                let visible = true;
+                
+                // Price filter example
+                if (activeFilters['Price Range']?.length > 0) {
+                    const price = parseFloat(card.querySelector('.mobile-current-price')?.textContent.replace(/[^\d.]/g, '') || '0');
+                    const priceMatches = activeFilters['Price Range'].some(range => {
+                        switch(range) {
+                            case '0-50': return price < 50;
+                            case '50-100': return price >= 50 && price <= 100;
+                            case '100-200': return price >= 100 && price <= 200;
+                            case '200+': return price > 200;
+                            default: return false;
+                        }
+                    });
+                    if (!priceMatches) visible = false;
+                }
+
+                card.style.display = visible ? 'block' : 'none';
+            });
+
+            closeFilterModal();
+        };
+
+        window.switchView = function(viewType) {
+            currentViewType = viewType;
+            
+            // Update view tabs
+            document.querySelectorAll('.view-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-view="${viewType}"]`)?.classList.add('active');
+            
+            // Apply view styles
+            const grid = document.querySelector('.collection-mobile-grid');
+            const cards = document.querySelectorAll('.collection-mobile-card');
+            const images = document.querySelectorAll('.product-mobile-image');
+            const infos = document.querySelectorAll('.product-mobile-info');
+            const actions = document.querySelectorAll('.product-mobile-actions');
+            const addToBagBtns = document.querySelectorAll('.mobile-add-to-cart');
+            const actionBtns = document.querySelectorAll('.mobile-action-btn');
+
+            if (viewType === 'list') {
+                grid?.classList.add('list-view');
+                cards.forEach(card => card.classList.add('list-view'));
+                images.forEach(img => img.classList.add('list-view'));
+                infos.forEach(info => info.classList.add('list-view'));
+                actions.forEach(action => action.classList.add('list-view'));
+                addToBagBtns.forEach(btn => btn.classList.add('list-view'));
+                actionBtns.forEach(btn => btn.classList.add('list-view'));
+            } else {
+                grid?.classList.remove('list-view');
+                cards.forEach(card => card.classList.remove('list-view'));
+                images.forEach(img => img.classList.remove('list-view'));
+                infos.forEach(info => info.classList.remove('list-view'));
+                actions.forEach(action => action.classList.remove('list-view'));
+                addToBagBtns.forEach(btn => btn.classList.remove('list-view'));
+                actionBtns.forEach(btn => btn.classList.remove('list-view'));
+            }
+
+            console.log('👁️ View switched to:', viewType);
+        };
+
+        // Initialize event listeners for collection controls
+        document.addEventListener('click', function(event) {
+            // Close dropdowns when clicking outside
+            if (!event.target.closest('.sort-dropdown')) {
+                document.getElementById('sortOptions')?.classList.remove('show');
+            }
+            if (!event.target.closest('.filter-modal') && !event.target.closest('[onclick="openFilterModal()"]')) {
+                document.getElementById('filterModal')?.classList.remove('show');
+            }
+            
+            // Handle sort option clicks
+            if (event.target.classList.contains('sort-option')) {
+                const sortType = event.target.getAttribute('data-sort');
+                if (sortType) selectSort(sortType);
+            }
+        });
 
         // Navigation stack to track page history
         let navigationStack = [];
@@ -10978,8 +12188,8 @@
             // Using pure CSS solution - no JavaScript header adjustment needed
             console.log('✅ Header spacing handled by CSS !important rules');
             
-            // Fixed safe area background - header extends into safe area like classic collection
-            console.log('🎨 Fixed safe area background - header extends to top: 0 with safe area padding');
+            // Fixed: Ultra-compact cards + Banners + Working auto-sliding + Single-line layout + Collection controls
+            console.log('🔧 COLLECTION CONTROLS: Removed play button ▶ + Added Sort/Filter/View controls + Ultra-compact cards (140px) + Auto-sliding + Status & Actions in single lines + Maximum screen utilization');
             
             // Debug: Check if all required elements exist
             const requiredElements = [
@@ -11427,6 +12637,82 @@
             ];
         }
 
+        // Extract collection handle from URL (e.g., "/collections/glam" → "glam")
+        function extractCollectionFromUrl(url) {
+            console.log('🔗 Extracting collection from URL:', url);
+            
+            if (!url) return null;
+            
+            // Handle different URL formats
+            const patterns = [
+                /\/collections\/([^\/\?#]+)/i,  // /collections/handle
+                /collections\/([^\/\?#]+)/i,   // collections/handle
+                /\/([^\/\?#]+)$/i              // /handle (as fallback)
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    const handle = match[1].toLowerCase();
+                    console.log('✅ Extracted collection handle:', handle);
+                    return handle;
+                }
+            }
+            
+            console.log('❌ Could not extract collection handle from URL:', url);
+            return null;
+        }
+
+        // Map trending slide titles to collection handles
+        function mapSlideToCollection(slideTitle) {
+            console.log('🗺️ Mapping slide title to collection:', slideTitle);
+            
+            // Common collection mappings
+            const mappings = {
+                // Exact title matches
+                'sunglasses': 'sunglasses',
+                'eyeglasses': 'eyeglasses', 
+                'frames': 'frames',
+                'glasses': 'glasses',
+                'prescription': 'prescription-glasses',
+                'reading': 'reading-glasses',
+                'computer': 'computer-glasses',
+                'blue light': 'blue-light-glasses',
+                'vintage': 'vintage-frames',
+                'modern': 'modern-frames',
+                'classic': 'classic-frames',
+                'premium': 'premium-collection',
+                'collection': 'all-products',
+                'trending': 'trending-now',
+                'new arrival': 'new-arrivals',
+                'best seller': 'best-sellers',
+                'men': 'mens-eyewear',
+                'women': 'womens-eyewear',
+                'kids': 'kids-eyewear',
+                'sports': 'sports-eyewear',
+                'fashion': 'fashion-eyewear'
+            };
+            
+            const lowerTitle = slideTitle.toLowerCase();
+            
+            // Check for exact matches first
+            if (mappings[lowerTitle]) {
+                console.log('✅ Found exact mapping:', mappings[lowerTitle]);
+                return mappings[lowerTitle];
+            }
+            
+            // Check for partial matches
+            for (const [key, value] of Object.entries(mappings)) {
+                if (lowerTitle.includes(key) || key.includes(lowerTitle)) {
+                    console.log('✅ Found partial mapping:', value);
+                    return value;
+                }
+            }
+            
+            console.log('❌ No mapping found for:', slideTitle);
+            return null;
+        }
+
         // Update trending slides in the UI
         function updateTrendingSlides(slides) {
             const trendingContainer = document.querySelector('.trending-items');
@@ -11438,7 +12724,6 @@
                 const slideElement = document.createElement('div');
                 slideElement.className = 'trending-item';
                 slideElement.innerHTML = `
-                    <a href="${slide.link_url || '#'}" class="trending-item-link"></a>
                     <img 
                         src="${slide.image_url}" 
                         alt="${slide.title}"
@@ -11450,18 +12735,40 @@
                     <h3 class="trending-item-title">${slide.title}</h3>
                 `;
 
-                // Add click handler
-                slideElement.addEventListener('click', function() {
-                    console.log('Trending item clicked:', slide.title);
+                // Add click handler to open collection
+                slideElement.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    console.log('🎯 Trending slide clicked:', slide.title);
                     
-                    // Generate a product handle from the title for demo purposes
-                    const productHandle = slide.title.toLowerCase()
-                        .replace(/[^a-z0-9\s]/g, '')
-                        .replace(/\s+/g, '-')
-                        + '-demo-product';
+                    let collectionHandle = null;
                     
-                    console.log('📱 Opening product detail page for:', productHandle);
-                    loadProductDetailPage(productHandle);
+                    // First priority: Use Link URL from admin if available
+                    if (slide.link_url && slide.link_url.includes('/collections/')) {
+                        collectionHandle = extractCollectionFromUrl(slide.link_url);
+                        console.log('✅ Using admin Link URL:', slide.link_url, '→', collectionHandle);
+                    }
+                    
+                    // Second priority: Map slide title to collection
+                    if (!collectionHandle) {
+                        collectionHandle = mapSlideToCollection(slide.title);
+                        console.log('🗺️ Using title mapping:', slide.title, '→', collectionHandle);
+                    }
+                    
+                    // Third priority: Generate handle from title
+                    if (!collectionHandle) {
+                        collectionHandle = slide.title.toLowerCase()
+                            .replace(/[^a-z0-9\s]/g, '')
+                            .replace(/\s+/g, '-');
+                        console.log('🔄 Using fallback handle:', collectionHandle);
+                    }
+                    
+                    if (collectionHandle) {
+                        console.log('📱 Opening collection:', collectionHandle);
+                        showCollection(collectionHandle);
+                    } else {
+                        console.error('❌ Could not determine collection handle for slide:', slide.title);
+                    }
                 });
 
                 trendingContainer.appendChild(slideElement);
